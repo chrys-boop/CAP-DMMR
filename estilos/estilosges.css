@@ -1,0 +1,222 @@
+/* --------------------------- */
+/* 🔷 ESTILO GENERAL           */
+/* --------------------------- */
+body.dashboard-page {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #1976d2, #42a5f5);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* --------------------------- */
+/* 🔹 HEADER                  */
+/* --------------------------- */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1565c0;
+    color: white;
+    padding: 15px 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.logout-btn {
+    background: #ef5350;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s ease, transform 0.2s;
+}
+.logout-btn:hover {
+    background: #c62828;
+    transform: translateY(-2px);
+}
+
+/* --------------------------- */
+/* 🔸 CONTENEDOR PRINCIPAL    */
+/* --------------------------- */
+.dashboard-container {
+    max-width: 1100px;
+    background: #fff;
+    margin: 50px auto;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+
+/* --------------------------- */
+/* 📋 SECCIÓN DE USUARIOS     */
+/* --------------------------- */
+.user-management-table h3 {
+    text-align: center;
+    color: #1976d2;
+    margin-bottom: 25px;
+    font-size: 1.4rem;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    border-radius: 8px;
+}
+
+/* Tabla principal */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fdfdfd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Encabezado de tabla */
+table thead {
+    background: #1976d2;
+    color: white;
+    font-weight: 600;
+}
+
+table th, table td {
+    padding: 14px 18px;
+    text-align: left;
+}
+
+table th {
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 0.9rem;
+}
+
+/* Filas */
+table tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.2s;
+}
+
+table tbody tr:hover {
+    background: #e3f2fd;
+}
+
+/* Celdas */
+table td {
+    font-size: 0.95rem;
+}
+
+/* Select para cambiar roles */
+select {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: #fff;
+    transition: all 0.3s;
+}
+select:hover {
+    border-color: #1976d2;
+    background-color: #f1faff;
+}
+
+/* --------------------------- */
+/* 📱 RESPONSIVE DESIGN        */
+/* --------------------------- */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 20px;
+    }
+    table th, table td {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    .logout-btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+    .dashboard-header h1 {
+        font-size: 1.2rem;
+    }
+}
+
+/* --------------------------- */
+/* ⚙️ FOOTER                  */
+/* --------------------------- */
+.dashboard-footer {
+    text-align: center;
+    color: #e3f2fd;
+    font-size: 0.9rem;
+    margin-top: 40px;
+    padding: 20px;
+}
+.dashboard-footer p {
+    margin: 0;
+}
+
+/* --------------------------- */
+/* 🔍 ELEMENTOS ADICIONALES   */
+/* --------------------------- */
+
+/* Contenedor de la barra de búsqueda */
+.search-bar-section {
+    margin-bottom: 25px;
+}
+
+/* Barra de búsqueda */
+#searchInput {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+    transition: border-color 0.3s;
+}
+#searchInput:focus {
+    outline: none;
+    border-color: #1976d2;
+}
+
+/* Botón de Guardar Cambios */
+.save-btn {
+    display: block;
+    width: 100%;
+    max-width: 250px;
+    margin: 25px auto 0 auto;
+    padding: 12px 20px;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s;
+}
+.save-btn:hover {
+    background: #1565c0;
+    transform: translateY(-2px);
+}
+
+/* Mensaje de éxito */
+.success-message {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 600;
+}

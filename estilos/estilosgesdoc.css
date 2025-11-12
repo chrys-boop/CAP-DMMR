@@ -1,0 +1,246 @@
+/* ==============================
+   ESTILOS GENERALES
+============================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body.dashboard-page {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==============================
+   HEADER
+============================== */
+.dashboard-header {
+    background: linear-gradient(135deg, #004aad, #007bff);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-header h1 {
+    font-weight: 600;
+    font-size: 1.6rem;
+}
+
+.logout-btn {
+    background: white;
+    color: #004aad;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: #e6e6e6;
+}
+
+/* ==============================
+   CONTENEDOR PRINCIPAL
+============================== */
+.dashboard-container {
+    width: 95%;
+    max-width: 1100px;
+    margin: 2rem auto;
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* ==============================
+   FORMULARIO
+============================== */
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-section h3 {
+    margin-bottom: 1rem;
+    color: #004aad;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+    outline: none;
+}
+
+/* ==============================
+   BOTONES
+============================== */
+.action-btn,
+.action-btn-small {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 600;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.action-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+}
+
+.action-btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+}
+
+.action-btn:hover,
+.action-btn-small:hover {
+    transform: translateY(-2px);
+}
+
+/* Colores de botones */
+.green { background-color: #28a745; }
+.green:hover { background-color: #218838; }
+
+.blue { background-color: #007bff; }
+.blue:hover { background-color: #0069d9; }
+
+.orange { background-color: #fd7e14; }
+.orange:hover { background-color: #e3640e; }
+
+/* ==============================
+   MENSAJES DE ESTADO
+============================== */
+.success-message,
+.error-message {
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.success-message {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border-left: 5px solid #198754;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #842029;
+    border-left: 5px solid #dc3545;
+}
+
+/* ==============================
+   TABLA DE REQUERIMIENTOS
+============================== */
+.table-section h3 {
+    color: #004aad;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+thead {
+    background: #004aad;
+    color: white;
+}
+
+th, td {
+    padding: 0.9rem;
+    text-align: left;
+}
+
+tbody tr {
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s ease;
+}
+
+tbody tr:hover {
+    background-color: #f2f8ff;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ==============================
+   DIVISORES Y FOOTER
+============================== */
+.section-divider {
+    border: none;
+    border-top: 2px solid #e0e0e0;
+    margin: 2rem 0;
+}
+
+.dashboard-footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #f0f2f5;
+    color: #555;
+    font-size: 0.9rem;
+    margin-top: auto;
+}
+
+/* ==============================
+   RESPONSIVE DESIGN
+============================== */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1.5rem;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .actions-cell {
+        flex-direction: column;
+    }
+}
