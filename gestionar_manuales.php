@@ -5,6 +5,12 @@ error_reporting(E_ALL);
 session_start();
 require_once 'db_connection.php';
 
+// 1. USAMOS EL AUTOLOADER DE COMPOSER. ESTO CARGA TODAS LAS LIBRERÍAS.
+require_once __DIR__ . '/vendor/autoload.php';
+
+// 2. IMPORTAMOS LA CLASE CORRECTA CON SU NAMESPACE REAL.
+use WebSocket\Client;
+
 $base_path = '/CAP-DMMR';
 
 // Asegurarse de que el usuario es administrador
@@ -12,9 +18,6 @@ if (!isset($_SESSION['user_id']) || (isset($_SESSION['user_perfil']) && $_SESSIO
     header("Location: {$base_path}/index.html");
     exit();
 }
-
-$message = null;
-$message_type = '';
 
 // Directorio para guardar los manuales
 $upload_dir = 'manuales_uploads/';
@@ -25,16 +28,14 @@ if (!is_dir($upload_dir)) {
 // Lógica para ELIMINAR un manual
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
     try {
-        // Obtener la ruta del archivo para poder borrarlo del servidor
         $stmt = $conn->prepare("SELECT ruta_archivo FROM manuales WHERE id = :id");
         $stmt->execute([':id' => $_GET['id']]);
         $file = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($file && file_exists($file['ruta_archivo'])) {
-            unlink($file['ruta_archivo']); // Borrar archivo físico
+            unlink($file['ruta_archivo']);
         }
 
-        // Borrar el registro de la base de datos
         $stmt_delete = $conn->prepare("DELETE FROM manuales WHERE id = :id");
         $stmt_delete->execute([':id' => $_GET['id']]);
 
@@ -60,9 +61,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['manual_file'])) {
                 $stmt = $conn->prepare($sql);
                 $stmt->execute([':nombre' => $original_name, ':ruta' => $file_path]);
                 $_SESSION['flash_message'] = "¡Manual subido exitosamente!";
+
+                // --- INICIO: NOTIFICACIÓN POR WEBSOCKET ---
+                try {
+                    // 3. CREAMOS EL OBJETO USANDO EL NOMBRE CORRECTO DE LA CLASE.
+                    $client = new Client("ws://localhost:8081");
+                    $payload = json_encode([
+                        'type'        => 'new_manual',
+                        'manual_name' => $original_name
+                    ]);
+                    $client->send($payload);
+                } catch (Exception $e) {
+                    error_log("Fallo al enviar notificación por WebSocket: " . $e->getMessage());
+                }
+                // --- FIN: NOTIFICACIÓN POR WEBSOCKET ---
+
             } catch (PDOException $e) {
                 $_SESSION['flash_message_error'] = "Error al guardar en la BD: " . $e->getMessage();
-                unlink($file_path); // Si falla la BD, no dejar el archivo huérfano
+                unlink($file_path); 
             }
         } else {
             $_SESSION['flash_message_error'] = "Error al mover el archivo subido.";
@@ -74,10 +90,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['manual_file'])) {
     exit();
 }
 
-// Obtener la lista de manuales para mostrarla
 $manuales = $conn->query("SELECT id, nombre_archivo, ruta_archivo, fecha_subida FROM manuales ORDER BY fecha_subida DESC")->fetchAll(PDO::FETCH_ASSOC);
 
-// Mensajes de notificación (flash messages)
+$message = null;
+$message_type = '';
 if (isset($_SESSION['flash_message'])) {
     $message = $_SESSION['flash_message'];
     $message_type = 'success';
@@ -101,12 +117,10 @@ if (isset($_SESSION['flash_message_error'])) {
     <style>.action-btn-small.red { background-color: #dc3545; } .action-btn-small.red:hover { background-color: #c82333; }</style>
 </head>
 <body class="dashboard-page">
-
     <header class="dashboard-header">
         <h1>Gestionar Manuales y Diagramas</h1>
         <a href="dashboard.php" class="logout-btn">Volver al Panel</a>
     </header>
-
     <main class="dashboard-container">
         <section class="form-section">
             <h3>Subir Nuevo Documento</h3>
@@ -121,9 +135,7 @@ if (isset($_SESSION['flash_message_error'])) {
                 <button type="submit" class="action-btn green">Subir Archivo</button>
             </form>
         </section>
-
         <hr class="section-divider">
-
         <section class="table-section">
             <h3>Documentos Almacenados</h3>
             <div class="table-responsive">
@@ -155,7 +167,6 @@ if (isset($_SESSION['flash_message_error'])) {
             </div>
         </section>
     </main>
-
     <footer class="dashboard-footer">
         <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
     </footer>

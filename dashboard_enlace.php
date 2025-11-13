@@ -52,12 +52,61 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
     <title>Panel de Enlace</title>
     <link rel="stylesheet" href="estilos/estilosdashenlace.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS PARA NOTIFICACIONES (AÑADIDO) --- */
+        .notification-bell {
+            position: relative;
+            font-size: 24px;
+            margin-right: 25px;
+            cursor: pointer;
+        }
+        .notification-counter {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            display: none; /* Oculto por defecto */
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        .toast {
+            background-color: #2a3e50;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateX(100%);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
 </head>
 <body class="dashboard-page">
 
     <header class="dashboard-header">
         <h1>Panel de Enlace</h1>
-        <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+        <!-- ELEMENTOS DE NOTIFICACIÓN AÑADIDOS AQUÍ -->
+        <div style="display: flex; align-items: center; margin-left: auto;">
+            <div id="notification-container" class="notification-bell">
+                <span>🔔</span>
+                <span id="notification-count" class="notification-counter">0</span>
+            </div>
+            <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+        </div>
     </header>
 
     <main class="dashboard-container">
@@ -114,7 +163,8 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
         <!-- Listado de Requerimientos -->
         <section class="requerimientos-list">
             <h3>Mis Requerimientos Asignados</h3>
-            <?php if (empty($requerimientos) && !isset($db_error_message)): ?>
+            <?php if (empty($requerimientos) && !isset($db_error_message)):
+            ?>
                 <div class="requerimiento-card" style="text-align:center;">
                     <p>¡Excelente! No tienes requerimientos pendientes en este momento.</p>
                 </div>
@@ -158,5 +208,10 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
     <footer class="dashboard-footer">
         <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
     </footer>
+
+    <!-- CONTENEDOR DE TOASTS Y SCRIPT (AÑADIDO) -->
+    <div id="toast-container" class="toast-container"></div>
+    <script src="notifications.js"></script>
+
 </body>
 </html>

@@ -5,7 +5,6 @@ error_reporting(E_ALL);
 session_start();
 require_once 'db_connection.php';
 
-// 1. Validar sesión de usuario
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.html");
     exit();
@@ -32,10 +31,8 @@ $nombreUsuario = $_SESSION['user_nombre'];
 
     <main class="dashboard-container">
         <?php
-        // Mostrar mensajes flash que puedan existir
         if (isset($_SESSION['flash_message'])) {
             $message = $_SESSION['flash_message'];
-            // --- CORRECCIÓN DEFINITIVA USANDO PRINTF ---
             printf('<div class="flash-message %s">%s</div>', htmlspecialchars($message['type']), htmlspecialchars($message['text']));
             unset($_SESSION['flash_message']);
         }
@@ -64,5 +61,21 @@ $nombreUsuario = $_SESSION['user_nombre'];
     <footer class="dashboard-footer">
         <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
     </footer>
+
+    <script src="notifications.js"></script>
+
+    <!-- Script para enviar la notificación. Se llama inmediatamente. -->
+    <script>
+    // Se elimina el 'DOMContentLoaded'. Gracias a la nueva versión de notifications.js,
+    // podemos llamar la función directamente. La función esperará por sí misma a que la conexión esté lista.
+    <?php
+    if (isset($_SESSION['notification_data'])) {
+        $notification_json = json_encode($_SESSION['notification_data']);
+        echo "window.sendNotification($notification_json);";
+        unset($_SESSION['notification_data']);
+    }
+    ?>
+    </script>
+
 </body>
 </html>

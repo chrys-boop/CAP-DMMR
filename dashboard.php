@@ -21,12 +21,71 @@ $expedienteUsuario = $_SESSION['user_expediente'];
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS PARA NOTIFICACIONES --- */
+
+        /* Contenedor del ícono de la campana */
+        .notification-bell {
+            position: relative;
+            font-size: 24px;
+            margin-right: 25px;
+            cursor: pointer;
+        }
+
+        /* Burbuja del contador */
+        .notification-counter {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            display: none; /* Oculto por defecto */
+        }
+
+        /* Contenedor para los toasts que aparecerán */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        /* Estilo del Toast */
+        .toast {
+            background-color: #2a3e50; /* Un color oscuro y elegante */
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateX(100%); /* Empieza fuera de la pantalla */
+        }
+
+        /* Clase que se añade para mostrar el toast con animación */
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+    </style>
 </head>
 <body class="dashboard-page">
 
     <header class="dashboard-header">
         <h1>Panel de Administración</h1>
-        <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+        <div style="display: flex; align-items: center;">
+            <div id="notification-container" class="notification-bell">
+                <span>🔔</span>
+                <span id="notification-count" class="notification-counter">0</span>
+            </div>
+            <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+        </div>
     </header>
 
     <main class="dashboard-container">
@@ -59,6 +118,11 @@ $expedienteUsuario = $_SESSION['user_expediente'];
     <footer class="dashboard-footer">
         <p>© <?php echo date('Y'); ?> Sistema Administrativo | Todos los derechos reservados</p>
     </footer>
+
+    <!-- Contenedor donde se inyectarán los toasts dinámicamente -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="notifications.js"></script>
 
 </body>
 </html>
