@@ -77,6 +77,8 @@ $expedienteUsuario = $_SESSION['user_expediente'];
 </head>
 <body class="dashboard-page">
 
+    <input type="hidden" id="user-role" value="administrador">
+
     <header class="dashboard-header">
         <h1>Panel de Administración</h1>
         <div style="display: flex; align-items: center;">

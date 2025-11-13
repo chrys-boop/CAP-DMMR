@@ -1,41 +1,41 @@
-// Se define el socket en un alcance más amplio para que ambas partes del script lo vean.
+// Definir el socket en un alcance más amplio.
 let socket;
 
-// 1. LA FUNCIÓN SE CREA INMEDIATAMENTE AL CARGAR EL SCRIPT.
-// Ahora está disponible globalmente desde el principio.
-window.sendNotification = function(message) {
-    // La función es "paciente": si el socket no está listo, se reintenta a sí misma.
+// 1. FUNCIÓN DE ENVÍO GLOBAL
+window.sendNotification = function(payload) {
+    const message = {
+        type: 'notification',
+        payload: payload
+    };
+
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify(message));
         console.log("[send] Mensaje de notificación enviado al servidor:", message);
     } else {
         console.log("[send] Conexión no lista. Reintentando envío en 500ms...");
-        setTimeout(() => window.sendNotification(message), 500);
+        setTimeout(() => window.sendNotification(payload), 500);
     }
 }
 
-// 2. EL RESTO DEL CÓDIGO ESPERA A QUE EL DOM ESTÉ LISTO, COMO DEBE SER.
+// 2. CÓDIGO QUE SE EJECUTA CUANDO EL DOM ESTÁ LISTO
 document.addEventListener("DOMContentLoaded", function() {
 
     const websocketUrl = "ws://localhost:8081";
+    const userRoleElement = document.getElementById('user-role');
+    const userRole = userRoleElement ? userRoleElement.value : 'guest'; // Obtener el rol del usuario
 
     // --- Elementos del DOM ---
     const bellContainer = document.getElementById('notification-container');
     const counterElement = document.getElementById('notification-count');
     const toastContainer = document.getElementById('toast-container');
 
-    // --- FUNCIÓN REUTILIZABLE Y ROBUSTA PARA ACTUALIZAR EL CONTADOR ---
+    // --- FUNCIÓN PARA ACTUALIZAR EL CONTADOR ---
     function updateCounter() {
         if (!counterElement) return;
-        let currentCount = parseInt(counterElement.innerText, 10);
-        if (isNaN(currentCount)) {
-            currentCount = 0;
-        }
+        let currentCount = parseInt(counterElement.innerText, 10) || 0;
         currentCount++;
         counterElement.innerText = currentCount;
-        if (counterElement.style.display !== 'block') {
-            counterElement.style.display = 'block';
-        }
+        counterElement.style.display = 'block';
     }
 
     // --- FUNCIÓN PARA MOSTRAR UN TOAST ---
@@ -53,21 +53,36 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function connect() {
-        // La variable 'socket' que se usa aquí es la que declaramos arriba.
         socket = new WebSocket(websocketUrl);
 
-        socket.onopen = () => console.log("[open] Conexión establecida con el servidor WebSocket.");
+        socket.onopen = () => {
+            console.log("[open] Conexión establecida con el servidor WebSocket.");
+            const registrationMessage = {
+                type: 'register',
+                role: userRole
+            };
+            socket.send(JSON.stringify(registrationMessage));
+            console.log(`[register] Registrando rol: ${userRole}`);
+        };
 
         socket.onmessage = function(event) {
             console.log(`[message] Datos recibidos del servidor: ${event.data}`);
             try {
-                const data = JSON.parse(event.data);
-                if (data.type === 'new_upload') {
-                    showToast(`¡Nuevo oficio!\n${data.user} ha subido: ${data.oficio}`);
-                    updateCounter();
-                } else if (data.type === 'new_manual') {
-                    showToast(`¡Nuevo documento disponible!\nSe ha subido: ${data.manual_name}`);
-                    updateCounter();
+                const message = JSON.parse(event.data);
+
+                // Comprobar si el mensaje es del tipo 'notificación' y tiene un payload.
+                if (message.type === 'notification' && message.payload) {
+                    const data = message.payload; // ¡Este es el contenido real para el toast!
+
+                    if (data.type === 'new_upload') {
+                        showToast(`¡Nuevo oficio!\n${data.user} ha subido: ${data.oficio}`);
+                        updateCounter();
+                    } else if (data.type === 'new_manual') {
+                        showToast(`¡Nuevo documento disponible!\nSe ha subido: ${data.manual_name}`);
+                        updateCounter();
+                    }
+                } else {
+                    console.warn("[warn] Mensaje recibido no tiene el formato de notificación esperado:", message);
                 }
             } catch (error) {
                 console.error("[error] No se pudo interpretar el mensaje del servidor:", error);
@@ -93,6 +108,5 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Iniciar la conexión ahora que el DOM está listo.
     connect();
 });

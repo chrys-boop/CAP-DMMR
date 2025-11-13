@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 session_start();
 require_once 'db_connection.php';
 
-// --- LÓGICA DE SEGURIDAD ---\n// Si el usuario no ha iniciado sesión o su rol no es CAP-DMMR (4), se le expulsa.
+// --- LÓGICA DE SEGURIDAD ---
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 4) {
     header("Location: index.html");
     exit();
@@ -21,15 +21,64 @@ $expedienteUsuario = $_SESSION['user_expediente'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de CAP-DMMR</title>
-    <!-- Asegúrate de que la ruta al CSS sea la correcta -->
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS PARA NOTIFICACIONES --- */
+        .notification-bell {
+            position: relative;
+            font-size: 24px;
+            margin-right: 25px;
+            cursor: pointer;
+        }
+        .notification-counter {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        .toast {
+            background-color: #2a3e50;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateX(100%);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
 </head>
 <body class="dashboard-page">
 
+    <input type="hidden" id="user-role" value="cap-dmmr">
+
     <header class="dashboard-header">
         <h1>Panel de Control CAP-DMMR</h1>
-        <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+        <div style="display: flex; align-items: center; margin-left: auto;">
+            <div id="notification-container" class="notification-bell">
+                <span>🔔</span>
+                <span id="notification-count" class="notification-counter">0</span>
+            </div>
+            <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+        </div>
     </header>
 
     <main class="dashboard-container">
@@ -46,12 +95,11 @@ $expedienteUsuario = $_SESSION['user_expediente'];
             </div>
         </section>
 
-        <!-- Aquí puedes añadir las acciones específicas para este rol -->
         <section class="actions">
             <h3>Menú Principal</h3>
             <div class="button-grid">
-                <a href="#" class="action-btn blue">👤 Acción 1</a>
-                <a href="#" class="action-btn green">📁 Acción 2</a>
+                 <a href="revisar_oficios.php" class="action-btn red">📥 Bandeja de Oficios Recibidos</a>
+                 <a href="ver_entregas.php" class="action-btn green">📂 Ver Entregas de Requerimientos</a>
             </div>
         </section>
     </main>
@@ -60,7 +108,8 @@ $expedienteUsuario = $_SESSION['user_expediente'];
         <p>© <?php echo date('Y'); ?> Sistema Administrativo | Todos los derechos reservados</p>
     </footer>
 
-    <!-- Script de notificaciones en tiempo real -->
-    <script src="assets/js/notifications.js"></script>
+    <div id="toast-container" class="toast-container"></div>
+    <script src="notifications.js"></script>
+
 </body>
 </html>

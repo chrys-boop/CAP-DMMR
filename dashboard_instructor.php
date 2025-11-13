@@ -6,7 +6,6 @@ session_start();
 require_once 'db_connection.php';
 
 // --- NUEVA LÓGICA DE SEGURIDAD SIMPLE ---
-// Si el usuario no ha iniciado sesión o su rol no es Instructor (2), se le expulsa.
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 2) {
     header("Location: index.html");
     exit();
@@ -89,6 +88,9 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
     </style>
 </head>
 <body class="dashboard-page">
+
+    <input type="hidden" id="user-role" value="instructor">
+
     <header class="dashboard-header">
         <h1>Panel de Instructor</h1>
         <!-- ELEMENTOS DE NOTIFICACIÓN AÑADIDOS AQUÍ -->
@@ -159,7 +161,7 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
         <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
     </footer>
 
-    <!-- CONTENEDOR DE TOASTS Y SCRIPT (AÑADIDO Y CORREGIDO) -->
+    <!-- CONTENEDOR DE TOASTS Y SCRIPT -->
     <div id="toast-container" class="toast-container"></div>
     <script src="notifications.js"></script>
 

@@ -97,6 +97,8 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
 </head>
 <body class="dashboard-page">
 
+    <input type="hidden" id="user-role" value="enlace">
+
     <header class="dashboard-header">
         <h1>Panel de Enlace</h1>
         <!-- ELEMENTOS DE NOTIFICACIÓN AÑADIDOS AQUÍ -->
@@ -147,7 +149,7 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
                      <div class="menu-icon">📄</div>
                      <div class="menu-text">
                         <h4>Plantillas e Histórico</h4>
-                        <p>Visualiza plantillas y archivos</p>p>
+                        <p>Visualiza plantillas y archivos</p>
                     </div>
                 </a>
                 <a href="ver_cursos.php" class="menu-card red">
@@ -209,7 +211,7 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
         <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
     </footer>
 
-    <!-- CONTENEDOR DE TOASTS Y SCRIPT (AÑADIDO) -->
+    <!-- CONTENEDOR DE TOASTS Y SCRIPT -->
     <div id="toast-container" class="toast-container"></div>
     <script src="notifications.js"></script>
 

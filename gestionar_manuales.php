@@ -4,28 +4,25 @@ error_reporting(E_ALL);
 
 session_start();
 require_once 'db_connection.php';
-
-// 1. USAMOS EL AUTOLOADER DE COMPOSER. ESTO CARGA TODAS LAS LIBRERÍAS.
 require_once __DIR__ . '/vendor/autoload.php';
 
-// 2. IMPORTAMOS LA CLASE CORRECTA CON SU NAMESPACE REAL.
 use WebSocket\Client;
 
-$base_path = '/CAP-DMMR';
+$base_path = '/CAP-DMMR'; // Ajusta esto si tu proyecto está en un subdirectorio
 
-// Asegurarse de que el usuario es administrador
+// --- CORRECCIÓN DE SEGURIDAD ---
+// Verificamos si el rol es 'administrador', no el número 1.
 if (!isset($_SESSION['user_id']) || (isset($_SESSION['user_perfil']) && $_SESSION['user_perfil'] !== 'administrador')) {
-    header("Location: {$base_path}/index.html");
+    header("Location: index.html"); // Redirige a la página de login
     exit();
 }
 
-// Directorio para guardar los manuales
 $upload_dir = 'manuales_uploads/';
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0777, true);
 }
 
-// Lógica para ELIMINAR un manual
+// --- LÓGICA PARA ELIMINAR UN MANUAL ---
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
     try {
         $stmt = $conn->prepare("SELECT ruta_archivo FROM manuales WHERE id = :id");
@@ -39,71 +36,55 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
         $stmt_delete = $conn->prepare("DELETE FROM manuales WHERE id = :id");
         $stmt_delete->execute([':id' => $_GET['id']]);
 
-        $_SESSION['flash_message'] = "Manual eliminado exitosamente.";
+        $_SESSION['flash_message'] = ['type' => 'success', 'text' => 'Manual eliminado exitosamente.'];
 
     } catch (PDOException $e) {
-        $_SESSION['flash_message_error'] = "Error al eliminar el manual: " . $e->getMessage();
+        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error al eliminar el manual: ' . $e->getMessage()];
     }
     header("Location: gestionar_manuales.php");
     exit();
 }
 
-// Lógica para SUBIR un nuevo manual
+// --- LÓGICA PARA SUBIR UN NUEVO MANUAL ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['manual_file'])) {
     if ($_FILES['manual_file']['error'] == UPLOAD_ERR_OK) {
         $original_name = basename($_FILES['manual_file']['name']);
-        $safe_name = preg_replace("/[^a-zA-Z0-9_.-]/", "_", $original_name);
-        $file_path = $upload_dir . time() . '-' . $safe_name;
+        $file_path = $upload_dir . time() . '-' . preg_replace("/[^a-zA-Z0-9_.-]/", "_", $original_name);
 
         if (move_uploaded_file($_FILES['manual_file']['tmp_name'], $file_path)) {
             try {
-                $sql = "INSERT INTO manuales (nombre_archivo, ruta_archivo) VALUES (:nombre, :ruta)";
-                $stmt = $conn->prepare($sql);
+                $stmt = $conn->prepare("INSERT INTO manuales (nombre_archivo, ruta_archivo) VALUES (:nombre, :ruta)");
                 $stmt->execute([':nombre' => $original_name, ':ruta' => $file_path]);
-                $_SESSION['flash_message'] = "¡Manual subido exitosamente!";
+                $_SESSION['flash_message'] = ['type' => 'success', 'text' => '¡Manual subido exitosamente!'];
 
-                // --- INICIO: NOTIFICACIÓN POR WEBSOCKET ---
+                // Notificación por WebSocket (método unificado)
                 try {
-                    // 3. CREAMOS EL OBJETO USANDO EL NOMBRE CORRECTO DE LA CLASE.
-                    $client = new Client("ws://localhost:8081");
+                    $ws_client = new Client("ws://localhost:8081");
                     $payload = json_encode([
-                        'type'        => 'new_manual',
-                        'manual_name' => $original_name
+                        'type'    => 'notification',
+                        'payload' => ['type' => 'new_manual', 'manual_name' => $original_name]
                     ]);
-                    $client->send($payload);
-                } catch (Exception $e) {
+                    $ws_client->send($payload);
+                } catch (\Exception $e) {
                     error_log("Fallo al enviar notificación por WebSocket: " . $e->getMessage());
                 }
-                // --- FIN: NOTIFICACIÓN POR WEBSOCKET ---
 
             } catch (PDOException $e) {
-                $_SESSION['flash_message_error'] = "Error al guardar en la BD: " . $e->getMessage();
-                unlink($file_path); 
+                $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error al guardar en la BD: ' . $e->getMessage()];
+                unlink($file_path);
             }
         } else {
-            $_SESSION['flash_message_error'] = "Error al mover el archivo subido.";
+            $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error al mover el archivo subido.'];
         }
     } else {
-        $_SESSION['flash_message_error'] = "Error en la subida del archivo.";
+        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error en la subida del archivo.'];
     }
     header("Location: gestionar_manuales.php");
     exit();
 }
 
+// Obtener manuales para mostrar en la tabla
 $manuales = $conn->query("SELECT id, nombre_archivo, ruta_archivo, fecha_subida FROM manuales ORDER BY fecha_subida DESC")->fetchAll(PDO::FETCH_ASSOC);
-
-$message = null;
-$message_type = '';
-if (isset($_SESSION['flash_message'])) {
-    $message = $_SESSION['flash_message'];
-    $message_type = 'success';
-    unset($_SESSION['flash_message']);
-}
-if (isset($_SESSION['flash_message_error'])) {
-    $message = $_SESSION['flash_message_error'];
-    $message_type = 'error';
-    unset($_SESSION['flash_message_error']);
-}
 
 ?>
 <!DOCTYPE html>
@@ -112,9 +93,8 @@ if (isset($_SESSION['flash_message_error'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestionar Manuales</title>
-    <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdocman.css">
+    <link rel="stylesheet" href="estilos/estilosgesdocman.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>.action-btn-small.red { background-color: #dc3545; } .action-btn-small.red:hover { background-color: #c82333; }</style>
 </head>
 <body class="dashboard-page">
     <header class="dashboard-header">
@@ -124,12 +104,16 @@ if (isset($_SESSION['flash_message_error'])) {
     <main class="dashboard-container">
         <section class="form-section">
             <h3>Subir Nuevo Documento</h3>
-            <?php if ($message): ?>
-                <div class="<?php echo $message_type === 'success' ? 'success-message' : 'error-message'; ?>"><?php echo $message; ?></div>
-            <?php endif; ?>
+            <?php 
+            if (isset($_SESSION['flash_message'])) {
+                $msg = $_SESSION['flash_message'];
+                echo '<div class="flash-message ' . htmlspecialchars($msg['type']) . '">' . htmlspecialchars($msg['text']) . '</div>';
+                unset($_SESSION['flash_message']);
+            }
+            ?>
             <form action="gestionar_manuales.php" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="manual_file">Seleccionar Archivo (PDF, DOCX, PNG, JPG, etc.):</label>
+                    <label for="manual_file">Seleccionar Archivo:</label>
                     <input type="file" id="manual_file" name="manual_file" required>
                 </div>
                 <button type="submit" class="action-btn green">Subir Archivo</button>
@@ -149,15 +133,15 @@ if (isset($_SESSION['flash_message_error'])) {
                     </thead>
                     <tbody>
                         <?php if (empty($manuales)): ?>
-                            <tr><td colspan="3" style="text-align: center;">Aún no se han subido manuales.</td></tr>
+                            <tr><td colspan="3" style="text-align: center;">No se han subido manuales.</td></tr>
                         <?php else: ?>
                             <?php foreach ($manuales as $manual): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($manual['nombre_archivo']); ?></td>
                                     <td><?php echo date("d/m/Y H:i", strtotime($manual['fecha_subida'])); ?></td>
                                     <td class="actions-cell">
-                                        <a href="<?php echo $base_path . '/' . htmlspecialchars($manual['ruta_archivo']); ?>" class="action-btn-small green" download>Descargar</a>
-                                        <a href="?action=delete&id=<?php echo $manual['id']; ?>" class="action-btn-small red" onclick="return confirm('¿Estás seguro de que quieres eliminar este archivo?');">Eliminar</a>
+                                        <a href="<?php echo htmlspecialchars($manual['ruta_archivo']); ?>" class="action-btn-small green" download>Descargar</a>
+                                        <a href="?action=delete&id=<?php echo $manual['id']; ?>" class="action-btn-small red" onclick="return confirm('¿Seguro que quieres eliminar este archivo?');">Eliminar</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
