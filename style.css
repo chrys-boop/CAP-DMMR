@@ -195,6 +195,7 @@ body.dashboard-page {
 .green { background: #43a047; }
 .orange { background: #fb8c00; }
 .purple { background: #8e24aa; }
+.red { background: #dc3545; }
 
 /* Footer */
 .dashboard-footer {

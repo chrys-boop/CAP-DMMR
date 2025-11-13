@@ -54,10 +54,10 @@ try {
                 $redirect_url = 'dashboard_enlace.php';
                 break;
             case 2:
-                $redirect_url = 'dashboard.php';
+                $redirect_url = 'dashboard_instructor.php';
                 break;
             default:
-                $redirect_url = 'dashboard_enlace.php';
+                $redirect_url = 'dashboard_trabajador.php';
                 break;
         }
 

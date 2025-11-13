@@ -6,8 +6,8 @@ session_start();
 require_once 'db_connection.php';
 
 // --- NUEVA LÓGICA DE SEGURIDAD SIMPLE ---
-// Si el usuario no ha iniciado sesión o su rol no es Enlace (3), se le expulsa.
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 3) {
+// Si el usuario no ha iniciado sesión o su rol no es Instructor (2), se le expulsa.
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 2) {
     header("Location: index.html");
     exit();
 }
@@ -27,17 +27,15 @@ try {
                 LEFT JOIN requerimiento_asignaciones AS ra ON r.id = ra.requerimiento_id
                 WHERE r.asignado_a_rol = 0 OR r.asignado_a_rol = :user_role OR ra.user_id = :user_id
                 ORDER BY r.fecha_limite DESC";
-
     $stmt_req = $conn->prepare($sql_req);
     $stmt_req->execute([':user_role' => $user_role, ':user_id' => $user_id]);
     $requerimientos = $stmt_req->fetchAll(PDO::FETCH_ASSOC);
-
 } catch (PDOException $e) {
     $requerimientos = [];
     $db_error_message = "Error al consultar los requerimientos: " . $e->getMessage();
 }
 
-// 3. Obtener las entregas que este usuario ya ha realizado
+// 3. Obtener las entregas del usuario actual
 $stmt_entregas = $conn->prepare("SELECT requerimiento_id FROM entregas WHERE user_id = :user_id");
 $stmt_entregas->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt_entregas->execute();
@@ -49,79 +47,47 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Enlace</title>
+    <title>Panel de Instructor</title>
     <link rel="stylesheet" href="estilos/estilosdashenlace.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
-
     <header class="dashboard-header">
-        <h1>Panel de Enlace</h1>
+        <h1>Panel de Instructor</h1>
         <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
     </header>
-
     <main class="dashboard-container">
-        <?php
-        if (isset($_SESSION['flash_message'])) {
-            $message = $_SESSION['flash_message'];
-            printf('<div class="flash-message %s">%s</div>', htmlspecialchars($message['type']), htmlspecialchars($message['text']));
-            unset($_SESSION['flash_message']);
-        } elseif (isset($db_error_message)) {
-            printf('<div class="flash-message error">%s</div>', htmlspecialchars($db_error_message));
-        }
-        ?>
-
         <section class="welcome-section">
-            <h2>Bienvenido, Enlace <span class="user-name"><?php echo htmlspecialchars($nombreUsuario); ?></span></h2>
-            <p class="subtext">Aquí puedes ver los requerimientos pendientes y gestionar tus documentos.</p>
+            <h2>Bienvenido, Instructor <span class="user-name"><?php echo htmlspecialchars($nombreUsuario); ?></span></h2>
+            <p class="subtext">Aquí puede ver sus requerimientos asignados.</p>
         </section>
-
-        <!-- Menú Principal de Acciones -->
+        
         <section class="actions">
             <h3>Menú Principal</h3>
             <div class="menu-grid">
-                 <a href="cargar_oficio.php" class="menu-card blue">
-                    <div class="menu-icon">✍️</div>
-                    <div class="menu-text">
-                        <h4>Cargar Oficio</h4>
-                        <p>Sube tu oficio personalizado</p>
-                    </div>
-                </a>
-                <a href="ver_manuales_diagramas.php" class="menu-card orange">
+                 <a href="ver_manuales_diagramas.php" class="menu-card orange">
                      <div class="menu-icon">📚</div>
-                     <div class="menu-text">
-                        <h4>Manuales y Diagramas</h4>
-                        <p>Consulta la documentación</p>
-                    </div>
+                     <div class="menu-text"><h4>Manuales y Diagramas</h4><p>Consulta la documentación</p></div>
                 </a>
                 <a href="ver_plantillas.php" class="menu-card purple">
                      <div class="menu-icon">📄</div>
-                     <div class="menu-text">
-                        <h4>Plantillas e Histórico</h4>
-                        <p>Visualiza plantillas y archivos</p>p>
-                    </div>
+                     <div class="menu-text"><h4>Plantillas</h4><p>Visualiza plantillas y archivos</p></div>
                 </a>
                 <a href="ver_cursos.php" class="menu-card red">
                      <div class="menu-icon">🎓</div>
-                     <div class="menu-text">
-                        <h4>Cursos Disponibles</h4>
-                        <p>Accede a los cursos</p>
-                    </div>
+                     <div class="menu-text"><h4>Cursos Disponibles</h4><p>Accede a los cursos</p></div>
                 </a>
             </div>
         </section>
 
-        <!-- Listado de Requerimientos -->
         <section class="requerimientos-list">
             <h3>Mis Requerimientos Asignados</h3>
             <?php if (empty($requerimientos) && !isset($db_error_message)): ?>
-                <div class="requerimiento-card" style="text-align:center;">
-                    <p>¡Excelente! No tienes requerimientos pendientes en este momento.</p>
-                </div>
+                <div class="requerimiento-card" style="text-align:center;"><p>¡Excelente! No tienes requerimientos pendientes.</p></div>
             <?php else: ?>
                 <?php foreach ($requerimientos as $req): ?>
                     <div class="requerimiento-card">
-                        <div class="info-col">
+                         <div class="info-col">
                             <h4><?php echo htmlspecialchars($req['titulo']); ?></h4>
                             <?php if(!empty($req['descripcion'])): ?><p><?php echo htmlspecialchars($req['descripcion']); ?></p><?php endif; ?>
                             <p><strong>Fecha Límite:</strong> <?php echo date("d/m/Y H:i", strtotime($req['fecha_limite'])); ?> hs</p>
@@ -137,14 +103,9 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
                                 <div class="status-box danger">✘ Plazo de entrega finalizado.</div>
                             <?php else: ?>
                                 <form action="procesar_entrega.php" method="post" enctype="multipart/form-data">
-                                    <div class="file-format-info">
-                                        <p><strong>Formato Sugerido:</strong> <code>numerocurso_expediente_area_año.extension</code></p>
-                                        <p><strong>Ejemplo para ti:</strong> <code>XX_<?php echo htmlspecialchars($user_expediente); ?>_<?php echo htmlspecialchars($user_area); ?>_<?php echo $current_year; ?>.pdf</code></p>
-                                        <p class="small-text">* Reemplaza 'XX' con el número de curso si aplica.</p>
-                                    </div>
                                     <input type="hidden" name="requerimiento_id" value="<?php echo $requerimiento_id; ?>">
                                     <input type="file" name="documento" required>
-                                    <textarea name="comentario" placeholder="Añade un comentario (opcional)"></textarea>
+                                    <textarea name="comentario" placeholder="Comentario (opcional)"></textarea>
                                     <button type="submit" class="action-btn-small green">Subir Archivo</button>
                                 </form>
                             <?php endif; ?>
@@ -154,9 +115,9 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
             <?php endif; ?>
         </section>
     </main>
-
     <footer class="dashboard-footer">
         <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
     </footer>
 </body>
 </html>
+

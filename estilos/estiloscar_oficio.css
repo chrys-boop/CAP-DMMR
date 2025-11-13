@@ -1,0 +1,229 @@
+/* 🎨 ===== ESTILOS CARGAR OFICIO PERSONALIZADO ===== */
+
+/* Variables y colores base */
+:root {
+  --color-bg: #f8f9fb;
+  --color-card: #ffffff;
+  --color-text: #2c3e50;
+  --color-primary: #007bff;
+  --color-primary-hover: #0056b3;
+  --color-success: #2ecc71;
+  --color-danger: #e74c3c;
+  --color-muted: #6c757d;
+  --radius: 14px;
+  --shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
+}
+
+/* Reset general */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body.dashboard-page {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+.dashboard-header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 1.2rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow);
+}
+
+.dashboard-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.logout-btn {
+  background-color: #fff;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+
+.logout-btn:hover {
+  background-color: var(--color-primary-hover);
+  color: #fff;
+}
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.dashboard-container {
+  flex: 1;
+  width: 90%;
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+/* ===== TARJETA DE SUBIDA ===== */
+.requerimiento-card {
+  background-color: var(--color-card);
+  border-radius: var(--radius);
+  padding: 2.2rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.requerimiento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.requerimiento-card h4 {
+  color: var(--color-primary);
+  text-align: center;
+  font-size: 1.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.requerimiento-card p {
+  text-align: center;
+  color: var(--color-muted);
+  margin-bottom: 1.8rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ===== FORMULARIO ===== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+input[type="file"],
+textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid #ccc;
+  background-color: #fafafa;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+input[type="file"]:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* ===== BOTÓN SUBIR ===== */
+.action-btn-small {
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.9rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+}
+
+.action-btn-small:hover {
+  background: linear-gradient(135deg, #0056b3, #0096d1);
+  transform: translateY(-2px);
+}
+
+/* ===== MENSAJES FLASH ===== */
+.flash-message {
+  margin: 1.5rem auto 2rem;
+  padding: 1rem 1.3rem;
+  border-radius: var(--radius);
+  max-width: 700px;
+  text-align: center;
+  font-weight: 500;
+  animation: fadeIn 0.6s ease-in-out;
+  box-shadow: var(--shadow);
+}
+
+.flash-message.success {
+  background-color: var(--color-success);
+  color: #fff;
+}
+
+.flash-message.error {
+  background-color: var(--color-danger);
+  color: #fff;
+}
+
+/* ===== FOOTER ===== */
+.dashboard-footer {
+  background-color: var(--color-card);
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 3rem;
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: center;
+  }
+
+  .dashboard-container {
+    width: 95%;
+  }
+
+  .requerimiento-card {
+    padding: 1.5rem;
+  }
+
+  .action-btn-small {
+    width: 100%;
+  }
+}

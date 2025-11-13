@@ -5,49 +5,78 @@ error_reporting(E_ALL);
 session_start();
 require_once 'db_connection.php';
 
+// FIX: Añadir la variable de ruta base para redirecciones seguras
 $base_path = '/CAP-DMMR';
 
-if (!isset($_SESSION['user_id'])) {
+// FIX: Usar la ruta base en la validación de sesión para no perderla
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 5) {
     header("Location: {$base_path}/index.html");
     exit();
 }
 
-// 1. Validar y obtener el ID del requerimiento
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header("Location: gestionar_documentos.php");
     exit();
 }
 $requerimiento_id = $_GET['id'];
 
-// 2. Lógica para ACTUALIZAR el requerimiento al recibir un POST
+// --- Lógica de ACTUALIZACIÓN (POST) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titulo = $_POST['titulo'];
     $fecha_limite = $_POST['fecha_limite'];
     $descripcion = !empty($_POST['descripcion']) ? $_POST['descripcion'] : null;
+    $tipo_asignacion = $_POST['tipo_asignacion'] ?? '';
 
+    $conn->beginTransaction();
     try {
-        $sql = "UPDATE requerimientos SET titulo = :titulo, descripcion = :descripcion, fecha_limite = :fecha_limite WHERE id = :id";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([
+        $sql_update_req = "UPDATE requerimientos SET titulo = :titulo, descripcion = :descripcion, fecha_limite = :fecha_limite WHERE id = :id";
+        $stmt_update_req = $conn->prepare($sql_update_req);
+        $stmt_update_req->execute([
             ':titulo' => $titulo,
             ':descripcion' => $descripcion,
             ':fecha_limite' => $fecha_limite,
             ':id' => $requerimiento_id
         ]);
 
+        $asignado_a_rol = null;
+        if ($tipo_asignacion === 'rol') {
+            $asignado_a_rol = $_POST['rol_id'] ?? null;
+            $conn->prepare("DELETE FROM requerimiento_asignaciones WHERE requerimiento_id = ?")->execute([$requerimiento_id]);
+        } elseif ($tipo_asignacion === 'todos') {
+            $asignado_a_rol = 0;
+            $conn->prepare("DELETE FROM requerimiento_asignaciones WHERE requerimiento_id = ?")->execute([$requerimiento_id]);
+        } elseif ($tipo_asignacion === 'individual') {
+            $asignado_a_rol = null; // Asegurar que el rol sea NULL para asignaciones individuales
+            $conn->prepare("DELETE FROM requerimiento_asignaciones WHERE requerimiento_id = ?")->execute([$requerimiento_id]);
+            if (!empty($_POST['usuarios_ids'])) {
+                $sql_asig = "INSERT INTO requerimiento_asignaciones (requerimiento_id, user_id) VALUES (?, ?)";
+                $stmt_asig = $conn->prepare($sql_asig);
+                foreach ($_POST['usuarios_ids'] as $user_id) {
+                    $stmt_asig->execute([$requerimiento_id, $user_id]);
+                }
+            }
+        }
+
+        $sql_update_rol = "UPDATE requerimientos SET asignado_a_rol = :rol WHERE id = :id";
+        $stmt_update_rol = $conn->prepare($sql_update_rol);
+        $stmt_update_rol->execute([':rol' => $asignado_a_rol, ':id' => $requerimiento_id]);
+
+        $conn->commit();
         $_SESSION['flash_message'] = "¡Requerimiento actualizado exitosamente!";
-        header("Location: gestionar_documentos.php");
-        exit();
 
     } catch (PDOException $e) {
-        $error_message = "Error al actualizar el requerimiento: " . $e->getMessage();
+        $conn->rollBack();
+        $_SESSION['flash_message_error'] = "Error al actualizar: " . $e->getMessage();
     }
+    
+    header("Location: gestionar_documentos.php");
+    exit();
 }
 
-// 3. Obtener los datos actuales del requerimiento para mostrarlos en el formulario
+// --- Lógica para OBTENER DATOS (GET) ---
 try {
-    $stmt = $conn->prepare("SELECT titulo, descripcion, fecha_limite FROM requerimientos WHERE id = :id");
-    $stmt->execute([':id' => $requerimiento_id]);
+    $stmt = $conn->prepare("SELECT * FROM requerimientos WHERE id = ?");
+    $stmt->execute([$requerimiento_id]);
     $requerimiento = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$requerimiento) {
@@ -55,9 +84,16 @@ try {
         header("Location: gestionar_documentos.php");
         exit();
     }
+
+    $users = $conn->query("SELECT id, nombre_completo, expediente FROM usuarios ORDER BY nombre_completo ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $roles_map = [1 => 'Trabajador', 2 => 'Instructor', 3 => 'Enlace', 4 => 'CAP-DMMR', 5 => 'Admin'];
+
+    $stmt_ind = $conn->prepare("SELECT user_id FROM requerimiento_asignaciones WHERE requerimiento_id = ?");
+    $stmt_ind->execute([$requerimiento_id]);
+    $assigned_user_ids = $stmt_ind->fetchAll(PDO::FETCH_COLUMN, 0);
+
 } catch (PDOException $e) {
-    $error_message = "Error al obtener el requerimiento: " . $e->getMessage();
-    $requerimiento = ['titulo' => '', 'descripcion' => '', 'fecha_limite' => '']; // Evitar errores en el form
+    die("Error al cargar los datos para edición: " . $e->getMessage());
 }
 
 ?>
@@ -68,7 +104,12 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Requerimiento</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        .assignment-block { background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #dee2e6; margin-top: 10px; }
+        .assignment-block label { font-weight: 600; display: block; margin-bottom: 10px; }
+        .user-select { width: 100%; height: 150px; border: 1px solid #ccc; border-radius: 4px; padding: 5px; }
+        .user-select option { padding: 5px; }
+    </style>
 </head>
 <body class="dashboard-page">
 
@@ -79,25 +120,52 @@ try {
 
     <main class="dashboard-container">
         <section class="form-section">
-            <h3>Modificando el Requerimiento</h3>
-
-            <?php if (isset($error_message)): ?>
-                <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
-            <?php endif; ?>
+            <h3>Modificando el Requerimiento: "<?php echo htmlspecialchars($requerimiento['titulo']); ?>"</h3>
 
             <form action="editar_requerimiento.php?id=<?php echo $requerimiento_id; ?>" method="POST">
+                <div class="form-group"><label for="titulo">Título:</label><input type="text" id="titulo" name="titulo" value="<?php echo htmlspecialchars($requerimiento['titulo']); ?>" required></div>
+                <div class="form-group"><label for="fecha_limite">Fecha Límite:</label><input type="date" id="fecha_limite" name="fecha_limite" value="<?php echo htmlspecialchars($requerimiento['fecha_limite']); ?>" required></div>
+                <div class="form-group"><label for="descripcion">Descripción:</label><textarea id="descripcion" name="descripcion" rows="3"><?php echo htmlspecialchars($requerimiento['descripcion']); ?></textarea></div>
+
                 <div class="form-group">
-                    <label for="titulo">Título del Requerimiento:</label>
-                    <input type="text" id="titulo" name="titulo" value="<?php echo htmlspecialchars($requerimiento['titulo']); ?>" required>
+                    <label style="font-weight: bold; color: #333;">Asignar a:</label>
+                    <?php 
+                        $is_individual = is_null($requerimiento['asignado_a_rol']);
+                        $is_rol = !$is_individual && $requerimiento['asignado_a_rol'] != 0;
+                        $is_todos = !$is_individual && $requerimiento['asignado_a_rol'] == 0;
+                    ?>
+                    
+                    <div class="assignment-block">
+                        <input type="radio" name="tipo_asignacion" value="rol" id="asig_rol" <?php if($is_rol) echo 'checked'; ?>>
+                        <label for="asig_rol">Un Rol Específico:</label>
+                        <select name="rol_id">
+                            <?php foreach ($roles_map as $role_id => $role_name): ?>
+                                <option value="<?php echo $role_id; ?>" <?php if($is_rol && $requerimiento['asignado_a_rol'] == $role_id) echo 'selected'; ?>>
+                                    <?php echo htmlspecialchars($role_name);
+                                ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="assignment-block">
+                        <input type="radio" name="tipo_asignacion" value="individual" id="asig_individual" <?php if($is_individual) echo 'checked'; ?>>
+                        <label for="asig_individual">Usuario(s) Específico(s):</label>
+                        <select name="usuarios_ids[]" multiple class="user-select">
+                            <?php foreach ($users as $user): ?>
+                                <option value="<?php echo $user['id']; ?>" <?php if($is_individual && in_array($user['id'], $assigned_user_ids)) echo 'selected'; ?>>
+                                    <?php echo htmlspecialchars($user['nombre_completo']) . ' (' . htmlspecialchars($user['expediente']) . ')'; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small>Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
+                    </div>
+
+                    <div class="assignment-block">
+                        <input type="radio" name="tipo_asignacion" value="todos" id="asig_todos" <?php if($is_todos) echo 'checked'; ?>>
+                        <label for="asig_todos">Todos los usuarios</label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="fecha_limite">Fecha Límite de Entrega:</label>
-                    <input type="date" id="fecha_limite" name="fecha_limite" value="<?php echo htmlspecialchars($requerimiento['fecha_limite']); ?>" required>
-                </div>
-                <div class="form-group">
-                    <label for="descripcion">Descripción (Opcional):</label>
-                    <textarea id="descripcion" name="descripcion" rows="3"><?php echo htmlspecialchars($requerimiento['descripcion']); ?></textarea>
-                </div>
+                
                 <button type="submit" class="action-btn green">Guardar Cambios</button>
             </form>
         </section>

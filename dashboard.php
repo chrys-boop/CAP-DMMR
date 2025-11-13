@@ -50,6 +50,7 @@ $expedienteUsuario = $_SESSION['user_expediente'];
                 <a href="gestionar_documentos.php" class="action-btn green">📁 Gestor de Documentos</a>
                 <a href="historial_recibimiento.php" class="action-btn purple">📊 Histórico y Estadísticas</a>
                 <a href="gestionar_manuales.php" class="action-btn orange">📚 Gestionar Manuales</a>
+                <a href="revisar_oficios.php" class="action-btn red">📥 Bandeja de Oficios Recibidos</a>
                 <a href="#" class="action-btn blue">📅 Calendario de Eventos</a>
             </div>
         </section>
