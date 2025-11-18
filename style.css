@@ -77,6 +77,7 @@ button:hover {
 body.dashboard-page {
     display: block; /* Anulamos el flex para el dashboard */
     font-family: 'Poppins', sans-serif;
+    background-color: #f4f7f6; /* Fondo consistente */
 }
 
 
@@ -179,7 +180,7 @@ body.dashboard-page {
     justify-content: center;
     padding: 15px 20px;
     border-radius: 8px;
-    color: white;
+    color: white !important; /* Asegurar que el texto siempre sea blanco */
     font-weight: 600;
     text-decoration: none;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -190,12 +191,16 @@ body.dashboard-page {
     box-shadow: 0 6px 14px rgba(0,0,0,0.2);
 }
 
-/* Colores de botones */
-.blue { background: #1976d2; }
-.green { background: #43a047; }
-.orange { background: #fb8c00; }
-.purple { background: #8e24aa; }
-.red { background: #dc3545; }
+/* Colores de botones (AÑADIDOS Y COMPLETADOS) */
+.blue { background-color: #1976d2; }
+.green { background-color: #43a047; }
+.purple { background-color: #8e24aa; }
+.orange { background-color: #fb8c00; }
+.red { background-color: #e53935; }
+.teal { background-color: #00897b; }
+.indigo { background-color: #3949ab; }
+.steel-blue { background-color: #546e7a; }
+
 
 /* Footer */
 .dashboard-footer {

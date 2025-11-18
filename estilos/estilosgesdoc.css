@@ -117,32 +117,48 @@ body.dashboard-page {
    BOTONES
 ============================== */
 .action-btn,
+.action-btn-secondary,
 .action-btn-small {
     display: inline-block;
     text-decoration: none;
     font-weight: 600;
-    color: white;
     border: none;
     cursor: pointer;
     border-radius: 8px;
-    transition: transform 0.2s ease, background-color 0.3s ease;
+    transition: transform 0.2s ease, background-color 0.3s, border-color 0.3s;
 }
 
 .action-btn {
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
+    background-color: #007bff; /* Color azul por defecto */
+    color: white;
+}
+
+.action-btn-secondary {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    background-color: #e9ecef;
+    color: #343a40;
+    border: 1px solid #ced4da;
 }
 
 .action-btn-small {
     padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;}
+    font-size: 0.9rem;
+    color: white;
+}
 
 .action-btn:hover,
+.action-btn-secondary:hover,
 .action-btn-small:hover {
     transform: translateY(-2px);
 }
 
-/* Colores de botones */
+.action-btn:hover { background-color: #0069d9; }
+.action-btn-secondary:hover { background-color: #d6dbe0; }
+
+/* Colores específicos de botones */
 .green { background-color: #28a745; }
 .green:hover { background-color: #218838; }
 .blue { background-color: #007bff; }

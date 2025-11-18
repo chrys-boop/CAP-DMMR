@@ -46,16 +46,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
     $user_id = $_POST['user_id'];
     $curso_id = $_POST['curso_id'];
     $fecha_inicio = $_POST['fecha_inicio'];
-    $fecha_termino = $_POST['fecha_termino']; // <-- CORREGIDO
+    $fecha_fin = $_POST['fecha_fin'];
     $duracion_horas = $_POST['duracion_horas'];
 
     if (!empty($user_id) && !empty($curso_id) && !empty($fecha_inicio) && !empty($duracion_horas)) {
         try {
-            // La columna 'fecha_fin' ya no se usa, usamos 'fecha_termino'
-            $stmt = $conn->prepare("INSERT INTO asistencias_cursos (user_id, curso_id, fecha_inicio, fecha_termino, duracion_horas) VALUES (:user_id, :curso_id, :fecha_inicio, :fecha_termino, :duracion_horas)");
+            $stmt = $conn->prepare("INSERT INTO asistencias_cursos (user_id, curso_id, fecha_inicio, fecha_fin, duracion_horas) VALUES (:user_id, :curso_id, :fecha_inicio, :fecha_fin, :duracion_horas)");
             $stmt->execute([
                 ':user_id' => $user_id, ':curso_id' => $curso_id, ':fecha_inicio' => $fecha_inicio,
-                ':fecha_termino' => !empty($fecha_termino) ? $fecha_termino : NULL, // <-- CORREGIDO
+                ':fecha_fin' => !empty($fecha_fin) ? $fecha_fin : NULL,
                 ':duracion_horas' => $duracion_horas
             ]);
             $success_message = "¡Asistencia al curso registrada con éxito!";
@@ -73,7 +72,7 @@ $todos_usuarios = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 $stmt_cursos = $conn->query("SELECT id, nombre_curso FROM cursos ORDER BY nombre_curso ASC");
 $cursos = $stmt_cursos->fetchAll(PDO::FETCH_ASSOC);
 $stmt_asistencias = $conn->query(
-    "SELECT a.id, u.nombre_completo, u.expediente, c.nombre_curso, a.fecha_inicio, a.fecha_termino, a.duracion_horas " .
+    "SELECT a.id, u.nombre_completo, u.expediente, c.nombre_curso, a.fecha_inicio, a.fecha_fin, a.duracion_horas " .
     "FROM asistencias_cursos a JOIN usuarios u ON a.user_id = u.id JOIN cursos c ON a.curso_id = c.id ORDER BY a.id DESC"
 );
 $asistencias = $stmt_asistencias->fetchAll(PDO::FETCH_ASSOC);
@@ -125,8 +124,8 @@ $asistencias = $stmt_asistencias->fetchAll(PDO::FETCH_ASSOC);
                         <input type="date" id="fecha_inicio" name="fecha_inicio" required>
                     </div>
                     <div class="form-group">
-                        <label for="fecha_termino">Fecha de Término (opcional)</label> <!-- CORREGIDO -->
-                        <input type="date" id="fecha_termino" name="fecha_termino"> <!-- CORREGIDO -->
+                        <label for="fecha_fin">Fecha de Término (opcional)</label>
+                        <input type="date" id="fecha_fin" name="fecha_fin">
                     </div>
                 </div>
                 <div class="form-group">
@@ -145,21 +144,21 @@ $asistencias = $stmt_asistencias->fetchAll(PDO::FETCH_ASSOC);
                             <th>Empleado (Expediente)</th>
                             <th>Curso</th>
                             <th>Fecha Inicio</th>
-                            <th>Fecha Término</th> <!-- AÑADIDO -->
+                            <th>Fecha Término</th>
                             <th>Duración (Hrs)</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($asistencias)): ?>
-                            <tr><td colspan="6">No hay asistencias registradas.</td></tr> <!-- colspan actualizado -->
+                            <tr><td colspan="6">No hay asistencias registradas.</td></tr>
                         <?php else: ?>
                             <?php foreach ($asistencias as $asistencia): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($asistencia['nombre_completo']) . ' (' . htmlspecialchars($asistencia['expediente']) . ')'; ?></td>
                                     <td><?php echo htmlspecialchars($asistencia['nombre_curso']); ?></td>
                                     <td><?php echo date("d/m/Y", strtotime($asistencia['fecha_inicio'])); ?></td>
-                                    <td><?php echo $asistencia['fecha_termino'] ? date("d/m/Y", strtotime($asistencia['fecha_termino'])) : 'N/A'; ?></td> <!-- AÑADIDO -->
+                                    <td><?php echo $asistencia['fecha_fin'] ? date("d/m/Y", strtotime($asistencia['fecha_fin'])) : 'N/A'; ?></td>
                                     <td><?php echo htmlspecialchars($asistencia['duracion_horas']); ?></td>
                                     <td class="actions-cell">
                                         <a href="editar_asistencia.php?id=<?php echo $asistencia['id']; ?>" class="action-btn-small orange">Editar</a>
