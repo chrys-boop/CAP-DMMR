@@ -62,18 +62,27 @@ body.dashboard-page {
 }
 
 /* ==============================
-   FORMULARIO
+   SECCIONES
 ============================== */
-.form-section {
+.form-section, .table-section, .stats-summary-section {
     margin-bottom: 2rem;
 }
 
-.form-section h3 {
+.form-section h3, .table-section h3, .stats-summary-section h3 {
     margin-bottom: 1rem;
     color: #004aad;
     font-weight: 600;
 }
 
+.table-section h4 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-weight: 600;
+}
+
+/* ==============================
+   FORMULARIO
+============================== */
 .form-group {
     margin-bottom: 1rem;
 }
@@ -86,7 +95,8 @@ body.dashboard-page {
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
     width: 100%;
     padding: 0.8rem;
     border-radius: 8px;
@@ -96,7 +106,8 @@ body.dashboard-page {
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
     outline: none;
@@ -124,8 +135,7 @@ body.dashboard-page {
 
 .action-btn-small {
     padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
-}
+    font-size: 0.9rem;}
 
 .action-btn:hover,
 .action-btn-small:hover {
@@ -135,112 +145,128 @@ body.dashboard-page {
 /* Colores de botones */
 .green { background-color: #28a745; }
 .green:hover { background-color: #218838; }
-
 .blue { background-color: #007bff; }
 .blue:hover { background-color: #0069d9; }
-
 .orange { background-color: #fd7e14; }
 .orange:hover { background-color: #e3640e; }
+.red { background-color: #dc3545; }
+.red:hover { background-color: #c82333; }
+
 
 /* ==============================
-   MENSAJES DE ESTADO
+   NUEVO: ESTADÍSTICAS DE USUARIO
 ============================== */
-.success-message,
-.error-message {
-    padding: 0.8rem 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+.stats-container {
+    display: flex;
+    gap: 20px;
+    align-items: stretch; /* Cambio a stretch para igualar alturas */
+    flex-wrap: wrap; /* Para responsividad */
+}
+
+.stats-cards-container {
+    display: flex;
+    flex: 3;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    flex-grow: 1;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.stat-card .stat-value {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #343a40;
+    display: block;
+}
+
+.stat-card .stat-value-percent {
+    font-size: 2.5rem;
+    font-weight: 700;
+    display: block;
+}
+
+.stat-card .stat-label {
+    font-size: 0.95rem;
+    color: #6c757d;
     font-weight: 500;
 }
 
-.success-message {
-    background-color: #d1e7dd;
-    color: #0f5132;
-    border-left: 5px solid #198754;
+.stat-card.highlight {
+    background: linear-gradient(135deg, #e6f2ff, #d1e3ff);
+    border-color: #b8d4ff;
 }
 
-.error-message {
-    background-color: #f8d7da;
-    color: #842029;
-    border-left: 5px solid #dc3545;
+.stat-card.highlight .stat-value-percent {
+    color: #004aad;
 }
+
+.green-text { color: #28a745 !important; }
+.red-text { color: #dc3545 !important; }
+
+.stats-chart-container {
+    flex: 2; /* El gráfico toma menos espacio */
+    min-width: 200px; /* Ancho mínimo para el gráfico */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
 /* ==============================
    TABLA DE REQUERIMIENTOS
 ============================== */
-.table-section h3 {
-    color: #004aad;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
+.table-responsive { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+thead { background: #004aad; color: white; }
+th, td { padding: 0.9rem; text-align: left; }
+tbody tr { border-bottom: 1px solid #eee; transition: background-color 0.3s ease; }
+tbody tr:hover { background-color: #f2f8ff; }
+.actions-cell { display: flex; gap: 0.5rem; }
 
-.table-responsive {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95rem;
-}
-
-thead {
-    background: #004aad;
+/* ==============================
+   ESTADOS DE ENTREGA
+============================== */
+.status-entregado, .status-faltante {
     color: white;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-align: center;
+    display: inline-block;
+    min-width: 80px;
 }
-
-th, td {
-    padding: 0.9rem;
-    text-align: left;
-}
-
-tbody tr {
-    border-bottom: 1px solid #eee;
-    transition: background-color 0.3s ease;
-}
-
-tbody tr:hover {
-    background-color: #f2f8ff;
-}
-
-.actions-cell {
-    display: flex;
-    gap: 0.5rem;
-}
+.status-entregado { background-color: #28a745; }
+.status-faltante { background-color: #dc3545; }
 
 /* ==============================
    DIVISORES Y FOOTER
 ============================== */
-.section-divider {
-    border: none;
-    border-top: 2px solid #e0e0e0;
-    margin: 2rem 0;
-}
-
-.dashboard-footer {
-    text-align: center;
-    padding: 1rem;
-    background-color: #f0f2f5;
-    color: #555;
-    font-size: 0.9rem;
-    margin-top: auto;
-}
+.section-divider { border: none; border-top: 2px solid #e0e0e0; margin: 2rem 0; }
+.dashboard-footer { text-align: center; padding: 1rem; background-color: #f0f2f5; color: #555; font-size: 0.9rem; margin-top: auto; }
 
 /* ==============================
-   RESPONSIVE DESIGN
+   RESPONSIVE
 ============================== */
+@media (max-width: 992px) {
+    .stats-container {
+        flex-direction: column;
+    }
+    .stats-chart-container {
+        margin-top: 20px;
+    }
+}
+
 @media (max-width: 768px) {
-    .dashboard-container {
-        padding: 1.5rem;
-    }
-
-    .dashboard-header {
-        flex-direction: column;
-        gap: 0.5rem;
-        text-align: center;
-    }
-
-    .actions-cell {
-        flex-direction: column;
-    }
+    .dashboard-container { padding: 1.5rem; }
+    .dashboard-header { flex-direction: column; gap: 0.5rem; text-align: center; }
+    .actions-cell { flex-direction: column; }
 }

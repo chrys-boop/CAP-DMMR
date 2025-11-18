@@ -7,38 +7,58 @@ require_once 'db_connection.php';
 
 $base_path = '/CAP-DMMR';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: {$base_path}/index.html");
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
+    header("Location: index.html");
     exit();
 }
 
-// --- Lógica para las Estadísticas ---
-
-// ¡CONSULTA FINALMENTE CORRECTA!
-// 1. Contar el total de usuarios que deben entregar (los que son enlaces, role = 3)
+// --- Lógica para Estadísticas Globales ---
 $sql_total_users = "SELECT COUNT(*) FROM usuarios WHERE role = 3";
-$stmt_total_users = $conn->prepare($sql_total_users);
-$stmt_total_users->execute();
-$total_usuarios_activos = $stmt_total_users->fetchColumn();
+$total_usuarios_activos = $conn->query($sql_total_users)->fetchColumn();
 
-// 2. Obtener todos los requerimientos con su conteo de entregas
 $sql_requerimientos = "
-    SELECT 
-        r.id, 
-        r.titulo, 
-        r.fecha_limite, 
-        COUNT(e.id) as numero_entregas
-    FROM 
-        requerimientos r
-    LEFT JOIN 
-        entregas e ON r.id = e.requerimiento_id
-    GROUP BY 
-        r.id, r.titulo, r.fecha_limite
-    ORDER BY 
-        r.fecha_limite DESC
-";
+    SELECT r.id, r.titulo, r.fecha_limite, COUNT(e.id) as numero_entregas
+    FROM requerimientos r
+    LEFT JOIN entregas e ON r.id = e.requerimiento_id
+    GROUP BY r.id, r.titulo, r.fecha_limite
+    ORDER BY r.fecha_limite DESC";
 $requerimientos = $conn->query($sql_requerimientos)->fetchAll(PDO::FETCH_ASSOC);
 
+// --- Lógica para Consulta de Usuario Específico ---
+$lista_enlaces = $conn->query("SELECT id, nombre_completo, expediente FROM usuarios WHERE role = 3 ORDER BY nombre_completo ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+$selected_user_id = null;
+$selected_user_info = null;
+$user_history = [];
+$stats = ['total' => 0, 'entregados' => 0, 'faltantes' => 0, 'porcentaje' => 0];
+
+if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
+    $selected_user_id = $_GET['user_id'];
+
+    $stmt_user = $conn->prepare("SELECT nombre_completo, expediente FROM usuarios WHERE id = :id AND role = 3");
+    $stmt_user->execute([':id' => $selected_user_id]);
+    $selected_user_info = $stmt_user->fetch(PDO::FETCH_ASSOC);
+
+    if ($selected_user_info) {
+        $sql_history = "
+            SELECT r.titulo, r.fecha_limite, e.fecha_entrega, e.ruta_archivo
+            FROM requerimientos r
+            LEFT JOIN entregas e ON r.id = e.requerimiento_id AND e.user_id = :user_id
+            ORDER BY r.fecha_limite DESC";
+        $stmt_history = $conn->prepare($sql_history);
+        $stmt_history->execute([':user_id' => $selected_user_id]);
+        $user_history = $stmt_history->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!empty($user_history)) {
+            $stats['total'] = count($user_history);
+            $stats['entregados'] = count(array_filter($user_history, function($item) { return !is_null($item['fecha_entrega']); }));
+            $stats['faltantes'] = $stats['total'] - $stats['entregados'];
+            if ($stats['total'] > 0) {
+                $stats['porcentaje'] = ($stats['entregados'] / $stats['total']) * 100;
+            }
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -47,44 +67,103 @@ $requerimientos = $conn->query($sql_requerimientos)->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historial de Recibimiento</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- NUEVO: Inclusión de Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="dashboard-page">
 
     <header class="dashboard-header">
         <h1>Historial de Recibimiento y Estadísticas</h1>
-        <a href="dashboard.php" class="logout-btn">Volver al Panel</a>
+        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">Volver al Panel</a>
     </header>
 
     <main class="dashboard-container">
+        <section class="form-section">
+            <h3>Consulta de Historial por Usuario</h3>
+            <form action="historial_recibimiento.php" method="GET">
+                <div class="form-group">
+                    <label for="user_id">Selecciona un Enlace:</label>
+                    <select name="user_id" id="user_id" required onchange="this.form.submit()">
+                        <option value="">-- Elige un usuario --</option>
+                        <?php foreach ($lista_enlaces as $enlace): ?>
+                            <option value="<?php echo $enlace['id']; ?>" <?php echo ($enlace['id'] == $selected_user_id) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($enlace['nombre_completo'] . ' (' . $enlace['expediente'] . ')'); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <noscript><button type="submit" class="action-btn">Consultar</button></noscript>
+            </form>
+        </section>
+
+        <?php if ($selected_user_id && $selected_user_info): ?>
+            <section class="stats-summary-section">
+                <h3>Resumen para: <strong><?php echo htmlspecialchars($selected_user_info['nombre_completo']); ?></strong></h3>
+                <div class="stats-container">
+                    <div class="stats-cards-container">
+                        <div class="stat-card">
+                            <span class="stat-value"><?php echo $stats['total']; ?></span>
+                            <span class="stat-label">Total Asignados</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value green-text"><?php echo $stats['entregados']; ?></span>
+                            <span class="stat-label">Entregados</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value red-text"><?php echo $stats['faltantes']; ?></span>
+                            <span class="stat-label">Faltantes</span>
+                        </div>
+                        <div class="stat-card highlight">
+                            <span class="stat-value-percent"><?php echo round($stats['porcentaje'], 1); ?>%</span>
+                            <span class="stat-label">Cumplimiento</span>
+                        </div>
+                    </div>
+                    <!-- NUEVO: Contenedor para la gráfica -->
+                    <div class="stats-chart-container">
+                        <canvas id="complianceChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="table-section" style="margin-top: 20px;">
+                <h4>Desglose de Requerimientos</h4>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>Requerimiento</th><th>Fecha Límite</th><th>Estado</th><th>Fecha de Entrega</th><th>Acción</th></tr></thead>
+                        <tbody>
+                            <?php foreach ($user_history as $item): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($item['titulo']); ?></td>
+                                    <td><?php echo date("d/m/Y", strtotime($item['fecha_limite'])); ?></td>
+                                    <td><?php echo $item['fecha_entrega'] ? '<span class="status-entregado">Entregado</span>' : '<span class="status-faltante">Faltante</span>'; ?></td>
+                                    <td><?php echo $item['fecha_entrega'] ? date("d/m/Y H:i", strtotime($item['fecha_entrega'])) : '-'; ?></td>
+                                    <td><?php echo $item['ruta_archivo'] ? '<a href="' . $base_path . '/' . htmlspecialchars($item['ruta_archivo']) . '" class="action-btn-small green" download>Descargar</a>' : '-'; ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <hr class="section-divider">
+
         <section class="table-section">
-            <h3>Supervisión de Entregas</h3>
+            <h3>Supervisión de Entregas por Evento</h3>
             <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Título del Requerimiento</th>
-                            <th>Fecha Límite</th>
-                            <th>Progreso de Entrega</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
+                 <table>
+                    <thead><tr><th>Título del Requerimiento</th><th>Fecha Límite</th><th>Progreso de Entrega</th><th>Acciones</th></tr></thead>
                     <tbody>
-                        <?php if (empty($requerimientos)):
-                            ?>
+                        <?php if (empty($requerimientos)): ?>
                             <tr><td colspan="4" style="text-align: center;">No hay requerimientos creados.</td></tr>
-                        <?php else:
-                            ?>
+                        <?php else: ?>
                             <?php foreach ($requerimientos as $req): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($req['titulo']); ?></td>
                                     <td><?php echo date("d/m/Y", strtotime($req['fecha_limite'])); ?></td>
-                                    <td>
-                                        <strong><?php echo $req['numero_entregas']; ?> / <?php echo $total_usuarios_activos; ?></strong> entregados
-                                    </td>
-                                    <td class="actions-cell">
-                                        <a href="detalle_recibimiento.php?req_id=<?php echo $req['id']; ?>" class="action-btn-small blue">Ver Detalles</a>
-                                    </td>
+                                    <td><strong><?php echo $req['numero_entregas']; ?> / <?php echo $total_usuarios_activos; ?></strong> entregados</td>
+                                    <td class="actions-cell"><a href="detalle_recibimiento.php?req_id=<?php echo $req['id']; ?>" class="action-btn-small blue">Ver Detalles</a></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -97,5 +176,54 @@ $requerimientos = $conn->query($sql_requerimientos)->fetchAll(PDO::FETCH_ASSOC);
     <footer class="dashboard-footer">
         <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
     </footer>
+
+    <!-- NUEVO: Script para generar la gráfica -->
+    <?php if ($selected_user_id && $selected_user_info && $stats['total'] > 0): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('complianceChart').getContext('2d');
+            const complianceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Entregados', 'Faltantes'],
+                    datasets: [{
+                        label: 'Estado de Entregas',
+                        data: [<?php echo $stats['entregados']; ?>, <?php echo $stats['faltantes']; ?>],
+                        backgroundColor: [
+                            '#28a745', // Verde para entregados
+                            '#dc3545'  // Rojo para faltantes
+                        ],
+                        borderColor: [
+                            '#ffffff',
+                            '#ffffff'
+                        ],
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14,
+                                    family: 'Poppins'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    <?php endif; ?>
+
 </body>
 </html>

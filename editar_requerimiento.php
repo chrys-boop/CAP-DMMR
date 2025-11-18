@@ -8,9 +8,10 @@ require_once 'db_connection.php';
 // FIX: Añadir la variable de ruta base para redirecciones seguras
 $base_path = '/CAP-DMMR';
 
-// FIX: Usar la ruta base en la validación de sesión para no perderla
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 5) {
-    header("Location: {$base_path}/index.html");
+// --- LÓGICA DE SEGURIDAD (CORREGIDA) ---
+// Solo Admin (5) y Cap-dmmr (4) pueden acceder.
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
+    header("Location: index.html");
     exit();
 }
 

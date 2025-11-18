@@ -6,21 +6,21 @@ session_start();
 
 require_once 'db_connection.php';
 
-if (!isset($_SESSION['user_id'])) {
+// --- LÓGICA DE SEGURIDAD ---
+// Solo Admin (5) y Cap-dmmr (4) pueden acceder.
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
     header("Location: index.html");
     exit();
 }
 
-// Lógica para procesar el guardado de roles (cuando se envíe el formulario)
+// Lógica para procesar el guardado de roles
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['roles'])) {
-    // Preparamos una única consulta para actualizar
     $sql = "UPDATE usuarios SET role = :role WHERE id = :id";
     $stmt = $conn->prepare($sql);
 
     foreach ($_POST['roles'] as $userId => $newRole) {
         $stmt->execute(['role' => $newRole, 'id' => $userId]);
     }
-    // Redirigimos a la misma página con un mensaje de éxito
     header("Location: gestionar_personal.php?success=1");
     exit();
 }
@@ -36,7 +36,6 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Personal</title>
-    <!-- ¡RUTA ABSOLUTA CORREGIDA! -->
     <link rel="stylesheet" href="/CAP-DMMR/estilos/estilosges.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,17 +45,18 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <header class="dashboard-header">
         <h1>Gestión de Personal</h1>
-        <a href="dashboard.php" class="logout-btn">Volver al Panel</a>
+        <?php
+        $dashboard_link = ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php';
+        ?>
+        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">Volver al Panel</a>
     </header>
 
     <main class="dashboard-container">
 
-        <!-- Campo de búsqueda -->
         <section class="search-bar-section">
             <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nombre o expediente...">
         </section>
 
-        <!-- Formulario para guardar los roles -->
         <form method="POST" action="gestionar_personal.php">
             <section class="user-management-table">
                 <h3>Listado de Usuarios del Sistema</h3>
@@ -104,7 +104,6 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <p>© <?php echo date('Y'); ?> Sistema Administrativo | Todos los derechos reservados</p>
     </footer>
 
-    <!-- JavaScript para el filtro de búsqueda -->
     <script>
     function filterTable() {
         const input = document.getElementById("searchInput");

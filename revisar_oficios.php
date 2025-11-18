@@ -5,8 +5,8 @@ error_reporting(E_ALL);
 session_start();
 require_once 'db_connection.php';
 
-// 1. Validar sesión y rol de administrador
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 5) {
+// 1. Validar sesión y rol (CORREGIDO)
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
     header("Location: index.html");
     exit();
 }

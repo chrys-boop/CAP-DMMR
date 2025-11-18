@@ -8,12 +8,10 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use WebSocket\Client;
 
-$base_path = '/CAP-DMMR'; // Ajusta esto si tu proyecto está en un subdirectorio
-
-// --- CORRECCIÓN DE SEGURIDAD ---
-// Verificamos si el rol es 'administrador', no el número 1.
-if (!isset($_SESSION['user_id']) || (isset($_SESSION['user_perfil']) && $_SESSION['user_perfil'] !== 'administrador')) {
-    header("Location: index.html"); // Redirige a la página de login
+// --- LÓGICA DE SEGURIDAD (CORREGIDA) ---
+// Solo Admin (5) y Cap-dmmr (4) pueden acceder.
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
+    header("Location: index.html");
     exit();
 }
 
@@ -65,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['manual_file'])) {
                         'payload' => ['type' => 'new_manual', 'manual_name' => $original_name]
                     ]);
                     $ws_client->send($payload);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     error_log("Fallo al enviar notificación por WebSocket: " . $e->getMessage());
                 }
 
@@ -99,12 +97,16 @@ $manuales = $conn->query("SELECT id, nombre_archivo, ruta_archivo, fecha_subida 
 <body class="dashboard-page">
     <header class="dashboard-header">
         <h1>Gestionar Manuales y Diagramas</h1>
-        <a href="dashboard.php" class="logout-btn">Volver al Panel</a>
+        <?php
+        // --- BOTÓN DE VOLVER DINÁMICO (CORREGIDO) ---
+        $dashboard_link = ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php';
+        ?>
+        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">Volver al Panel</a>
     </header>
     <main class="dashboard-container">
         <section class="form-section">
             <h3>Subir Nuevo Documento</h3>
-            <?php 
+            <?php
             if (isset($_SESSION['flash_message'])) {
                 $msg = $_SESSION['flash_message'];
                 echo '<div class="flash-message ' . htmlspecialchars($msg['type']) . '">' . htmlspecialchars($msg['text']) . '</div>';

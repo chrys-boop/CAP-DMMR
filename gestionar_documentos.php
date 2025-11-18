@@ -5,7 +5,9 @@ error_reporting(E_ALL);
 session_start();
 require_once 'db_connection.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 5) {
+// --- LÓGICA DE SEGURIDAD (CORREGIDA) ---
+// Solo Admin (5) y Cap-dmmr (4) pueden acceder.
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
     header("Location: index.html");
     exit();
 }
@@ -116,7 +118,11 @@ $requerimientos = $conn->query("SELECT * FROM requerimientos ORDER BY fecha_crea
 
     <header class="dashboard-header">
         <h1>Gestionar Documentos</h1>
-        <a href="dashboard.php" class="logout-btn">Volver al Panel</a>
+        <?php
+        // --- BOTÓN DE VOLVER DINÁMICO (CORREGIDO) ---
+        $dashboard_link = ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php';
+        ?>
+        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">Volver al Panel</a>
     </header>
 
     <main class="dashboard-container">

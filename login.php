@@ -48,7 +48,7 @@ try {
                 $redirect_url = 'dashboard.php';
                 break;
             case 4: 
-                $redirect_url = 'dashboard.php';
+                $redirect_url = 'dashboard_cap-dmmr.php';
                 break;
             case 3: // Enlace
                 $redirect_url = 'dashboard_enlace.php';

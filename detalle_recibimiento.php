@@ -7,8 +7,10 @@ require_once 'db_connection.php';
 
 $base_path = '/CAP-DMMR';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: {$base_path}/index.html");
+// --- LÓGICA DE SEGURIDAD (CORREGIDA) ---
+// Solo Admin (5) y Cap-dmmr (4) pueden acceder.
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
+    header("Location: index.html");
     exit();
 }
 
