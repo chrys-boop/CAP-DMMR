@@ -1,0 +1,60 @@
+mover en el registro de usuarios de la aplicación ("expediente en primer termino")
+-Al editar perfil de todos sin importar que sea se verifique en un archivo de Excel con el numero de expediente para que cuando le den click en editar perfil les salga los datos que se piden en editar perfil y si falta campos los agregue el usuario o si se tiene que corregir y se refleje en el excel
+
+
+trabajador:
+-se pondrá categoría en ves de "titular"
+-se agregara horario de labores (escogidos por el usuario y son horas completas)
+-se cambio enlace de origen por "fecha de ingreso (se ingresa el usuario y pide que sea con separación de barra "/") para mejor formato
+-se pide que todo los datos se pongan en mayusculas
+
+Enlace:
+-se añadira en editar("Cargo")
+-en donde dice si titular o suplente(Se seleccionara para que no lo escriba el usuario)
+-al final al dar click de guardar se tendra que lanzar una advertencia que si esta segura de los datos que puso si estan bien.
+
+nueva pestaña:instructores
+-lo mismo que enlace pero se quitara del tollbar la opcion de actualizar
+-en editar perfil tambien se pondra categoria(todo mayusculas)
+
+En calendario agregar la funcion de que si se pone la fecha establecida solo tenga hasta las 23:59 pm para poder enviarlo despues de esa hora y fecha no permitir la subida de archivos
+
+
+*/faltante hacia abajo
+
+
+se tiene que crear una ventana en administrador y personal administrativo que diga "historial de recibimiento"
+-donde se note las personas o enlaces que an enviado los documentos del evento que se pide 
+-para esto se tendra que sacar estadistica por enlace, por usuario y por evento
+-para mayor control de quien si mando la informacion y quien no
+
+
+
+un apartado de estadisticas
+-por persona(cuantas personas an participado en ese curso)("se podra sacar la informacion anterior de un Excel y el nuevo de lo que se agregue")
+-por curso cuantos an tomado el curso
+-por curso que personas an tomado y cuantas veces por su numero de expediente
+-cuantas personas a tomado el curso por area
+
+Una pestaña para fecha de cursos para
+-llenar hay ingresar el numero de expedientes y les salga hay los diferentes campos que serán nombre completo, que categoría, área, fecha de inicio del curso y termino y horas del curso y se guardara en un archivo Excel
+
+
+
+
+
+
+
+
+aplicación web con servidor.
+alojamiento web gratuito netlify 
+*de paga un hosting de  godaddy
+postgres en ves de mysql
+usar XAMPP para apache
+lenguaje backend php
+lenguaje frontend javascript-typescript
+
+
+
+
+
