@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newChatModal = document.getElementById('new-chat-modal');
     const createGroupModal = document.getElementById('create-group-modal');
     const addMembersModal = document.getElementById('add-members-modal');
+    const viewMembersModal = document.getElementById('view-members-modal'); // Nuevo modal
 
     /* =======================================================
        1. CARGA Y RENDERIZADO DE CONVERSACIONES
@@ -115,6 +116,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderChatHeaderActions(conv) {
         chatHeaderActions.innerHTML = '';
         if (conv.is_group) {
+            // Botón para VER miembros (visible para todos en el grupo)
+            const viewBtn = document.createElement('button');
+            viewBtn.className = 'header-action-btn';
+            viewBtn.title = 'Ver Miembros';
+            viewBtn.innerHTML = '👥';
+            viewBtn.onclick = () => openViewMembersModal(conv);
+            chatHeaderActions.appendChild(viewBtn);
+
+            // Botón para AÑADIR miembros (solo para roles específicos)
             if ([4, 5].includes(USER_ROLE)) {
                 const addBtn = document.createElement('button');
                 addBtn.className = 'header-action-btn';
@@ -303,7 +313,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* =======================================================
-       6. FUNCIONES GENÉRICAS (Búsqueda, etc.)
+       6. MODAL: VER MIEMBROS DE GRUPO
+    ======================================================= */
+    async function openViewMembersModal(conv) {
+        document.getElementById('view-members-group-name').textContent = conv.name;
+        const listContainer = document.getElementById('view-members-list');
+        listContainer.innerHTML = '<p class="info-msg">Cargando miembros...</p>';
+        viewMembersModal.style.display = 'flex';
+
+        try {
+            const res = await fetch(`api/chat_api.php?action=get_group_members&conversation_id=${conv.id}`);
+            const data = await res.json();
+
+            if (data.success) {
+                renderGroupMembersList(data.data);
+            } else {
+                listContainer.innerHTML = `<p class="error-msg">${data.message || 'Error al cargar la lista.'}</p>`;
+            }
+        } catch (e) {
+            console.error("Error al obtener miembros del grupo:", e);
+            listContainer.innerHTML = `<p class="error-msg">Error de conexión.</p>`;
+        }
+    }
+
+    function renderGroupMembersList(members) {
+        const listContainer = document.getElementById('view-members-list');
+        listContainer.innerHTML = '';
+
+        if (!members || members.length === 0) {
+            listContainer.innerHTML = '<p class="info-msg">No se encontraron miembros.</p>';
+            return;
+        }
+
+        members.forEach(member => {
+            const item = document.createElement('div');
+            item.className = 'user-item';
+            // (CORREGIDO) Se elimina la parte del rol que daba error
+            item.innerHTML = `<strong>${member.nombre_completo}</strong> <span>(${member.expediente || 'N/A'})</span>`;
+            listContainer.appendChild(item);
+        });
+    }
+
+    /* =======================================================
+       7. FUNCIONES GENÉRICAS (Búsqueda, etc.)
     ======================================================= */
     async function searchUsers(query, resultContainer, exclusions = [], onSelect) {
         if (!query.trim()) {
@@ -351,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* =======================================================
-       7. EVENT LISTENERS GENERALES
+       8. EVENT LISTENERS GENERALES
     ======================================================= */
     if (messageForm) {
         messageForm.addEventListener("submit", sendMessage);

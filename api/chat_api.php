@@ -267,6 +267,37 @@ try {
         echo json_encode(['success' => true, 'message' => 'Miembros añadidos correctamente.']);
     }
 
+    function get_group_members($conn, $user_id, $conversation_id) {
+        // 1. Comprobar que el usuario es miembro del grupo para poder ver la lista.
+        $stmt_check = $conn->prepare("SELECT COUNT(*) FROM chat_participants WHERE conversation_id = ? AND user_id = ?");
+        $stmt_check->execute([$conversation_id, $user_id]);
+        if ($stmt_check->fetchColumn() == 0) {
+            throw new Exception('Acceso denegado: no eres miembro de este grupo.');
+        }
+
+        // 2. Obtener todos los miembros del grupo (SIN EL ROL, YA QUE NO HAY TABLA)
+        $sql = "
+            SELECT 
+                u.id, 
+                u.nombre_completo, 
+                u.expediente
+            FROM 
+                usuarios u
+            JOIN 
+                chat_participants p ON u.id = p.user_id
+            WHERE 
+                p.conversation_id = ?
+            ORDER BY 
+                u.nombre_completo ASC
+        ";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$conversation_id]);
+        $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['success' => true, 'data' => $members]);
+    }
+
     // ---------- Router ----------
     switch ($action) {
         case 'get_conversations':
@@ -296,6 +327,10 @@ try {
         case 'add_members':
             if (!isset($_POST['conversation_id']) || !isset($_POST['members'])) throw new Exception("ID de conversación y miembros son requeridos.");
             add_members($conn, $current_user_id, $current_user_role, (int)$_POST['conversation_id'], $_POST['members']);
+            break;
+        case 'get_group_members':
+            if (!isset($_GET['conversation_id'])) throw new Exception("Conversation ID es requerido.");
+            get_group_members($conn, $current_user_id, (int)$_GET['conversation_id']);
             break;
         default:
             throw new Exception("Acción no válida o no especificada: " . htmlspecialchars($action));

@@ -127,6 +127,17 @@ $user_id = $_SESSION['user_id'];
         </div>
     </div>
 
-    <script src="js/chat.js?v=1.6"></script> <!-- Incrementamos la versión para evitar caché -->
+    <!-- (NUEVO) Modal para VER MIEMBROS DE UN GRUPO -->
+    <div id="view-members-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Miembros del Grupo</h2>
+            <p>Miembros de: <strong id="view-members-group-name"></strong></p>
+            <div id="view-members-list" class="users-list-results"></div>
+        </div>
+    </div>
+
+
+    <script src="js/chat.js?v=1.7"></script> <!-- Incrementamos la versión para evitar caché -->
 </body>
 </html>
