@@ -12,9 +12,13 @@ try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e) {
-    http_response_code(500);
-    // Modificamos la línea de abajo para que muestre el error real de MySQL
-    echo json_encode(["success" => false, "message" => "Error de Conexión: " . $e->getMessage()]);
+    // Para la terminal, es mejor mostrar un error directo.
+    if (php_sapi_name() === 'cli') {
+        echo "Error de Conexión: " . $e->getMessage() . "\n";
+    } else {
+        http_response_code(500);
+        echo json_encode(["success" => false, "message" => "Error de Conexión: " . $e->getMessage()]);
+    }
     exit();
 }
 ?>
