@@ -159,6 +159,13 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
                         <p>Accede a los cursos</p>
                     </div>
                 </a>
+                <a href="chat.php" class="menu-card green">
+                     <div class="menu-icon">💬</div>
+                     <div class="menu-text">
+                        <h4>Acceder al Chat</h4>
+                        <p>Comunícate con otros usuarios</p>
+                    </div>
+                </a>
             </div>
         </section>
 
@@ -214,6 +221,7 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
     <!-- CONTENEDOR DE TOASTS Y SCRIPT -->
     <div id="toast-container" class="toast-container"></div>
     <script src="notifications.js"></script>
+    <script src="js/chat.js"></script>
 
 </body>
 </html>

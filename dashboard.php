@@ -3,7 +3,9 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 session_start();
 
-if (!isset($_SESSION['user_id'])) {
+// --- LÓGICA DE SEGURIDAD ---
+// El rol 5 corresponde a Administrador
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 5) {
     header("Location: index.html");
     exit();
 }
@@ -115,6 +117,7 @@ $expedienteUsuario = $_SESSION['user_expediente'];
                 <a href="gestionar_cursos.php" class="action-btn teal">🎓 Gestionar Cursos</a>
                 <a href="registrar_asistencia.php" class="action-btn indigo">➕ Registrar Asistencia</a>
                 <a href="estadisticas.php" class="action-btn steel-blue">📈 Estadísticas de Capacitación</a>
+                <a href="chat.php" class="action-btn purple">💬 Acceder al Chat</a>
             </div>
         </section>
     </main>
