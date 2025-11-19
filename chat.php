@@ -13,6 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // Obtenemos el rol del usuario para mostrar/ocultar elementos
 $user_role = $_SESSION['user_role'] ?? null;
+$user_id = $_SESSION['user_id'];
 
 ?>
 
@@ -22,7 +23,12 @@ $user_role = $_SESSION['user_role'] ?? null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
-    <link rel="stylesheet" href="estilos/chat.css">
+    <link rel="stylesheet" href="estilos/chat.css?v=1.2">
+    <script>
+        // Inyectamos el rol y el ID del usuario en JS para que el frontend pueda usarlos
+        const USER_ROLE = <?php echo json_encode($user_role); ?>;
+        const USER_ID = <?php echo json_encode($user_id); ?>;
+    </script>
 </head>
 <body>
 
@@ -32,7 +38,6 @@ $user_role = $_SESSION['user_role'] ?? null;
             <div class="sidebar-header">
                 <h3>Mensajes</h3>
                 <div class="sidebar-actions">
-                    <!-- El botón de Nuevo Chat Individual ahora es visible para todos -->
                     <button id="new-chat-btn" title="Nuevo Chat Individual">&#43;</button>
                     
                     <?php if (in_array($user_role, [4, 5])): // El botón de Crear Grupo es visible solo para Administrador y Cap-dmmr ?>
@@ -55,8 +60,13 @@ $user_role = $_SESSION['user_role'] ?? null;
             <div id="chat-active-conversation" class="chat-active-conversation" style="display: none;">
                 <!-- Encabezado de la conversación -->
                 <div class="chat-header">
-                    <img src="" alt="Avatar" id="chat-with-avatar">
-                    <span id="chat-with-user"></span>
+                    <div class="chat-header-info">
+                        <img src="" alt="Avatar" id="chat-with-avatar">
+                        <span id="chat-with-user"></span>
+                    </div>
+                    <div id="chat-header-actions" class="chat-header-actions">
+                        <!-- Los botones para "Añadir Miembros" y "Ver Miembros" se insertarán aquí dinámicamente -->
+                    </div>
                 </div>
 
                 <!-- Área de mensajes -->
@@ -90,26 +100,33 @@ $user_role = $_SESSION['user_role'] ?? null;
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h2>Crear Nuevo Grupo</h2>
-            
             <input type="text" id="group-name-input" class="modal-input" placeholder="Nombre del grupo..." required>
-
             <div class="group-members-section">
                 <p><strong>Miembros seleccionados:</strong></p>
-                <div id="group-selected-members" class="selected-members-list">
-                    <!-- Los miembros seleccionados se añadirán aquí -->
-                </div>
+                <div id="group-selected-members" class="selected-members-list"></div>
             </div>
-
             <input type="text" id="group-modal-search-users" class="modal-input" placeholder="Buscar usuarios para añadir...">
-            <div id="group-modal-users-list" class="users-list-results">
-                <!-- Los resultados de la búsqueda de usuarios para el grupo aparecerán aquí -->
-            </div>
-
+            <div id="group-modal-users-list" class="users-list-results"></div>
             <button id="submit-create-group" class="modal-submit-btn">Crear Grupo</button>
         </div>
     </div>
+    
+    <!-- Modal para AÑADIR MIEMBROS A UN GRUPO EXISTENTE -->
+    <div id="add-members-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Añadir Miembros al Grupo</h2>
+            <p>Estás añadiendo miembros a: <strong id="add-members-group-name"></strong></p>
+            <div class="group-members-section">
+                <p><strong>Nuevos miembros seleccionados:</strong></p>
+                <div id="add-members-selected-list" class="selected-members-list"></div>
+            </div>
+            <input type="text" id="add-members-search-input" class="modal-input" placeholder="Buscar usuarios para añadir...">
+            <div id="add-members-search-results" class="users-list-results"></div>
+            <button id="submit-add-members" class="modal-submit-btn">Añadir Miembros</button>
+        </div>
+    </div>
 
-
-    <script src="js/chat.js?v=1.4"></script>
+    <script src="js/chat.js?v=1.6"></script> <!-- Incrementamos la versión para evitar caché -->
 </body>
 </html>

@@ -1,41 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- ESTADO DE LA APLICACIÓN ---
+    let conversationsCache = new Map(); 
     let currentConversationId = null;
     let pollingMessages = null;
-    let groupCreationMembers = new Map(); // [ID -> {id, nombre_completo}]
+    let groupCreationMembers = new Map();
+    let addMembersSelection = new Map();
 
     // --- ELEMENTOS DEL DOM ---
-    const sidebar = document.querySelector('.sidebar');
-    const chatArea = document.querySelector('.chat-area');
     const conversationsList = document.getElementById('conversations-list');
     const messagesContainer = document.getElementById('messages-container');
     const messageForm = document.getElementById('message-form');
     const messageInput = document.getElementById('message-input');
     const chatWelcomeScreen = document.getElementById('chat-welcome-screen');
     const chatActiveConversation = document.getElementById('chat-active-conversation');
-    const chatHeader = document.querySelector('.chat-header');
+    const chatHeaderActions = document.getElementById('chat-header-actions');
     const chatWithUser = document.getElementById('chat-with-user');
     const chatWithAvatar = document.getElementById('chat-with-avatar');
 
-    // --- MODALES (Obtenidos de forma segura) ---
-    const newChatBtn = document.getElementById('new-chat-btn');
+    // --- MODALES ---
     const newChatModal = document.getElementById('new-chat-modal');
-    const closeModalBtn = document.querySelector('#new-chat-modal .close-button');
-    const modalSearchUsersInput = document.getElementById('modal-search-users');
-    const modalUsersList = document.getElementById('modal-users-list');
-
-    const createGroupBtn = document.getElementById('create-group-btn');
     const createGroupModal = document.getElementById('create-group-modal');
-    const closeGroupModalBtn = document.querySelector('#create-group-modal .close-button');
-    const groupNameInput = document.getElementById('group-name-input');
-    const groupSelectedMembersContainer = document.getElementById('group-selected-members');
-    const groupModalSearchInput = document.getElementById('group-modal-search-users');
-    const groupModalUsersList = document.getElementById('group-modal-users-list');
-    const submitCreateGroupBtn = document.getElementById('submit-create-group');
+    const addMembersModal = document.getElementById('add-members-modal');
 
     /* =======================================================
-       1. CARGA DE CONVERSACIONES
+       1. CARGA Y RENDERIZADO DE CONVERSACIONES
     ======================================================= */
     async function fetchConversations() {
         try {
@@ -43,61 +32,79 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
 
             if (!data.success) {
-                if(conversationsList) conversationsList.innerHTML = `<p class="error-msg">${data.message || 'Error al cargar chats.'}</p>`;
+                if (!res.headers.get("content-type")?.includes("application/json")) {
+                     console.error("Respuesta inesperada del servidor. Probablemente la sesión ha expirado.");
+                     conversationsList.innerHTML = `<p class="error-msg">Error de conexión. Recarga la página.</p>`;
+                     return;
+                }
+                conversationsList.innerHTML = `<p class="error-msg">${data.message || 'Error al cargar'}</p>`;
                 return;
             }
 
-            const prevActiveId = document.querySelector(".conversation-item.active")?.dataset.conversationId;
-            if(conversationsList) conversationsList.innerHTML = "";
-
-            if (data.data.length === 0) {
-                if(conversationsList) conversationsList.innerHTML = `<p class="info-msg">No tienes conversaciones. ¡Inicia una nueva!</p>`;
-            }
-
-            data.data.forEach(conv => {
-                const item = document.createElement("div");
-                item.className = "conversation-item";
-                item.dataset.conversationId = conv.id;
-
-                const avatar = conv.is_group ? `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.group_name)}&background=random` : conv.participant_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.participant_name)}&background=random`;
-                const name = conv.is_group ? conv.group_name : conv.participant_name;
-                const lastMsg = conv.last_message || "Sin mensajes aún";
-
-                item.innerHTML = `
-                    <img src="${avatar}" alt="Avatar">
-                    <div class="conversation-details">
-                        <div class="conversation-name">${name}</div>
-                        <div class="last-message">${lastMsg}</div>
-                    </div>
-                `;
-
-                item.onclick = () => openConversation(conv.id, name, avatar);
-                if (String(prevActiveId) === String(conv.id)) item.classList.add("active");
-                if(conversationsList) conversationsList.appendChild(item);
-            });
+            const newCache = new Map();
+            data.data.forEach(conv => newCache.set(conv.id, conv));
+            conversationsCache = newCache;
+            
+            renderConversationsList();
 
         } catch (e) {
             console.error("Error fatal cargando conversaciones:", e);
-            if(conversationsList) conversationsList.innerHTML = `<p class="error-msg">Error de conexión con la API.</p>`;
+            conversationsList.innerHTML = `<p class="error-msg">Error de conexión.</p>`;
         }
     }
 
+    function renderConversationsList() {
+        const activeId = currentConversationId;
+        conversationsList.innerHTML = "";
+
+        if (conversationsCache.size === 0) {
+            conversationsList.innerHTML = `<p class="info-msg">No tienes chats. ¡Inicia uno nuevo!</p>`;
+            return;
+        }
+        
+        const sortedConversations = Array.from(conversationsCache.values());
+
+        sortedConversations.forEach(conv => {
+            const item = document.createElement("div");
+            item.className = "conversation-item";
+            item.dataset.conversationId = conv.id;
+            if (conv.id === activeId) {
+                item.classList.add("active");
+            }
+
+            item.innerHTML = `
+                <img src="${conv.avatar}" alt="Avatar">
+                <div class="conversation-details">
+                    <div class="conversation-name">${conv.name}</div>
+                    <div class="last-message">${conv.last_message || ''}</div>
+                </div>
+            `;
+
+            item.onclick = () => openConversation(conv.id);
+            conversationsList.appendChild(item);
+        });
+    }
+
     /* =======================================================
-       2. ABRIR UNA CONVERSACIÓN
+       2. GESTIÓN DE LA CONVERSACIÓN ACTIVA
     ======================================================= */
-    function openConversation(id, name, avatar) {
-        if (window.innerWidth <= 800 && sidebar) sidebar.classList.remove('open');
-        if (currentConversationId === id && chatActiveConversation && chatActiveConversation.style.display === 'flex') return;
+    function openConversation(id) {
+        if (currentConversationId === id && chatActiveConversation.style.display === 'flex') return;
+        
+        const conv = conversationsCache.get(id);
+        if (!conv) {
+            console.error("Conversación no encontrada en caché");
+            return;
+        }
 
         currentConversationId = id;
-        if(chatWelcomeScreen) chatWelcomeScreen.style.display = "none";
-        if(chatActiveConversation) chatActiveConversation.style.display = "flex";
-        if(chatWithUser) chatWithUser.textContent = name;
-        if(chatWithAvatar) chatWithAvatar.src = avatar;
+        chatWelcomeScreen.style.display = "none";
+        chatActiveConversation.style.display = "flex";
+        chatWithUser.textContent = conv.name;
+        chatWithAvatar.src = conv.avatar;
 
-        document.querySelectorAll(".conversation-item.active").forEach(c => c.classList.remove("active"));
-        const activeItem = document.querySelector(`[data-conversation-id="${id}"]`);
-        if (activeItem) activeItem.classList.add("active");
+        renderChatHeaderActions(conv);
+        renderConversationsList();
 
         if (pollingMessages) clearInterval(pollingMessages);
         fetchMessages(id).then(() => {
@@ -105,11 +112,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function renderChatHeaderActions(conv) {
+        chatHeaderActions.innerHTML = '';
+        if (conv.is_group) {
+            if ([4, 5].includes(USER_ROLE)) {
+                const addBtn = document.createElement('button');
+                addBtn.className = 'header-action-btn';
+                addBtn.title = 'Añadir Miembros';
+                addBtn.innerHTML = '&#43;👤';
+                addBtn.onclick = () => openAddMembersModal(conv);
+                chatHeaderActions.appendChild(addBtn);
+            }
+        }
+    }
+
     /* =======================================================
-       3. CARGAR MENSAJES
+       3. CARGA Y ENVÍO DE MENSAJES
     ======================================================= */
     async function fetchMessages(conversationId, onlyNew = false) {
-        if (!messagesContainer) return;
         try {
             const res = await fetch(`api/chat_api.php?action=get_messages&conversation_id=${conversationId}`);
             const data = await res.json();
@@ -134,22 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error("Error cargando mensajes:", e); }
     }
 
-    /* =======================================================
-       4. ENVIAR MENSAJE
-    ======================================================= */
     async function sendMessage(e) {
         e.preventDefault();
-        if (!messageInput || !messageInput.value.trim() || !currentConversationId) return;
         const text = messageInput.value.trim();
+        if (!text || !currentConversationId) return;
         messageInput.value = "";
-        
-        const tempId = `temp_${Date.now()}`;
-        const div = document.createElement("div");
-        div.className = 'message sent optimistic';
-        div.dataset.id = tempId;
-        div.innerHTML = `<div class="bubble-text">${text}</div><div class="message-timestamp">Enviando...</div>`;
-        messagesContainer.appendChild(div);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         const form = new FormData();
         form.append("action", "send_message");
@@ -159,128 +168,42 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch("api/chat_api.php", { method: "POST", body: form });
             const data = await res.json();
-            const tempMessage = messagesContainer.querySelector(`[data-id='${tempId}']`);
-            if (!tempMessage) return;
-
-            if (data.success && data.data) {
-                tempMessage.dataset.id = data.data.id;
-                tempMessage.classList.remove('optimistic');
-                tempMessage.querySelector('.message-timestamp').textContent = data.data.timestamp_formatted;
-                fetchConversations(); // Actualiza la lista para que este chat suba
+            if (data.success) {
+                await fetchMessages(currentConversationId, true);
+                await fetchConversations();
             } else {
-                tempMessage.classList.add('error');
-                tempMessage.querySelector('.message-timestamp').textContent = 'Error al enviar';
+                alert('Error al enviar mensaje: ' + data.message);
             }
         } catch (e) {
-            console.error('Error en send_message:', e);
-            const tempMessage = messagesContainer.querySelector(`[data-id='${tempId}']`);
-            if (tempMessage) tempMessage.querySelector('.message-timestamp').textContent = 'Error de red';
+            alert('Error de red al enviar el mensaje.');
         }
     }
 
     /* =======================================================
-       5. BUSCAR USUARIOS (PARA CHAT INDIVIDUAL Y GRUPO)
+       4. MODAL: CREAR GRUPO
     ======================================================= */
-    async function searchUsers(query, resultContainer, exclusionMap = new Map()) {
-        if (!query) {
-            resultContainer.innerHTML = "";
-            return;
-        }
-        try {
-            const res = await fetch(`api/chat_api.php?action=search_users&query=${encodeURIComponent(query)}`);
-            const data = await res.json();
-            resultContainer.innerHTML = "";
-            if (!data.success || data.data.length === 0) {
-                resultContainer.innerHTML = "<div class='user-item-none'>Sin resultados</div>";
-                return;
-            }
-            data.data.forEach(u => {
-                if (exclusionMap.has(u.id)) return;
-                const div = document.createElement("div");
-                div.className = "user-item";
-                div.innerHTML = `<strong>${u.nombre_completo}</strong> <span>(${u.expediente})</span>`;
-                // Dependiendo del contenedor, la acción es diferente
-                if (resultContainer.id === 'modal-users-list') {
-                     div.onclick = () => startConversation(u.id, u.nombre_completo, u.avatar_url);
-                } else {
-                     div.onclick = () => addMemberToGroupSelection(u);
-                }
-                resultContainer.appendChild(div);
-            });
-        } catch (e) { resultContainer.innerHTML = "<div class='user-item-none'>Error de búsqueda</div>"; }
+    const createGroupBtn = document.getElementById('create-group-btn');
+    if (createGroupBtn) {
+        createGroupBtn.onclick = () => {
+            groupCreationMembers.clear();
+            document.getElementById('group-name-input').value = '';
+            document.getElementById('group-modal-search-users').value = '';
+            document.getElementById('group-modal-users-list').innerHTML = '';
+            renderSelectedMembers(groupCreationMembers, 'group-selected-members', removeMemberFromGroupSelection);
+            createGroupModal.style.display = 'flex';
+        };
     }
 
-    /* =======================================================
-       6. INICIAR CONVERSACIÓN INDIVIDUAL
-    ======================================================= */
-    async function startConversation(userId, userName, avatar) {
-        const form = new FormData();
-        form.append("action", "start_conversation");
-        form.append("user_id", userId);
-        try {
-            const res = await fetch("api/chat_api.php", { method: "POST", body: form });
-            const data = await res.json();
-            if (!data.success) { alert(data.message); return; }
+    document.getElementById('group-modal-search-users').addEventListener('input', (e) => {
+        const query = e.target.value;
+        const exclusions = Array.from(groupCreationMembers.keys());
+        searchUsers(query, document.getElementById('group-modal-users-list'), exclusions, addMemberToGroupSelection);
+    });
 
-            if (newChatModal) newChatModal.style.display = "none";
-            await fetchConversations();
-            const finalAvatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=random`;
-            openConversation(data.conversation_id, userName, finalAvatar);
-        } catch(e) { alert("Error de red al iniciar la conversación."); }
-    }
-
-    /* =======================================================
-       7. FUNCIONALIDAD DE CREACIÓN DE GRUPOS
-    ======================================================= */
-    function openGroupCreationModal() {
-        groupCreationMembers.clear();
-        if(groupNameInput) groupNameInput.value = "";
-        if(groupModalSearchInput) groupModalSearchInput.value = "";
-        if(groupModalUsersList) groupModalUsersList.innerHTML = "";
-        renderSelectedMembers();
-        if(createGroupModal) createGroupModal.style.display = "flex";
-    }
-
-    function addMemberToGroupSelection(user) {
-        if (groupCreationMembers.has(user.id)) return;
-        groupCreationMembers.set(user.id, user);
-        if(groupModalSearchInput) groupModalSearchInput.value = "";
-        if(groupModalUsersList) groupModalUsersList.innerHTML = "";
-        renderSelectedMembers();
-    }
-
-    function removeMemberFromGroupSelection(userId) {
-        groupCreationMembers.delete(userId);
-        renderSelectedMembers();
-    }
-
-    function renderSelectedMembers() {
-        if(!groupSelectedMembersContainer) return;
-        groupSelectedMembersContainer.innerHTML = "";
-        if (groupCreationMembers.size === 0) {
-            groupSelectedMembersContainer.innerHTML = "<p class='info-msg'>Añade miembros desde la búsqueda.</p>";
-            return;
-        }
-        groupCreationMembers.forEach(user => {
-            const item = document.createElement('div');
-            item.className = 'selected-member-item';
-            item.innerHTML = `<span>${user.nombre_completo}</span><button class="remove-member-btn" data-id="${user.id}">&times;</button>`;
-            // Añadir el listener al botón de eliminar miembro de forma segura
-            const removeBtn = item.querySelector('.remove-member-btn');
-            if (removeBtn) removeBtn.onclick = () => removeMemberFromGroupSelection(user.id);
-            groupSelectedMembersContainer.appendChild(item);
-        });
-    }
-
-    async function submitCreateGroup() {
-        if(!groupNameInput) return;
-        const groupName = groupNameInput.value.trim();
+    document.getElementById('submit-create-group').onclick = async () => {
+        const groupName = document.getElementById('group-name-input').value.trim();
         if (!groupName) {
             alert("Por favor, dale un nombre al grupo.");
-            return;
-        }
-        if (groupCreationMembers.size < 1) {
-            alert("Debes añadir al menos un miembro al grupo.");
             return;
         }
 
@@ -295,55 +218,188 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
 
             if (data.success) {
-                if(createGroupModal) createGroupModal.style.display = 'none';
+                createGroupModal.style.display = 'none';
                 await fetchConversations();
-                openConversation(data.conversation_id, groupName, `https://ui-avatars.com/api/?name=${encodeURIComponent(groupName)}&background=random`);
+                openConversation(data.conversation_id);
             } else {
                 alert(`Error al crear grupo: ${data.message}`);
             }
-        } catch(e) { alert('Error de red al crear el grupo.'); }
+        } catch (e) {
+            alert('Error de red al crear el grupo.');
+        }
+    };
+
+    function addMemberToGroupSelection(user) {
+        groupCreationMembers.set(user.id, user);
+        document.getElementById('group-modal-search-users').value = '';
+        document.getElementById('group-modal-users-list').innerHTML = '';
+        renderSelectedMembers(groupCreationMembers, 'group-selected-members', removeMemberFromGroupSelection);
+    }
+
+    function removeMemberFromGroupSelection(userId) {
+        groupCreationMembers.delete(userId);
+        renderSelectedMembers(groupCreationMembers, 'group-selected-members', removeMemberFromGroupSelection);
     }
 
     /* =======================================================
-       8. EVENT LISTENERS (VERSIÓN FINAL Y ROBUSTA)
+       5. MODAL: AÑADIR MIEMBROS A GRUPO
+    ======================================================= */
+    function openAddMembersModal(conv) {
+        addMembersSelection.clear();
+        document.getElementById('add-members-group-name').textContent = conv.name;
+        document.getElementById('add-members-search-input').value = '';
+        document.getElementById('add-members-search-results').innerHTML = '';
+        renderSelectedMembers(addMembersSelection, 'add-members-selected-list', removeMemberFromAddSelection);
+        addMembersModal.style.display = 'flex';
+    }
+
+    document.getElementById('add-members-search-input').addEventListener('input', (e) => {
+        const query = e.target.value;
+        const conv = conversationsCache.get(currentConversationId);
+        if (!conv) return;
+
+        const exclusions = [...conv.participant_ids, ...Array.from(addMembersSelection.keys())];
+        searchUsers(query, document.getElementById('add-members-search-results'), exclusions, addMemberToAddSelection);
+    });
+
+    document.getElementById('submit-add-members').onclick = async () => {
+        const newMemberIds = Array.from(addMembersSelection.keys());
+        if (newMemberIds.length === 0) {
+            alert('Debes seleccionar al menos un miembro para añadir.');
+            return;
+        }
+
+        const form = new FormData();
+        form.append('action', 'add_members');
+        form.append('conversation_id', currentConversationId);
+        form.append('members', JSON.stringify(newMemberIds));
+
+        try {
+            const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
+            const data = await res.json();
+
+            if (data.success) {
+                addMembersModal.style.display = 'none';
+                await fetchConversations(); 
+                alert('Miembros añadidos correctamente.');
+            } else {
+                alert(`Error al añadir miembros: ${data.message}`);
+            }
+        } catch (e) {
+            alert('Error de red al añadir miembros.');
+        }
+    };
+
+    function addMemberToAddSelection(user) {
+        addMembersSelection.set(user.id, user);
+        document.getElementById('add-members-search-input').value = '';
+        document.getElementById('add-members-search-results').innerHTML = '';
+        renderSelectedMembers(addMembersSelection, 'add-members-selected-list', removeMemberFromAddSelection);
+    }
+
+    function removeMemberFromAddSelection(userId) {
+        addMembersSelection.delete(userId);
+        renderSelectedMembers(addMembersSelection, 'add-members-selected-list', removeMemberFromAddSelection);
+    }
+
+    /* =======================================================
+       6. FUNCIONES GENÉRICAS (Búsqueda, etc.)
+    ======================================================= */
+    async function searchUsers(query, resultContainer, exclusions = [], onSelect) {
+        if (!query.trim()) {
+            resultContainer.innerHTML = "";
+            return;
+        }
+        try {
+            const excludeParam = JSON.stringify(exclusions);
+            const res = await fetch(`api/chat_api.php?action=search_users&query=${encodeURIComponent(query)}&exclude=${encodeURIComponent(excludeParam)}`);
+            const data = await res.json();
+            resultContainer.innerHTML = "";
+
+            if (data.success && data.data.length > 0) {
+                data.data.forEach(u => {
+                    const div = document.createElement("div");
+                    div.className = "user-item";
+                    div.innerHTML = `<strong>${u.nombre_completo}</strong> <span>(${u.expediente})</span>`;
+                    div.onclick = () => onSelect(u);
+                    resultContainer.appendChild(div);
+                });
+            } else {
+                resultContainer.innerHTML = "<div class='user-item-none'>Sin resultados</div>";
+            }
+        } catch (e) {
+            console.error('Error en searchUsers:', e);
+            resultContainer.innerHTML = "<div class='user-item-none'>Error de búsqueda</div>";
+        }
+    }
+
+    function renderSelectedMembers(selectionMap, containerId, onRemove) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = "";
+        if (selectionMap.size === 0) {
+            container.innerHTML = "<p class='info-msg'>Añade miembros desde la búsqueda.</p>";
+            return;
+        }
+        selectionMap.forEach(user => {
+            const item = document.createElement('div');
+            item.className = 'selected-member-item';
+            item.innerHTML = `<span>${user.nombre_completo}</span><button class="remove-member-btn" data-id="${user.id}">&times;</button>`;
+            item.querySelector('.remove-member-btn').onclick = () => onRemove(user.id);
+            container.appendChild(item);
+        });
+    }
+
+    /* =======================================================
+       7. EVENT LISTENERS GENERALES
     ======================================================= */
     if (messageForm) {
         messageForm.addEventListener("submit", sendMessage);
     }
     
-    // --- Modal de chat individual ---
-    if (newChatBtn && newChatModal) {
-        newChatBtn.onclick = () => { newChatModal.style.display = 'flex'; };
-    }
-    if (closeModalBtn && newChatModal) {
-        closeModalBtn.onclick = () => { newChatModal.style.display = 'none'; };
-    }
-    if (modalSearchUsersInput && modalUsersList) {
-        modalSearchUsersInput.addEventListener('input', () => searchUsers(modalSearchUsersInput.value, modalUsersList));
-    }
-
-    // --- Modal de creación de grupo ---
-    if (createGroupBtn && createGroupModal) {
-        createGroupBtn.onclick = openGroupCreationModal;
-    }
-    if (closeGroupModalBtn && createGroupModal) {
-        closeGroupModalBtn.onclick = () => { createGroupModal.style.display = 'none'; };
-    }
-    if (groupModalSearchInput && groupModalUsersList) {
-        groupModalSearchInput.addEventListener('input', () => searchUsers(groupModalSearchInput.value, groupModalUsersList, groupCreationMembers));
-    }
-    if (submitCreateGroupBtn) {
-        submitCreateGroupBtn.onclick = submitCreateGroup; // CORREGIDO
+    const newChatBtn = document.getElementById('new-chat-btn');
+    if (newChatBtn) {
+        newChatBtn.onclick = () => {
+            document.getElementById('modal-search-users').value = '';
+            document.getElementById('modal-users-list').innerHTML = '';
+            newChatModal.style.display = 'flex';
+        };
     }
     
-    // --- Clics generales ---
-    window.onclick = e => {
-        if (newChatModal && e.terget === newChatModal) newChatModal.style.display = 'none';
-        if (createGroupModal && e.target === createGroupModal) createGroupModal.style.display = 'none';
-    };
+    document.getElementById('modal-search-users').addEventListener('input', (e) => {
+        searchUsers(e.target.value, document.getElementById('modal-users-list'), [], async (user) => {
+            const form = new FormData();
+            form.append('action', 'start_conversation');
+            form.append('user_id', user.id);
+            try {
+                const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
+                const data = await res.json();
+                if(data.success) {
+                    newChatModal.style.display = 'none';
+                    await fetchConversations();
+                    openConversation(data.conversation_id);
+                } else {
+                    alert('Error al iniciar chat: ' + data.message);
+                }
+            } catch (err) {
+                alert('Error de red al iniciar chat.');
+            }
+        });
+    });
 
-    // Carga inicial y sondeo
+    document.querySelectorAll('.modal .close-button').forEach(btn => {
+        btn.onclick = () => {
+            btn.closest('.modal').style.display = 'none';
+        };
+    });
+    window.onclick = e => {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
+        }
+    };
+    
+    // Carga inicial
     fetchConversations();
-    setInterval(fetchConversations, 5000);
+    setInterval(fetchConversations, 5000); // Polling para mantener la lista de chats actualizada
 
 });
