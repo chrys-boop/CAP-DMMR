@@ -163,6 +163,19 @@ body {
     font-weight: 600;
 }
 
+.chat-header-actions {
+    margin-left: auto;
+}
+
+.header-action-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #54656f;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
 /* --- Contenedor de Mensajes --- */
 .messages-container {
     flex: 1;
@@ -195,6 +208,7 @@ body {
 .sent {
     align-self: flex-end;
     align-items: flex-end;
+    cursor: pointer; /* Indicar que se puede hacer clic */
 }
 
 .sent .bubble-text {
@@ -210,12 +224,6 @@ body {
 .received .bubble-text {
     background-color: #fff;
 }
-
-.sent.optimistic .message-timestamp,
-.sent.error .message-timestamp {
-    font-style: italic;
-}
-
 
 /* --- Pie de Página del Chat (Formulario) --- */
 .chat-footer {
@@ -298,7 +306,7 @@ body {
 }
 
 .users-list-results {
-    max-height: 150px;
+    max-height: 250px;
     overflow-y: auto;
     border: 1px solid #eee;
 }
@@ -313,20 +321,18 @@ body {
     background-color: #f0f0f0;
 }
 
-.user-item-none {
+.user-item-none, .info-msg, .error-msg {
     padding: 10px;
     color: #888;
 }
 
-/* --- Modal de Creación de Grupo Específico --- */
-.group-members-section {
-    margin: 10px 0;
+.error-msg {
+    color: #d9534f;
 }
 
-.group-members-section p {
-    margin-top: 0;
-    font-weight: bold;
-    color: #333;
+/* --- Estilos específicos de modales --- */
+.group-members-section {
+    margin: 10px 0;
 }
 
 .selected-members-list {
@@ -341,26 +347,21 @@ body {
 }
 
 .selected-member-item {
-    display: flex;
-    align-items: center;
-    background-color: #e0e0e0;
-    border-radius: 16px;
+    display: flex; 
+    align-items: center; 
+    background-color: #e0e0e0; 
+    border-radius: 16px; 
     padding: 4px 10px;
     font-size: 0.9rem;
 }
 
-.selected-member-item span {
-    margin-right: 6px;
-}
-
 .remove-member-btn {
     cursor: pointer;
-    font-weight: bold;
-    color: #555;
     background: none;
     border: none;
     font-size: 1.2rem;
     line-height: 1;
+    margin-left: 6px;
 }
 
 .modal-submit-btn {
@@ -375,40 +376,36 @@ body {
     margin-top: 20px;
 }
 
-.modal-submit-btn:hover {
-    background-color: #0056b3;
-}
-
+.modal-submit-btn:hover { background-color: #0056b3; }
 
 /* =======================================================
-   RESPONSIVIDAD (MÓVIL)
+   MENÚ CONTEXTUAL DE MENSAJE (NUEVO)
 ======================================================= */
-@media (max-width: 800px) {
-    .sidebar {
-        position: absolute;
-        left: -100%;
-        top: 0;
-        width: 85%;
-        height: 100%;
-        z-index: 10;
-        transition: left 0.3s ease;
-    }
+.message-context-menu {
+    position: absolute;
+    z-index: 200;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
 
-    .sidebar.open {
-        left: 0;
-    }
+.message-context-menu button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
 
-    .chat-header {
-        /* Añadir un ícono o área para abrir el menú */
-        background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2354656f"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>');
-        background-repeat: no-repeat;
-        background-position: 16px center;
-        background-size: 24px;
-        padding-left: 50px; /* Espacio para el ícono de "atrás" */
-        cursor: pointer;
-    }
+.message-context-menu button:hover {
+    background-color: #f5f5f5;
+}
 
-    #chat-with-avatar {
-        display: none; /* Ocultar avatar en la barra superior móvil para dar espacio */
-    }
+.message-context-menu button:first-child {
+    border-bottom: 1px solid #eee;
 }

@@ -268,34 +268,61 @@ try {
     }
 
     function get_group_members($conn, $user_id, $conversation_id) {
-        // 1. Comprobar que el usuario es miembro del grupo para poder ver la lista.
         $stmt_check = $conn->prepare("SELECT COUNT(*) FROM chat_participants WHERE conversation_id = ? AND user_id = ?");
         $stmt_check->execute([$conversation_id, $user_id]);
         if ($stmt_check->fetchColumn() == 0) {
             throw new Exception('Acceso denegado: no eres miembro de este grupo.');
         }
 
-        // 2. Obtener todos los miembros del grupo (SIN EL ROL, YA QUE NO HAY TABLA)
         $sql = "
-            SELECT 
-                u.id, 
-                u.nombre_completo, 
-                u.expediente
-            FROM 
-                usuarios u
-            JOIN 
-                chat_participants p ON u.id = p.user_id
-            WHERE 
-                p.conversation_id = ?
-            ORDER BY 
-                u.nombre_completo ASC
-        ";
+            SELECT u.id, u.nombre_completo, u.expediente
+            FROM usuarios u JOIN chat_participants p ON u.id = p.user_id
+            WHERE p.conversation_id = ? ORDER BY u.nombre_completo ASC";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([$conversation_id]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode(['success' => true, 'data' => $members]);
+    }
+
+    function delete_message($conn, $user_id, $message_id) {
+        $stmt_check = $conn->prepare("SELECT sender_id FROM chat_messages WHERE id = ?");
+        $stmt_check->execute([$message_id]);
+        $message = $stmt_check->fetch(PDO::FETCH_ASSOC);
+
+        if (!$message) throw new Exception('El mensaje no existe o ya fue eliminado.');
+        if ($message['sender_id'] != $user_id) throw new Exception('No tienes permiso para eliminar este mensaje.');
+
+        $sql_delete = "DELETE FROM chat_messages WHERE id = ?";
+        $stmt_delete = $conn->prepare($sql_delete);
+        $stmt_delete->execute([$message_id]);
+
+        if ($stmt_delete->rowCount() > 0) {
+            echo json_encode(['success' => true, 'message' => 'Mensaje eliminado para todos.']);
+        } else {
+            throw new Exception('No se pudo eliminar el mensaje.');
+        }
+    }
+
+    function leave_conversation($conn, $user_id, $conversation_id) {
+        // Opcional: Impedir abandonar el chat General
+        $stmt_check = $conn->prepare("SELECT name FROM chat_conversations WHERE id = ?");
+        $stmt_check->execute([$conversation_id]);
+        $conv = $stmt_check->fetch(PDO::FETCH_ASSOC);
+        if ($conv && $conv['name'] === 'General') {
+            throw new Exception('No puedes abandonar el chat general.');
+        }
+
+        $sql_delete = "DELETE FROM chat_participants WHERE conversation_id = ? AND user_id = ?";
+        $stmt_delete = $conn->prepare($sql_delete);
+        $stmt_delete->execute([$conversation_id, $user_id]);
+
+        if ($stmt_delete->rowCount() > 0) {
+            echo json_encode(['success' => true, 'message' => 'Has abandonado la conversación.']);
+        } else {
+            throw new Exception('No se pudo abandonar la conversación o ya no eras miembro.');
+        }
     }
 
     // ---------- Router ----------
@@ -331,6 +358,14 @@ try {
         case 'get_group_members':
             if (!isset($_GET['conversation_id'])) throw new Exception("Conversation ID es requerido.");
             get_group_members($conn, $current_user_id, (int)$_GET['conversation_id']);
+            break;
+        case 'delete_message':
+            if (!isset($_POST['message_id'])) throw new Exception("Message ID es requerido.");
+            delete_message($conn, $current_user_id, (int)$_POST['message_id']);
+            break;
+        case 'leave_conversation':
+            if (!isset($_POST['conversation_id'])) throw new Exception("Conversation ID es requerido.");
+            leave_conversation($conn, $current_user_id, (int)$_POST['conversation_id']);
             break;
         default:
             throw new Exception("Acción no válida o no especificada: " . htmlspecialchars($action));

@@ -1,11 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- ESTADO DE LA APLICACIÓN ---
-    let conversationsCache = new Map(); 
+    let conversationsCache = new Map();
     let currentConversationId = null;
     let pollingMessages = null;
     let groupCreationMembers = new Map();
     let addMembersSelection = new Map();
+    // (NUEVO) Almacenamiento local para mensajes ocultos
+    let hiddenMessages = new Set(JSON.parse(localStorage.getItem('hidden_chat_messages')) || []);
 
     // --- ELEMENTOS DEL DOM ---
     const conversationsList = document.getElementById('conversations-list');
@@ -22,7 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const newChatModal = document.getElementById('new-chat-modal');
     const createGroupModal = document.getElementById('create-group-modal');
     const addMembersModal = document.getElementById('add-members-modal');
-    const viewMembersModal = document.getElementById('view-members-modal'); // Nuevo modal
+    const viewMembersModal = document.getElementById('view-members-modal');
+
+    // (NUEVO) Función para guardar IDs de mensajes ocultos
+    function saveHiddenMessages() {
+        localStorage.setItem('hidden_chat_messages', JSON.stringify(Array.from(hiddenMessages)));
+    }
 
     /* =======================================================
        1. CARGA Y RENDERIZADO DE CONVERSACIONES
@@ -116,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderChatHeaderActions(conv) {
         chatHeaderActions.innerHTML = '';
         if (conv.is_group) {
-            // Botón para VER miembros (visible para todos en el grupo)
             const viewBtn = document.createElement('button');
             viewBtn.className = 'header-action-btn';
             viewBtn.title = 'Ver Miembros';
@@ -124,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
             viewBtn.onclick = () => openViewMembersModal(conv);
             chatHeaderActions.appendChild(viewBtn);
 
-            // Botón para AÑADIR miembros (solo para roles específicos)
             if ([4, 5].includes(USER_ROLE)) {
                 const addBtn = document.createElement('button');
                 addBtn.className = 'header-action-btn';
@@ -150,11 +155,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const existingIds = new Set([...messagesContainer.querySelectorAll("[data-id]")].map(m => m.dataset.id));
             data.data.forEach(msg => {
+                // (MODIFICADO) No renderizar si está oculto localmente
+                if (hiddenMessages.has(String(msg.id))) return;
                 if (existingIds.has(String(msg.id))) return;
+
                 const div = document.createElement("div");
                 div.className = `message ${msg.is_sender ? "sent" : "received"}`;
                 div.dataset.id = msg.id;
                 div.innerHTML = `<div class="bubble-text">${msg.message_content}</div><div class="message-timestamp">${msg.timestamp_formatted || ''}</div>`;
+                
+                // (NUEVO) Añadir listener para menú contextual en mensajes enviados
+                if (msg.is_sender) {
+                    div.addEventListener('click', (e) => showDeleteContextMenu(e, msg.id));
+                }
+
                 messagesContainer.appendChild(div);
             });
 
@@ -190,7 +204,79 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* =======================================================
-       4. MODAL: CREAR GRUPO
+       4. (NUEVO) MENÚ CONTEXTUAL PARA ELIMINAR MENSAJES
+    ======================================================= */
+    function showDeleteContextMenu(event, messageId) {
+        event.preventDefault();
+        closeContextMenu(); // Cierra cualquier otro menú abierto
+
+        const contextMenu = document.createElement('div');
+        contextMenu.className = 'message-context-menu';
+        contextMenu.id = 'message-context-menu';
+        
+        // Posicionar el menú donde se hizo clic
+        contextMenu.style.left = `${event.pageX}px`;
+        contextMenu.style.top = `${event.pageY}px`;
+
+        contextMenu.innerHTML = `
+            <button id="delete-for-me">Eliminar para mí</button>
+            <button id="delete-for-everyone">Eliminar para todos</button>
+        `;
+
+        document.body.appendChild(contextMenu);
+
+        // Lógica para "Eliminar para mí"
+        document.getElementById('delete-for-me').onclick = () => {
+            hiddenMessages.add(String(messageId));
+            saveHiddenMessages();
+            const msgElement = document.querySelector(`.message[data-id='${messageId}']`);
+            if (msgElement) msgElement.style.display = 'none'; // Ocultarlo de la vista
+            closeContextMenu();
+        };
+
+        // Lógica para "Eliminar para todos"
+        document.getElementById('delete-for-everyone').onclick = async () => {
+            if (!confirm("¿Estás seguro de que quieres eliminar este mensaje para todos?")) {
+                closeContextMenu();
+                return;
+            }
+            
+            const form = new FormData();
+            form.append('action', 'delete_message');
+            form.append('message_id', messageId);
+
+            try {
+                const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
+                const data = await res.json();
+                if (data.success) {
+                    // Si se borra en la DB, eliminarlo de la vista de todos modos
+                    const msgElement = document.querySelector(`.message[data-id='${messageId}']`);
+                    if (msgElement) msgElement.remove();
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            } catch (e) {
+                alert('Error de red al intentar eliminar el mensaje.');
+            }
+            closeContextMenu();
+        };
+    }
+
+    // Cierra el menú contextual
+    function closeContextMenu() {
+        const existingMenu = document.getElementById('message-context-menu');
+        if (existingMenu) existingMenu.remove();
+    }
+    
+    // Cierra el menú si se hace clic fuera
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#message-context-menu') && !e.target.closest('.message.sent')) {
+            closeContextMenu();
+        }
+    });
+
+    /* =======================================================
+       5. MODAL: CREAR GRUPO
     ======================================================= */
     const createGroupBtn = document.getElementById('create-group-btn');
     if (createGroupBtn) {
@@ -252,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* =======================================================
-       5. MODAL: AÑADIR MIEMBROS A GRUPO
+       6. MODAL: AÑADIR MIEMBROS A GRUPO
     ======================================================= */
     function openAddMembersModal(conv) {
         addMembersSelection.clear();
@@ -313,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* =======================================================
-       6. MODAL: VER MIEMBROS DE GRUPO
+       7. MODAL: VER MIEMBROS DE GRUPO
     ======================================================= */
     async function openViewMembersModal(conv) {
         document.getElementById('view-members-group-name').textContent = conv.name;
@@ -348,14 +434,13 @@ document.addEventListener('DOMContentLoaded', () => {
         members.forEach(member => {
             const item = document.createElement('div');
             item.className = 'user-item';
-            // (CORREGIDO) Se elimina la parte del rol que daba error
             item.innerHTML = `<strong>${member.nombre_completo}</strong> <span>(${member.expediente || 'N/A'})</span>`;
             listContainer.appendChild(item);
         });
     }
 
     /* =======================================================
-       7. FUNCIONES GENÉRICAS (Búsqueda, etc.)
+       8. FUNCIONES GENÉRICAS (Búsqueda, etc.)
     ======================================================= */
     async function searchUsers(query, resultContainer, exclusions = [], onSelect) {
         if (!query.trim()) {
@@ -403,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* =======================================================
-       8. EVENT LISTENERS GENERALES
+       9. EVENT LISTENERS GENERALES
     ======================================================= */
     if (messageForm) {
         messageForm.addEventListener("submit", sendMessage);
