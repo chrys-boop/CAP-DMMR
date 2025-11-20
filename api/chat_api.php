@@ -307,10 +307,11 @@ try {
 
     function leave_conversation($conn, $user_id, $conversation_id) {
         // Opcional: Impedir abandonar el chat General
-        $stmt_check = $conn->prepare("SELECT name FROM chat_conversations WHERE id = ?");
+        $stmt_check = $conn->prepare("SELECT name, type FROM chat_conversations WHERE id = ?");
         $stmt_check->execute([$conversation_id]);
         $conv = $stmt_check->fetch(PDO::FETCH_ASSOC);
-        if ($conv && $conv['name'] === 'General') {
+
+        if ($conv && $conv['name'] === 'General' && $conv['type'] === 'group') {
             throw new Exception('No puedes abandonar el chat general.');
         }
 
@@ -363,7 +364,8 @@ try {
             if (!isset($_POST['message_id'])) throw new Exception("Message ID es requerido.");
             delete_message($conn, $current_user_id, (int)$_POST['message_id']);
             break;
-        case 'leave_conversation':
+        case 'leave_group': // Nueva acción
+        case 'delete_chat': // Nueva acción
             if (!isset($_POST['conversation_id'])) throw new Exception("Conversation ID es requerido.");
             leave_conversation($conn, $current_user_id, (int)$_POST['conversation_id']);
             break;

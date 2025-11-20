@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // (NUEVO) Almacenamiento local para mensajes ocultos
     let hiddenMessages = new Set(JSON.parse(localStorage.getItem('hidden_chat_messages')) || []);
 
-    // --- ELEMENTOS DEL DOM ---
+    // --- ELEMENTOS DEL DOM -- -
     const conversationsList = document.getElementById('conversations-list');
     const messagesContainer = document.getElementById('messages-container');
     const messageForm = document.getElementById('message-form');
@@ -121,25 +121,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderChatHeaderActions(conv) {
-        chatHeaderActions.innerHTML = '';
-        if (conv.is_group) {
-            const viewBtn = document.createElement('button');
-            viewBtn.className = 'header-action-btn';
-            viewBtn.title = 'Ver Miembros';
-            viewBtn.innerHTML = '👥';
-            viewBtn.onclick = () => openViewMembersModal(conv);
-            chatHeaderActions.appendChild(viewBtn);
+    chatHeaderActions.innerHTML = '';
 
-            if ([4, 5].includes(USER_ROLE)) {
-                const addBtn = document.createElement('button');
-                addBtn.className = 'header-action-btn';
-                addBtn.title = 'Añadir Miembros';
-                addBtn.innerHTML = '&#43;👤';
-                addBtn.onclick = () => openAddMembersModal(conv);
-                chatHeaderActions.appendChild(addBtn);
-            }
+    if (conv.is_group) {
+        // Botón para ver miembros
+        const viewBtn = document.createElement('button');
+        viewBtn.className = 'header-action-btn';
+        viewBtn.title = 'Ver Miembros';
+        viewBtn.innerHTML = '👥';
+        viewBtn.onclick = () => openViewMembersModal(conv);
+        chatHeaderActions.appendChild(viewBtn);
+
+        // Botón para añadir miembros (solo roles autorizados)
+        if ([4, 5].includes(USER_ROLE)) {
+            const addBtn = document.createElement('button');
+            addBtn.className = 'header-action-btn';
+            addBtn.title = 'Añadir Miembros';
+            addBtn.innerHTML = '&#43;👤';
+            addBtn.onclick = () => openAddMembersModal(conv);
+            chatHeaderActions.appendChild(addBtn);
         }
+
+        // Botón para abandonar el grupo
+        const leaveBtn = document.createElement('button');
+        leaveBtn.className = 'header-action-btn';
+        leaveBtn.title = 'Abandonar Grupo';
+        leaveBtn.innerHTML = '🚪'; // Ícono de puerta
+        leaveBtn.onclick = () => leaveGroup(conv.id);
+        chatHeaderActions.appendChild(leaveBtn);
+
+    } else {
+        // Botón para borrar chat individual
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'header-action-btn';
+        deleteBtn.title = 'Borrar Chat';
+        deleteBtn.innerHTML = '🗑️'; // Ícono de papelera
+        deleteBtn.onclick = () => deleteChat(conv.id);
+        chatHeaderActions.appendChild(deleteBtn);
     }
+}
+
 
     /* =======================================================
        3. CARGA Y ENVÍO DE MENSAJES
@@ -486,6 +507,56 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(item);
         });
     }
+
+async function leaveGroup(conversationId) {
+    if (!confirm("¿Estás seguro de que quieres abandonar este grupo?")) return;
+
+    const form = new FormData();
+    form.append('action', 'leave_group');
+    form.append('conversation_id', conversationId);
+
+    try {
+        const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
+        const data = await res.json();
+
+        if (data.success) {
+            alert("Has abandonado el grupo.");
+            currentConversationId = null;
+            chatActiveConversation.style.display = 'none';
+            chatWelcomeScreen.style.display = 'flex';
+            fetchConversations();
+        } else {
+            alert(`Error al abandonar el grupo: ${data.message}`);
+        }
+    } catch (e) {
+        alert('Error de red al intentar abandonar el grupo.');
+    }
+}
+
+async function deleteChat(conversationId) {
+    if (!confirm("¿Estás seguro de que quieres borrar este chat? Esta acción no se puede deshacer.")) return;
+
+    const form = new FormData();
+    form.append('action', 'delete_chat');
+    form.append('conversation_id', conversationId);
+
+    try {
+        const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
+        const data = await res.json();
+
+        if (data.success) {
+            alert("Chat borrado correctamente.");
+            currentConversationId = null;
+            chatActiveConversation.style.display = 'none';
+            chatWelcomeScreen.style.display = 'flex';
+            fetchConversations();
+        } else {
+            alert(`Error al borrar el chat: ${data.message}`);
+        }
+    } catch (e) {
+        alert('Error de red al intentar borrar el chat.');
+    }
+}
 
     /* =======================================================
        9. EVENT LISTENERS GENERALES
