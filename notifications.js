@@ -1,34 +1,40 @@
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("[init] DOM cargado. Iniciando script de notificaciones v2 (robusto).");
+    console.log("[init] DOM cargado. Iniciando script de notificaciones v3 (ID de Usuario).");
+
+    // Obtener el ID de usuario del nuevo campo oculto
+    const userIdElement = document.getElementById('user-id');
+    const userId = userIdElement ? userIdElement.value : null;
+
+    if (!userId) {
+        console.error("[init] No se pudo encontrar el user-id. El sistema de notificaciones no se iniciará.");
+        return; // Detiene la ejecución si no hay ID de usuario
+    }
 
     const websocketUrl = "ws://localhost:8081";
-    const userRoleElement = document.getElementById('user-role');
-    const userRole = userRoleElement ? userRoleElement.value : 'guest';
     let socket;
 
     // --- Elementos del DOM ---
-    const bellContainer = document.getElementById('notification-container');
-    const counterElement = document.getElementById('notification-count');
     const toastContainer = document.getElementById('toast-container');
     const chatButton = document.getElementById('chat-button');
     
     function connect() {
-        console.log("[connect] Intentando conectar a " + websocketUrl);
+        console.log("[connect] Intentando conectar a " + websocketUrl + " para el usuario " + userId);
 
         try {
             socket = new WebSocket(websocketUrl);
         } catch(e) {
             console.error("[connect] Error al crear el WebSocket:", e);
             console.log("Reintentando en 5 segundos...");
-            setTimeout(connect, 5000); // Reintenta si la creación falla
+            setTimeout(connect, 5000);
             return;
         }
 
         socket.onopen = () => {
-            console.log("[open] Conexión establecida. Registrando rol: " + userRole);
+            console.log("[open] Conexión establecida. Registrando ID de usuario: " + userId);
+            // *** CAMBIO CLAVE: Registrarse con el ID de usuario ***
             const registrationMessage = {
                 type: 'register',
-                role: userRole
+                userId: userId
             };
             socket.send(JSON.stringify(registrationMessage));
         };
@@ -41,36 +47,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (message.type === 'notification' && message.payload) {
                     const data = message.payload;
                     
-                    // --- MANEJO DE NOTIFICACIÓN DE CHAT ---
                     if (data.type === 'new_chat_message') {
-                        // Solo mostramos la alerta si NO estamos en la página de chat
+                        // Solo reacciona si la notificación es para este usuario y no está en la página de chat
                         if (window.location.pathname.indexOf('chat.php') === -1) {
                             console.log(">>> Recibida alerta de nuevo mensaje de chat de: ", data.sender);
-                            
-                            // Mostrar un 'toast'
-                            if (toastContainer) {
-                                const toast = document.createElement('div');
-                                toast.className = 'toast';
-                                toast.innerText = `Nuevo mensaje en el chat de: ${data.sender}`;
-                                toastContainer.appendChild(toast);
-                                setTimeout(() => { toast.classList.add('show'); }, 100);
-                                setTimeout(() => {
-                                    toast.classList.remove('show');
-                                    toast.addEventListener('transitionend', () => toast.remove());
-                                }, 5000);
-                            }
-
-                            // Animar el botón de chat
-                            if (chatButton) {
-                                chatButton.classList.add('new-message-alert');
-                                const h4 = chatButton.querySelector('h4');
-                                if (h4) {
-                                    h4.textContent = 'Nuevo Mensaje';
-                                }
-                            }
+                            showToast(`Nuevo mensaje en el chat de: ${data.sender}`);
+                            animateChatButton();
                         }
                     }
-                    // Aquí se podrían añadir otros tipos de notificaciones (else if)
                 }
             } catch (e) {
                 console.error("Error procesando mensaje del servidor: ", e);
@@ -78,40 +62,50 @@ document.addEventListener("DOMContentLoaded", function() {
         };
 
         socket.onclose = (event) => {
-            // Esta es la parte clave: siempre intentará reconectar.
-            console.log(`[close] Conexión cerrada. Limpia: ${event.wasClean}, Código: ${event.code}, Razón: ${event.reason}`);
+            console.log(`[close] Conexión cerrada. Limpia: ${event.wasClean}, Código: ${event.code}`);
             console.log("Reconectando en 5 segundos...");
             setTimeout(connect, 5000);
         };
 
         socket.onerror = (error) => {
-            // El evento de error es genérico. El 'onclose' que le sigue nos dará más detalles.
-            console.error("[error] Error de WebSocket detectado. Ver el evento 'onclose' para más detalles.");
+            console.error("[error] Error de WebSocket detectado.");
+            socket.close(); // Forzar el cierre para activar la reconexión
         };
     }
 
-    // --- Listeners para la UI ---
-    if (bellContainer) {
-        bellContainer.addEventListener('click', function() {
-            if (counterElement) {
-                counterElement.innerText = '0';
-                counterElement.style.display = 'none';
-            }
-        });
+    // --- Funciones de UI ---
+    function showToast(message) {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerText = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.classList.add('show'); }, 100);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.addEventListener('transitionend', () => toast.remove());
+        }, 5000);
     }
-    
+
+    function animateChatButton() {
+        if (!chatButton) return;
+        chatButton.classList.add('new-message-alert');
+        const h4 = chatButton.querySelector('h4');
+        if (h4) {
+            h4.textContent = 'Nuevo Mensaje';
+        }
+    }
+
     if (chatButton) {
         chatButton.addEventListener('click', function() {
             chatButton.classList.remove('new-message-alert');
             const h4 = chatButton.querySelector('h4');
             if (h4) {
-                // Restaura el texto original del menú de Enlace
                 h4.textContent = 'Acceder al Chat';
             }
         });
     }
 
     // --- Iniciar la conexión ---
-    console.log("[init] Llamando a connect() por primera vez.");
     connect();
 });

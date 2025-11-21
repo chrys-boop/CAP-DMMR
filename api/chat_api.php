@@ -24,16 +24,26 @@ try {
 
     $current_user_id = $_SESSION['user_id'];
     $current_user_role = $_SESSION['user_role'] ?? null;
-    $current_user_name = $_SESSION['user_nombre'] ?? 'Usuario'; // <--- OBTENER NOMBRE DE USUARIO
+    $current_user_name = $_SESSION['user_nombre'] ?? 'Usuario';
     $action = $_REQUEST['action'] ?? null;
 
     // ---------- Helpers ----------
 
-    // +++ NUEVA FUNCIÓN PARA NOTIFICAR +++
+    // *** FUNCIÓN MODIFICADA PARA IDENTIFICARSE COMO "SYSTEM" ***
     function notify_websocket($payload) {
         try {
             $client = new \WebSocket\Client("ws://127.0.0.1:8081");
+
+            // 1. Presentarse como el sistema (ID 0)
+            $system_registration = [
+                'type'   => 'register',
+                'userId' => 0 // ID reservado para el sistema
+            ];
+            $client->send(json_encode($system_registration));
+
+            // 2. Enviar la notificación real a los destinatarios
             $client->send(json_encode($payload));
+
             $client->close();
         } catch (\Throwable $e) {
             error_log("Error de notificación WebSocket: " . $e->getMessage());
@@ -160,34 +170,58 @@ try {
         echo json_encode(['success' => true, 'data' => $data]);
     }
 
-    // MODIFICADA para aceptar nombre de usuario
     function send_message($conn, $user_id, $user_name, $conversation_id, $message) {
         if (trim($message) === '') throw new Exception('El mensaje no puede estar vacío');
 
-        $stmt_check = $conn->prepare("SELECT COUNT(*) FROM chat_participants WHERE conversation_id = ? AND user_id = ?");
-        $stmt_check->execute([$conversation_id, $user_id]);
-        if ($stmt_check->fetchColumn() == 0) throw new Exception('No puedes enviar mensajes a esta conversación');
+        $conn->beginTransaction();
+        try {
+            // 1. Validar que el usuario puede enviar mensajes
+            $stmt_check = $conn->prepare("SELECT COUNT(*) FROM chat_participants WHERE conversation_id = ? AND user_id = ?");
+            $stmt_check->execute([$conversation_id, $user_id]);
+            if ($stmt_check->fetchColumn() == 0) {
+                throw new Exception('No puedes enviar mensajes a esta conversación');
+            }
 
-        $sql = "INSERT INTO chat_messages (conversation_id, sender_id, message_content) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$conversation_id, $user_id, $message]);
-        
-        $lastId = $conn->lastInsertId();
-        $stmt2 = $conn->prepare("SELECT sent_at FROM chat_messages WHERE id = ?");
-        $stmt2->execute([$lastId]);
-        $sent_at = $stmt2->fetchColumn();
+            // 2. Insertar el mensaje
+            $sql = "INSERT INTO chat_messages (conversation_id, sender_id, message_content) VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$conversation_id, $user_id, $message]);
+            $lastId = $conn->lastInsertId();
+            
+            $stmt2 = $conn->prepare("SELECT sent_at FROM chat_messages WHERE id = ?");
+            $stmt2->execute([$lastId]);
+            $sent_at = $stmt2->fetchColumn();
 
-        // +++ NUEVA LÓGICA DE NOTIFICACIÓN +++
-        $payload = [
-            'type' => 'notification',
-            'payload' => [
-                'type' => 'new_chat_message',
-                'sender' => $user_name
-            ]
-        ];
-        notify_websocket($payload);
+            // 3. LÓGICA DE NOTIFICACIÓN POR ID DE USUARIO
+            $stmt_participants = $conn->prepare("SELECT user_id FROM chat_participants WHERE conversation_id = ?");
+            $stmt_participants->execute([$conversation_id]);
+            $all_participant_ids = $stmt_participants->fetchAll(PDO::FETCH_COLUMN);
 
-        echo json_encode(['success' => true, 'data' => ['id' => (int)$lastId, 'timestamp_formatted' => date('H:i', strtotime($sent_at))]]);
+            $recipient_ids = array_filter($all_participant_ids, function($id) use ($user_id) {
+                return (int)$id !== (int)$user_id;
+            });
+
+            if (!empty($recipient_ids)) {
+                $payload = [
+                    'type' => 'notification',
+                    'targetUserIds' => array_values($recipient_ids), // Enviar a IDs específicos
+                    'payload' => [
+                        'type' => 'new_chat_message',
+                        'sender' => $user_name,
+                        'conversationId' => $conversation_id
+                    ]
+                ];
+                notify_websocket($payload);
+            }
+            
+            $conn->commit();
+
+            echo json_encode(['success' => true, 'data' => ['id' => (int)$lastId, 'timestamp_formatted' => date('H:i', strtotime($sent_at))]]);
+
+        } catch (Throwable $e) {
+            $conn->rollBack();
+            throw $e;
+        }
     }
 
     function search_users($conn, $current_user_id, $query, $exclude_ids_json = '[]') {
@@ -364,7 +398,6 @@ try {
             break;
         case 'send_message':
             if (!isset($_POST['conversation_id']) || !isset($_POST['message'])) throw new Exception("Conversation ID y mensaje son requeridos.");
-            // MODIFICADO para pasar el nombre de usuario
             send_message($conn, $current_user_id, $current_user_name, (int)$_POST['conversation_id'], $_POST['message']);
             break;
         case 'search_users':

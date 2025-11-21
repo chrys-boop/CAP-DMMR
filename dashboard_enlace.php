@@ -6,7 +6,6 @@ session_start();
 require_once 'db_connection.php';
 
 // --- NUEVA LÓGICA DE SEGURIDAD SIMPLE ---
-// Si el usuario no ha iniciado sesión o su rol no es Enlace (3), se le expulsa.
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 3) {
     header("Location: index.html");
     exit();
@@ -93,36 +92,29 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
             opacity: 1;
             transform: translateX(0);
         }
-
-        /* --- IMPLEMENTACIÓN: Estilo para el botón de chat con nuevo mensaje --- */
-        /* El ID se aplica al enlace <a> que envuelve la tarjeta */
         #chat-button.new-message-alert .menu-card {
             background-color: #ffc107; /* Amarillo anaranjado */
             animation: pulse-animation 1.5s infinite;
         }
-
         #chat-button.new-message-alert .menu-text h4,
         #chat-button.new-message-alert .menu-text p,
         #chat-button.new-message-alert .menu-icon {
             color: #333 !important; /* Texto oscuro para legibilidad */
         }
-
         @keyframes pulse-animation {
             0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
             70% { box-shadow: 0 0 0 12px rgba(255, 193, 7, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
         }
-
     </style>
 </head>
 <body class="dashboard-page">
 
-    <!-- IMPLEMENTACIÓN: Corregido para pasar el rol numérico a JS -->
     <input type="hidden" id="user-role" value="<?php echo htmlspecialchars($user_role); ?>">
+    <input type="hidden" id="user-id" value="<?php echo htmlspecialchars($user_id); ?>">
 
     <header class="dashboard-header">
         <h1>Panel de Enlace</h1>
-        <!-- ELEMENTOS DE NOTIFICACIÓN AÑADIDOS AQUÍ -->
         <div style="display: flex; align-items: center; margin-left: auto;">
             <div id="notification-container" class="notification-bell">
                 <span>🔔</span>
@@ -148,7 +140,6 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
             <p class="subtext">Aquí puedes ver los requerimientos pendientes y gestionar tus documentos.</p>
         </section>
 
-        <!-- Menú Principal de Acciones -->
         <section class="actions">
             <h3>Menú Principal</h3>
             <div class="menu-grid">
@@ -180,7 +171,6 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
                         <p>Accede a los cursos</p>
                     </div>
                 </a>
-                <!-- IMPLEMENTACIÓN: Añadido ID al enlace para que JS lo encuentre -->
                 <a href="chat.php" id="chat-button" class="menu-card green">
                      <div class="menu-icon">💬</div>
                      <div class="menu-text">
@@ -191,7 +181,6 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
             </div>
         </section>
 
-        <!-- Listado de Requerimientos -->
         <section class="requerimientos-list">
             <h3>Mis Requerimientos Asignados</h3>
             <?php if (empty($requerimientos) && !isset($db_error_message)):
@@ -240,10 +229,8 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
         <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
     </footer>
 
-    <!-- CONTENEDOR DE TOASTS Y SCRIPT -->
     <div id="toast-container" class="toast-container"></div>
     <script src="notifications.js"></script>
-    
 
 </body>
 </html>

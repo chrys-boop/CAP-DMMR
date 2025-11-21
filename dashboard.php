@@ -25,16 +25,12 @@ $expedienteUsuario = $_SESSION['user_expediente'];
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         /* --- ESTILOS PARA NOTIFICACIONES --- */
-
-        /* Contenedor del ícono de la campana */
         .notification-bell {
             position: relative;
             font-size: 24px;
             margin-right: 25px;
             cursor: pointer;
         }
-
-        /* Burbuja del contador */
         .notification-counter {
             position: absolute;
             top: -5px;
@@ -47,16 +43,12 @@ $expedienteUsuario = $_SESSION['user_expediente'];
             font-weight: bold;
             display: none; /* Oculto por defecto */
         }
-
-        /* Contenedor para los toasts que aparecerán */
         .toast-container {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1050;
         }
-
-        /* Estilo del Toast */
         .toast {
             background-color: #2a3e50; /* Un color oscuro y elegante */
             color: #fff;
@@ -68,32 +60,26 @@ $expedienteUsuario = $_SESSION['user_expediente'];
             transition: opacity 0.3s, transform 0.3s;
             transform: translateX(100%); /* Empieza fuera de la pantalla */
         }
-
-        /* Clase que se añade para mostrar el toast con animación */
         .toast.show {
             opacity: 1;
             transform: translateX(0);
         }
-
-        /* --- IMPLEMENTACIÓN: Estilo para el botón de chat con nuevo mensaje --- */
         #chat-button.new-message-alert {
             background-color: #ffc107; /* Amarillo anaranjado */
             color: #333 !important; /* Texto oscuro para legibilidad */
             animation: pulse-animation 1.5s infinite;
         }
-
         @keyframes pulse-animation {
             0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
             70% { box-shadow: 0 0 0 12px rgba(255, 193, 7, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
         }
-
     </style>
 </head>
 <body class="dashboard-page">
 
-    <!-- IMPLEMENTACIÓN: Corregido para pasar el rol numérico a JS -->
     <input type="hidden" id="user-role" value="<?php echo htmlspecialchars($_SESSION['user_role']); ?>">
+    <input type="hidden" id="user-id" value="<?php echo htmlspecialchars($_SESSION['user_id']); ?>">
 
     <header class="dashboard-header">
         <h1>Panel de Administración</h1>
@@ -131,7 +117,6 @@ $expedienteUsuario = $_SESSION['user_expediente'];
                 <a href="gestionar_cursos.php" class="action-btn teal">🎓 Gestionar Cursos</a>
                 <a href="registrar_asistencia.php" class="action-btn indigo">➕ Registrar Asistencia</a>
                 <a href="estadisticas.php" class="action-btn steel-blue">📈 Estadísticas de Capacitación</a>
-                <!-- IMPLEMENTACIÓN: Añadido ID para que JS lo encuentre -->
                 <a href="chat.php" id="chat-button" class="action-btn purple">💬 Acceder al Chat</a>
             </div>
         </section>
@@ -141,7 +126,6 @@ $expedienteUsuario = $_SESSION['user_expediente'];
         <p>© <?php echo date('Y'); ?> Sistema Administrativo | Todos los derechos reservados</p>
     </footer>
 
-    <!-- Contenedor donde se inyectarán los toasts dinámicamente -->
     <div id="toast-container" class="toast-container"></div>
 
     <script src="notifications.js"></script>

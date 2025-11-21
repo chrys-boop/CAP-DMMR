@@ -1,28 +1,28 @@
 <?php
-// La ruta correcta al autoload.php, partiendo de la ubicación de este archivo.
 require __DIR__ . '/vendor/autoload.php';
-
-// --- INCLUSIÓN MANUAL PARA DEBUG ---
-// Vamos a incluir la clase directamente para saltarnos el autoloader por ahora.
 require __DIR__ . '/src/Notification.php';
+require __DIR__ . '/db_connection.php'; // <-- 1. INCLUIMOS LA CONEXIÓN A BD
 
 use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
 
-    // Se recomienda ejecutar el servidor en un puerto alto y no estándar
-    $port = 8081;
+// --- INICIO DEL SERVIDOR ---
 
-    echo "Iniciando servidor WebSocket en el puerto $port...\n";
+$port = 8081;
+echo "Iniciando servidor WebSocket en el puerto $port...\n";
 
-    $server = IoServer::factory(
-        new HttpServer(
-            new WsServer(
-                // Usamos el Nombre de Clase Completamente Cualificado para evitar ambigüedades
-                new \MyApp\Notification()
-            )
-        ),
-        $port
-    );
+// 2. CREAMOS UNA INSTANCIA DE NOTIFICATION Y LE PASAMOS LA CONEXIÓN
+$notification_app = new \MyApp\Notification($conn);
 
-    $server->run();
+// 3. INYECTAMOS LA APP CON CONEXIÓN AL SERVIDOR
+$server = IoServer::factory(
+    new HttpServer(
+        new WsServer(
+            $notification_app
+        )
+    ),
+    $port
+);
+
+$server->run();
