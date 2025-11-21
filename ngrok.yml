@@ -1,0 +1,18 @@
+version: 3
+agent:
+  authtoken: 35lbOIBju8iZGycUGac3vPhziiY_7S6NwSr14SmHD7Ljz5zcB
+tunnels:
+  # 1. Túnel para la aplicación web principal (HTTP)
+  web:
+    addr: 80
+    proto: http
+
+  # 2. Túnel para el WebSocket
+  websocket:
+    addr: 8081
+    proto: http
+  
+  # 3. Túnel para MySQL (¡IMPORTANTE: Debe ser TCP, no HTTP!)
+  mysql:
+    addr: 3306
+    proto: tcp

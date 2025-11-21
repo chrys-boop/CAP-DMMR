@@ -24,22 +24,24 @@ if (!$expediente || !$password) {
 }
 
 try {
-    // El SELECT * ya incluye la columna 'area' si existe en la tabla
     $stmt = $conn->prepare("SELECT * FROM usuarios WHERE expediente = :expediente");
     $stmt->bindParam(':expediente', $expediente);
     $stmt->execute();
 
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && $password === $user['password']) {
-        // --- INICIO DE LA MODIFICACIÓN ---
-        // Guardar todos los datos del usuario en la sesión, incluyendo el área
+    // --- CORRECCIÓN DE VERIFICACIÓN DE CONTRASEÑA ---
+    // Usamos password_verify() para comparar la contraseña ingresada con el hash de la BD
+    if ($user && password_verify($password, $user['password'])) {
+
+        // --- CORRECCIÓN DE DATOS DE SESIÓN ---
+        // Guardar los datos correctos del usuario en la sesión
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_expediente'] = $user['expediente'];
         $_SESSION['user_nombre'] = $user['nombre_completo'];
         $_SESSION['user_role'] = $user['role'];
-        $_SESSION['user_area'] = $user['area']; // Guardamos el área del usuario
-        // --- FIN DE LA MODIFICACIÓN ---
+        $_SESSION['user_taller'] = $user['taller']; 
+        $_SESSION['user_area_interna'] = $user['area_interna'];
 
         // Definir la URL de redirección basada en el rol
         $redirect_url = '';
@@ -47,16 +49,16 @@ try {
             case 5: // Administrador
                 $redirect_url = 'dashboard.php';
                 break;
-            case 4: 
+            case 4: // Cap-DMMR
                 $redirect_url = 'dashboard_cap-dmmr.php';
                 break;
             case 3: // Enlace
                 $redirect_url = 'dashboard_enlace.php';
                 break;
-            case 2:
+            case 2: // Instructor
                 $redirect_url = 'dashboard_instructor.php';
                 break;
-            default:
+            default: // Trabajador (rol 1)
                 $redirect_url = 'dashboard_trabajador.php';
                 break;
         }
