@@ -3,6 +3,9 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// --- Dependencias y Configuración Inicial ---
+require_once __DIR__ . '/../vendor/autoload.php'; // Para el cliente WebSocket
+
 // Convertir errores a excepciones para un manejo centralizado
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
     if (!(error_reporting() & $errno)) return false;
@@ -21,9 +24,22 @@ try {
 
     $current_user_id = $_SESSION['user_id'];
     $current_user_role = $_SESSION['user_role'] ?? null;
+    $current_user_name = $_SESSION['user_nombre'] ?? 'Usuario'; // <--- OBTENER NOMBRE DE USUARIO
     $action = $_REQUEST['action'] ?? null;
 
     // ---------- Helpers ----------
+
+    // +++ NUEVA FUNCIÓN PARA NOTIFICAR +++
+    function notify_websocket($payload) {
+        try {
+            $client = new \WebSocket\Client("ws://127.0.0.1:8081");
+            $client->send(json_encode($payload));
+            $client->close();
+        } catch (\Throwable $e) {
+            error_log("Error de notificación WebSocket: " . $e->getMessage());
+        }
+    }
+
     function get_or_create_general_chat_id($conn, $admin_id = 1) {
         $sql_find = "SELECT id FROM chat_conversations WHERE type = 'group' AND name = 'General' LIMIT 1";
         $stmt = $conn->query($sql_find);
@@ -144,7 +160,8 @@ try {
         echo json_encode(['success' => true, 'data' => $data]);
     }
 
-    function send_message($conn, $user_id, $conversation_id, $message) {
+    // MODIFICADA para aceptar nombre de usuario
+    function send_message($conn, $user_id, $user_name, $conversation_id, $message) {
         if (trim($message) === '') throw new Exception('El mensaje no puede estar vacío');
 
         $stmt_check = $conn->prepare("SELECT COUNT(*) FROM chat_participants WHERE conversation_id = ? AND user_id = ?");
@@ -159,6 +176,16 @@ try {
         $stmt2 = $conn->prepare("SELECT sent_at FROM chat_messages WHERE id = ?");
         $stmt2->execute([$lastId]);
         $sent_at = $stmt2->fetchColumn();
+
+        // +++ NUEVA LÓGICA DE NOTIFICACIÓN +++
+        $payload = [
+            'type' => 'notification',
+            'payload' => [
+                'type' => 'new_chat_message',
+                'sender' => $user_name
+            ]
+        ];
+        notify_websocket($payload);
 
         echo json_encode(['success' => true, 'data' => ['id' => (int)$lastId, 'timestamp_formatted' => date('H:i', strtotime($sent_at))]]);
     }
@@ -337,7 +364,8 @@ try {
             break;
         case 'send_message':
             if (!isset($_POST['conversation_id']) || !isset($_POST['message'])) throw new Exception("Conversation ID y mensaje son requeridos.");
-            send_message($conn, $current_user_id, (int)$_POST['conversation_id'], $_POST['message']);
+            // MODIFICADO para pasar el nombre de usuario
+            send_message($conn, $current_user_id, $current_user_name, (int)$_POST['conversation_id'], $_POST['message']);
             break;
         case 'search_users':
             $query = $_GET['query'] ?? '';

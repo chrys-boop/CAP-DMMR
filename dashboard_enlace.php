@@ -93,11 +93,32 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
             opacity: 1;
             transform: translateX(0);
         }
+
+        /* --- IMPLEMENTACIÓN: Estilo para el botón de chat con nuevo mensaje --- */
+        /* El ID se aplica al enlace <a> que envuelve la tarjeta */
+        #chat-button.new-message-alert .menu-card {
+            background-color: #ffc107; /* Amarillo anaranjado */
+            animation: pulse-animation 1.5s infinite;
+        }
+
+        #chat-button.new-message-alert .menu-text h4,
+        #chat-button.new-message-alert .menu-text p,
+        #chat-button.new-message-alert .menu-icon {
+            color: #333 !important; /* Texto oscuro para legibilidad */
+        }
+
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+        }
+
     </style>
 </head>
 <body class="dashboard-page">
 
-    <input type="hidden" id="user-role" value="enlace">
+    <!-- IMPLEMENTACIÓN: Corregido para pasar el rol numérico a JS -->
+    <input type="hidden" id="user-role" value="<?php echo htmlspecialchars($user_role); ?>">
 
     <header class="dashboard-header">
         <h1>Panel de Enlace</h1>
@@ -159,7 +180,8 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
                         <p>Accede a los cursos</p>
                     </div>
                 </a>
-                <a href="chat.php" class="menu-card green">
+                <!-- IMPLEMENTACIÓN: Añadido ID al enlace para que JS lo encuentre -->
+                <a href="chat.php" id="chat-button" class="menu-card green">
                      <div class="menu-icon">💬</div>
                      <div class="menu-text">
                         <h4>Acceder al Chat</h4>
@@ -221,7 +243,7 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
     <!-- CONTENEDOR DE TOASTS Y SCRIPT -->
     <div id="toast-container" class="toast-container"></div>
     <script src="notifications.js"></script>
-    <script src="js/chat.js"></script>
+    
 
 </body>
 </html>

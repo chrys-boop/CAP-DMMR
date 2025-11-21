@@ -7,27 +7,47 @@ session_start();
 require_once 'db_connection.php';
 
 // --- LÓGICA DE SEGURIDAD ---
-// Solo Admin (5) y Cap-dmmr (4) pueden acceder.
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
     header("Location: index.html");
     exit();
 }
 
-// Lógica para procesar el guardado de roles
+// --- LÓGICA DE PROCESAMIENTO DEL FORMULARIO ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['roles'])) {
-    $sql = "UPDATE usuarios SET role = :role WHERE id = :id";
-    $stmt = $conn->prepare($sql);
-
-    foreach ($_POST['roles'] as $userId => $newRole) {
-        $stmt->execute(['role' => $newRole, 'id' => $userId]);
+    // Si no se envió ningún rol, simplemente redirige.
+    if (empty($_POST['roles'])) {
+        header("Location: gestionar_personal.php");
+        exit();
     }
-    header("Location: gestionar_personal.php?success=1");
+
+    try {
+        $conn->beginTransaction();
+        $sql = "UPDATE usuarios SET role = :role WHERE id = :id";
+        $stmt = $conn->prepare($sql);
+
+        foreach ($_POST['roles'] as $userId => $newRole) {
+            // Validar que el ID y el rol sean enteros
+            $stmt->execute(['role' => (int)$newRole, 'id' => (int)$userId]);
+        }
+
+        $conn->commit();
+        $_SESSION['flash_success'] = "¡Roles actualizados correctamente!";
+    } catch (PDOException $e) {
+        $conn->rollBack();
+        $_SESSION['flash_error'] = "Error al actualizar los roles: " . $e->getMessage();
+    }
+    
+    header("Location: gestionar_personal.php");
     exit();
 }
 
-// Obtener todos los usuarios
+// --- OBTENCIÓN DE DATOS Y MENSAJES FLASH ---
 $stmt = $conn->query("SELECT id, expediente, nombre_completo, role FROM usuarios ORDER BY nombre_completo ASC");
 $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$success_message = $_SESSION['flash_success'] ?? '';
+$error_message = $_SESSION['flash_error'] ?? '';
+unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 ?>
 <!DOCTYPE html>
@@ -40,6 +60,31 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+    // Se mueve la función al <head> para que esté definida antes de ser llamada.
+    function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("userTable");
+        const tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) { // Empezar en 1 para saltar la cabecera
+            const tdNombre = tr[i].getElementsByTagName("td")[0];
+            const tdExpediente = tr[i].getElementsByTagName("td")[1];
+
+            if (tdNombre || tdExpediente) {
+                const nombreText = tdNombre.textContent || tdNombre.innerText;
+                const expedienteText = tdExpediente.textContent || tdExpediente.innerText;
+
+                if (nombreText.toUpperCase().indexOf(filter) > -1 || expedienteText.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+    </script>
 </head>
 <body class="dashboard-page">
 
@@ -57,12 +102,15 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nombre o expediente...">
         </section>
 
-        <form method="POST" action="gestionar_personal.php">
+        <form method="POST" action="gestionar_personal.php" id="rolesForm">
             <section class="user-management-table">
                 <h3>Listado de Usuarios del Sistema</h3>
 
-                <?php if (isset($_GET['success'])): ?>
-                    <div class="success-message">¡Roles actualizados correctamente!</div>
+                <?php if ($success_message): ?>
+                    <div class="success-message"><?php echo $success_message; ?></div>
+                <?php endif; ?>
+                <?php if ($error_message): ?>
+                    <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
                 <?php endif; ?>
 
                 <div class="table-responsive">
@@ -82,7 +130,8 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td><?php echo htmlspecialchars($usuario['expediente']); ?></td>
                                     <td><?php echo htmlspecialchars($usuario['role']); ?></td>
                                     <td>
-                                        <select name="roles[<?php echo $usuario['id']; ?>]">
+                                        <!-- Atributo `data-original-value` para guardar el valor inicial -->
+                                        <select name="roles[<?php echo $usuario['id']; ?>]" class="role-select" data-original-value="<?php echo $usuario['role']; ?>">
                                             <option value="1" <?php echo ($usuario['role'] == 1) ? 'selected' : ''; ?>>1: Trabajador</option>
                                             <option value="2" <?php echo ($usuario['role'] == 2) ? 'selected' : ''; ?>>2: Instructor</option>
                                             <option value="3" <?php echo ($usuario['role'] == 3) ? 'selected' : ''; ?>>3: Enlace</option>
@@ -105,28 +154,24 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </footer>
 
     <script>
-    function filterTable() {
-        const input = document.getElementById("searchInput");
-        const filter = input.value.toUpperCase();
-        const table = document.getElementById("userTable");
-        const tr = table.getElementsByTagName("tr");
-
-        for (let i = 1; i < tr.length; i++) {
-            const tdNombre = tr[i].getElementsByTagName("td")[0];
-            const tdExpediente = tr[i].getElementsByTagName("td")[1];
-
-            if (tdNombre || tdExpediente) {
-                const nombreText = tdNombre.textContent || tdNombre.innerText;
-                const expedienteText = tdExpediente.textContent || tdExpediente.innerText;
-
-                if (nombreText.toUpperCase().indexOf(filter) > -1 || expedienteText.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
+    // Este script se ejecuta cuando el DOM está listo.
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('rolesForm');
+        if (form) {
+            // Se añade un evento que se dispara justo antes de enviar el formulario.
+            form.addEventListener('submit', function(e) {
+                const selects = form.querySelectorAll('select.role-select');
+                selects.forEach(function(select) {
+                    // Si el valor del select NO ha cambiado respecto a su valor original...
+                    if (select.value == select.getAttribute('data-original-value')) {
+                        // ...se elimina su atributo 'name'.
+                        // Los campos sin 'name' no se envían con el formulario.
+                        select.name = '';
+                    }
+                });
+            });
         }
-    }
+    });
     </script>
 
 </body>

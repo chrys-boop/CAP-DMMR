@@ -75,11 +75,25 @@ $expedienteUsuario = $_SESSION['user_expediente'];
             transform: translateX(0);
         }
 
+        /* --- IMPLEMENTACIÓN: Estilo para el botón de chat con nuevo mensaje --- */
+        #chat-button.new-message-alert {
+            background-color: #ffc107; /* Amarillo anaranjado */
+            color: #333 !important; /* Texto oscuro para legibilidad */
+            animation: pulse-animation 1.5s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+        }
+
     </style>
 </head>
 <body class="dashboard-page">
 
-    <input type="hidden" id="user-role" value="cap-dmmr">
+    <!-- IMPLEMENTACIÓN: Corregido para pasar el rol numérico a JS -->
+    <input type="hidden" id="user-role" value="<?php echo htmlspecialchars($_SESSION['user_role']); ?>">
 
     <header class="dashboard-header">
         <h1>Panel de Cap-dmmr</h1>
@@ -117,7 +131,8 @@ $expedienteUsuario = $_SESSION['user_expediente'];
                 <a href="gestionar_cursos.php" class="action-btn teal">🎓 Gestionar Cursos</a>
                 <a href="registrar_asistencia.php" class="action-btn indigo">➕ Registrar Asistencia</a>
                 <a href="estadisticas.php" class="action-btn steel-blue">📈 Estadísticas de Capacitación</a>
-                <a href="chat.php" class="action-btn purple">💬 Acceder al Chat</a>
+                <!-- IMPLEMENTACIÓN: Añadido ID para que JS lo encuentre -->
+                <a href="chat.php" id="chat-button" class="action-btn purple">💬 Acceder al Chat</a>
             </div>
         </section>
     </main>

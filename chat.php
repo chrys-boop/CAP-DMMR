@@ -5,16 +5,35 @@ error_reporting(E_ALL);
 session_start();
 require_once 'db_connection.php';
 
-// Si el usuario no está logueado, redirigirlo a la página de inicio de sesión
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.html");
     exit();
 }
 
-// Obtenemos el rol del usuario para mostrar/ocultar elementos
 $user_role = $_SESSION['user_role'] ?? null;
 $user_id = $_SESSION['user_id'];
 
+// Determinar el enlace del dashboard basado en el rol del usuario
+$dashboard_link = 'index.html'; // Por defecto
+if (isset($_SESSION['user_role'])) {
+    switch ($_SESSION['user_role']) {
+        case 5: // Admin
+            $dashboard_link = 'dashboard.php';
+            break;
+        case 4: // CAP-DMMR
+            $dashboard_link = 'dashboard_cap-dmmr.php';
+            break;
+        case 3: // Enlace
+            $dashboard_link = 'dashboard_enlace.php';
+            break;
+        case 2: // Instructor
+            $dashboard_link = 'dashboard_instructor.php';
+            break;
+        case 1: // Trabajador
+            $dashboard_link = 'dashboard_trabajador.php';
+            break;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -23,24 +42,27 @@ $user_id = $_SESSION['user_id'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
-    <link rel="stylesheet" href="estilos/chat.css?v=1.2">
+    <link rel="stylesheet" href="estilos/chat.css?v=1.3">
     <script>
-        // Inyectamos el rol y el ID del usuario en JS para que el frontend pueda usarlos
         const USER_ROLE = <?php echo json_encode($user_role); ?>;
         const USER_ID = <?php echo json_encode($user_id); ?>;
     </script>
 </head>
 <body>
+    <header class="page-header">
+        <h1>Plataforma de Chat</h1>
+        <a href="<?php echo $dashboard_link; ?>" class="back-to-dashboard-btn">Volver al Panel</a>
+    </header>
 
     <div class="chat-container">
-        <!-- Panel izquierdo: Lista de conversaciones -->
+        <!-- ... (el resto del contenido del chat no cambia) ... -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <h3>Mensajes</h3>
                 <div class="sidebar-actions">
                     <button id="new-chat-btn" title="Nuevo Chat Individual">&#43;</button>
                     
-                    <?php if (in_array($user_role, [4, 5])): // El botón de Crear Grupo es visible solo para Administrador y Cap-dmmr ?>
+                    <?php if (in_array($user_role, [4, 5])): ?>
                         <button id="create-group-btn" title="Crear Grupo">&#128101;</button>
                     <?php endif; ?>
                 </div>
@@ -50,7 +72,6 @@ $user_id = $_SESSION['user_id'];
             </div>
         </div>
 
-        <!-- Panel derecho: Vista de la conversación activa -->
         <div class="chat-area">
             <div id="chat-welcome-screen" class="chat-welcome-screen">
                 <h2>Bienvenido al Chat</h2>
@@ -58,21 +79,14 @@ $user_id = $_SESSION['user_id'];
             </div>
 
             <div id="chat-active-conversation" class="chat-active-conversation" style="display: none;">
-                <!-- Encabezado de la conversación -->
                 <div class="chat-header">
                     <div class="chat-header-info">
                         <img src="" alt="Avatar" id="chat-with-avatar">
                         <span id="chat-with-user"></span>
                     </div>
-                    <div id="chat-header-actions" class="chat-header-actions">
-                        <!-- Los botones para "Añadir Miembros" y "Ver Miembros" se insertarán aquí dinámicamente -->
-                    </div>
+                    <div id="chat-header-actions" class="chat-header-actions"></div>
                 </div>
-
-                <!-- Área de mensajes -->
                 <div id="messages-container" class="messages-container"></div>
-
-                <!-- Pie de página: formulario de envío -->
                 <footer class="chat-footer">
                     <form id="message-form" class="message-form">
                         <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
@@ -83,7 +97,8 @@ $user_id = $_SESSION['user_id'];
         </div>
     </div>
 
-    <!-- ===== MODALES ===== -->
+    <!-- ... (Modales) ... -->
+     <!-- ===== MODALES ===== -->
 
     <!-- Modal para iniciar nuevo chat INDIVIDUAL -->
     <div id="new-chat-modal" class="modal">
@@ -138,6 +153,6 @@ $user_id = $_SESSION['user_id'];
     </div>
 
 
-    <script src="js/chat.js?v=1.7"></script> <!-- Incrementamos la versión para evitar caché -->
+    <script src="js/chat.js?v=1.7"></script>
 </body>
 </html>

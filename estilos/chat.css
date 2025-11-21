@@ -1,275 +1,336 @@
-/* --- Estilos Generales --- */
+/* estilos/chat.css */
+
+/* ... (estilos existentes) ... */
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f0f2f5;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f7f9;
     margin: 0;
-    overflow: hidden; /* Evita el scroll en la página principal */
-}
-
-/* --- Contenedor Principal del Chat --- */
-.chat-container {
+    padding: 0;
     display: flex;
+    flex-direction: column; /* Cambiado para apilar header y chat-container */
     height: 100vh;
-    width: 100vw;
 }
 
-/* =======================================================
-   PANEL IZQUIERDO (SIDEBAR)
-======================================================= */
-.sidebar {
-    width: 30%;
-    max-width: 380px;
-    min-width: 280px;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid #ddd;
-    background-color: #fff;
-}
-
-.sidebar-header {
+.page-header {
+    background-color: #0056b3; /* Un azul oscuro, puedes cambiarlo */
+    color: white;
+    padding: 15px 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 16px;
-    border-bottom: 1px solid #f0f2f5;
-    background-color: #f6f6f6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.back-to-dashboard-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.back-to-dashboard-btn:hover {
+    background-color: #0056b3;
+}
+
+.chat-container {
+    /* Ajustado para que ocupe el espacio restante */
+    flex-grow: 1;
+    display: flex;
+    overflow: hidden; /* Evita que el contenedor se desborde */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin: 20px;
+}
+
+
+/* ... (el resto de tus estilos de chat.css) ... */
+
+.sidebar {
+    width: 320px;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    background-color: #fcfcfc;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .sidebar-header h3 {
     margin: 0;
-    font-size: 1.2rem;
-}
-
-.sidebar-actions {
-    display: flex;
-    align-items: center;
+    font-size: 1.4em;
+    color: #333;
 }
 
 .sidebar-actions button {
     background: none;
     border: none;
-    font-size: 1.8rem;
-    color: #54656f;
     cursor: pointer;
-    padding: 0 8px;
-    line-height: 1;
+    font-size: 1.8em; /* Aumentar tamaño de los iconos */
+    color: #007bff;
+    padding: 5px;
+    margin-left: 10px; /* Espacio entre botones */
+    transition: color 0.2s;
 }
 
-#create-group-btn {
-    font-size: 1.5rem; /* Icono de grupo es más ancho */
+.sidebar-actions button:hover {
+    color: #0056b3;
 }
 
-/* --- Lista de Conversaciones --- */
 .conversations-list {
-    flex: 1;
     overflow-y: auto;
+    flex-grow: 1;
 }
 
 .conversation-item {
     display: flex;
     align-items: center;
-    padding: 10px 16px;
+    padding: 15px 20px;
     cursor: pointer;
-    border-bottom: 1px solid #f0f2f5;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
 }
 
-.conversation-item:hover {
-    background-color: #f5f5f5;
-}
-
-.conversation-item.active {
-    background-color: #e9e9e9;
+.conversation-item.active, .conversation-item:hover {
+    background-color: #e9f5ff;
 }
 
 .conversation-item img {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     margin-right: 15px;
+    object-fit: cover; /* Para que la imagen no se deforme */
 }
 
 .conversation-details {
-    flex: 1;
-    overflow: hidden;
+    flex-grow: 1;
+    overflow: hidden; /* Para truncar texto */
 }
 
 .conversation-name {
     font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.last-message {
-    font-size: 0.9rem;
-    color: #666;
+    color: #333;
+    margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* =======================================================
-   PANEL DERECHO (ÁREA DE CHAT)
-======================================================= */
-.chat-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: #e5ddd5; /* Fondo tipo WhatsApp */
-    background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Patrón de fondo */
+.conversation-last-message {
+    font-size: 0.9em;
+    color: #666;
+    margin: 4px 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* --- Pantalla de Bienvenida --- */
+.conversation-timestamp {
+    font-size: 0.8em;
+    color: #999;
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
+
+/* --- Estilos para la notificación de 'Mensaje Nuevo' --- */
+.conversation-item.unread .conversation-last-message {
+    font-weight: bold;
+    color: #007bff; /* Color azul para destacar */
+}
+
+.conversation-item.unread .conversation-name {
+    font-weight: 800; /* Letra más gruesa para el nombre */
+}
+
+
+/* -- Área de chat -- */
+
+.chat-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 .chat-welcome-screen {
-    flex: 1;
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: #4a4a4a;
+    color: #888;
 }
 
 .chat-welcome-screen h2 {
-    font-size: 2rem;
+    font-size: 1.8em;
     margin-bottom: 10px;
 }
 
-/* --- Contenedor de la Conversación Activa --- */
 .chat-active-conversation {
-    flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100%; /* Asegura que ocupe todo el espacio vertical */
 }
 
-/* --- Encabezado del Chat --- */
+
 .chat-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
     display: flex;
     align-items: center;
-    padding: 10px 16px;
-    background-color: #f6f6f6;
-    border-bottom: 1px solid #ddd;
-    flex-shrink: 0;
+    justify-content: space-between;
+    background-color: #f8f9fa;
+}
+
+.chat-header-info {
+    display: flex;
+    align-items: center;
 }
 
 #chat-with-avatar {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     margin-right: 15px;
 }
 
 #chat-with-user {
-    font-size: 1.1rem;
     font-weight: 600;
+    font-size: 1.2em;
 }
 
-.chat-header-actions {
-    margin-left: auto;
-}
-
-.header-action-btn {
-    background: none;
+.chat-header-actions button {
+    background-color: #007bff;
+    color: white;
     border: none;
-    font-size: 1.5rem;
-    color: #54656f;
+    padding: 8px 12px;
+    border-radius: 5px;
     cursor: pointer;
-    padding: 0 8px;
+    margin-left: 10px;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
 }
 
-/* --- Contenedor de Mensajes --- */
+.chat-header-actions button:hover {
+    background-color: #0056b3;
+}
+
 .messages-container {
-    flex: 1;
-    padding: 20px;
+    flex-grow: 1;
     overflow-y: auto;
+    padding: 20px;
+    background-color: #f4f7f9;
 }
 
 .message {
     display: flex;
-    flex-direction: column;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
     max-width: 70%;
 }
 
-.bubble-text {
-    padding: 9px 12px;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    line-height: 1.4;
+.message img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.message-content {
+    background-color: #e9e9eb;
+    padding: 12px;
+    border-radius: 18px;
+}
+
+.message-sender {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.message-text {
+    font-size: 1em;
+    margin: 0;
     word-wrap: break-word;
 }
 
-.message-timestamp {
-    font-size: 0.75rem;
-    color: #888;
-    margin-top: 4px;
+.message.sent {
+    margin-left: auto; /* Alinea a la derecha */
+    flex-direction: row-reverse; /* Invierte el orden de imagen y contenido */
 }
 
-/* Mensajes Enviados (derecha) */
-.sent {
-    align-self: flex-end;
-    align-items: flex-end;
-    cursor: pointer; /* Indicar que se puede hacer clic */
+.message.sent img {
+    margin-right: 0;
+    margin-left: 10px;
 }
 
-.sent .bubble-text {
-    background-color: #dcf8c6;
+.message.sent .message-content {
+    background-color: #007bff; /* Color azul para mensajes enviados */
+    color: white;
 }
 
-/* Mensajes Recibidos (izquierda) */
-.received {
-    align-self: flex-start;
-    align-items: flex-start;
+.message.sent .message-sender {
+    display: none; /* No mostrar nuestro propio nombre */
 }
 
-.received .bubble-text {
-    background-color: #fff;
-}
 
-/* --- Pie de Página del Chat (Formulario) --- */
+
 .chat-footer {
-    padding: 10px 20px;
-    background-color: #f0f0f0;
-    border-top: 1px solid #ddd;
-    flex-shrink: 0;
+    padding: 15px 20px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
 }
 
 .message-form {
     display: flex;
-    align-items: center;
 }
 
 #message-input {
-    flex: 1;
-    padding: 12px 18px;
-    border: none;
-    border-radius: 24px;
-    font-size: 1rem;
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 1em;
 }
 
 .message-form button {
-    background: #007bff;
+    background: none;
     border: none;
-    border-radius: 50%;
-    color: white;
-    font-size: 1.2rem;
-    width: 48px;
-    height: 48px;
-    margin-left: 10px;
+    font-size: 1.8em;
+    color: #007bff;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-left: 5px; /* Ajuste para centrar el icono */
+    padding: 0 15px;
+    transition: color 0.2s;
+}
+
+.message-form button:hover {
+    color: #0056b3;
 }
 
 
-/* =======================================================
-   MODALES
-======================================================= */
+/* --- Estilos para Modales --- */
+
 .modal {
     display: none; /* Oculto por defecto */
-    position: fixed;
-    z-index: 100;
+    position: fixed; 
+    z-index: 1000;
     left: 0; top: 0;
     width: 100%; height: 100%;
     background-color: rgba(0,0,0,0.5);
@@ -279,133 +340,114 @@ body {
 
 .modal-content {
     background-color: #fff;
-    padding: 20px;
+    padding: 30px;
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    animation: slide-down 0.3s ease-out;
+}
+
+@keyframes slide-down {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .close-button {
-    float: right;
-    font-size: 1.5rem;
-    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.8em;
     cursor: pointer;
-    align-self: flex-end;
+    color: #888;
+}
+
+.close-button:hover {
+    color: #333;
+}
+
+.modal h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
 }
 
 .modal-input {
     width: 100%;
-    padding: 12px;
-    margin: 15px 0;
-    box-sizing: border-box;
+    padding: 10px;
+    margin-bottom: 20px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 5px;
+    box-sizing: border-box;
 }
 
-.users-list-results {
+.users-list-results, .selected-members-list {
     max-height: 250px;
     overflow-y: auto;
     border: 1px solid #eee;
+    border-radius: 5px;
 }
 
-.user-item, .group-user-item {
+.user-item, .selected-member-item {
+    display: flex;
+    align-items: center;
     padding: 10px;
     cursor: pointer;
     border-bottom: 1px solid #f0f0f0;
 }
 
-.user-item:hover, .group-user-item:hover {
-    background-color: #f0f0f0;
+.user-item:last-child, .selected-member-item:last-child {
+    border-bottom: none;
 }
 
-.user-item-none, .info-msg, .error-msg {
-    padding: 10px;
-    color: #888;
+.user-item:hover {
+    background-color: #f5f5f5;
 }
 
-.error-msg {
-    color: #d9534f;
+.modal-submit-btn {
+    background-color: #28a745; /* Verde */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1.1em;
+    margin-top: 20px;
+    transition: background-color 0.2s;
 }
 
-/* --- Estilos específicos de modales --- */
+.modal-submit-btn:hover {
+    background-color: #218838;
+}
+
+/* Estilos específicos para miembros seleccionados */
 .group-members-section {
-    margin: 10px 0;
+    margin-bottom: 20px;
 }
 
 .selected-members-list {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    min-height: 40px;
-    padding: 8px;
-    border: 1px solid #eee;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+    padding: 10px;
+    min-height: 40px; /* Para que no colapse cuando está vacío */
 }
 
 .selected-member-item {
-    display: flex; 
-    align-items: center; 
-    background-color: #e0e0e0; 
-    border-radius: 16px; 
-    padding: 4px 10px;
-    font-size: 0.9rem;
+    background-color: #e9f5ff;
+    border: 1px solid #007bff;
+    border-radius: 15px;
+    padding: 5px 10px;
+    font-size: 0.9em;
 }
 
 .remove-member-btn {
+    margin-left: 8px;
+    color: #dc3545; /* Rojo */
+    font-weight: bold;
     cursor: pointer;
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    line-height: 1;
-    margin-left: 6px;
 }
 
-.modal-submit-btn {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 1rem;
-    margin-top: 20px;
-}
 
-.modal-submit-btn:hover { background-color: #0056b3; }
-
-/* =======================================================
-   MENÚ CONTEXTUAL DE MENSAJE (NUEVO)
-======================================================= */
-.message-context-menu {
-    position: absolute;
-    z-index: 200;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-}
-
-.message-context-menu button {
-    background: none;
-    border: none;
-    padding: 10px 15px;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-
-.message-context-menu button:hover {
-    background-color: #f5f5f5;
-}
-
-.message-context-menu button:first-child {
-    border-bottom: 1px solid #eee;
-}

@@ -1,104 +1,96 @@
-// Definir el socket en un alcance más amplio.
-let socket;
-
-// 1. FUNCIÓN DE ENVÍO GLOBAL
-window.sendNotification = function(payload) {
-    const message = {
-        type: 'notification',
-        payload: payload
-    };
-
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(message));
-        console.log("[send] Mensaje de notificación enviado al servidor:", message);
-    } else {
-        console.log("[send] Conexión no lista. Reintentando envío en 500ms...");
-        setTimeout(() => window.sendNotification(payload), 500);
-    }
-}
-
-// 2. CÓDIGO QUE SE EJECUTA CUANDO EL DOM ESTÁ LISTO
 document.addEventListener("DOMContentLoaded", function() {
+    console.log("[init] DOM cargado. Iniciando script de notificaciones v2 (robusto).");
 
     const websocketUrl = "ws://localhost:8081";
     const userRoleElement = document.getElementById('user-role');
-    const userRole = userRoleElement ? userRoleElement.value : 'guest'; // Obtener el rol del usuario
+    const userRole = userRoleElement ? userRoleElement.value : 'guest';
+    let socket;
 
     // --- Elementos del DOM ---
     const bellContainer = document.getElementById('notification-container');
     const counterElement = document.getElementById('notification-count');
     const toastContainer = document.getElementById('toast-container');
-
-    // --- FUNCIÓN PARA ACTUALIZAR EL CONTADOR ---
-    function updateCounter() {
-        if (!counterElement) return;
-        let currentCount = parseInt(counterElement.innerText, 10) || 0;
-        currentCount++;
-        counterElement.innerText = currentCount;
-        counterElement.style.display = 'block';
-    }
-
-    // --- FUNCIÓN PARA MOSTRAR UN TOAST ---
-    function showToast(message) {
-        if (!toastContainer) return;
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerText = message;
-        toastContainer.appendChild(toast);
-        setTimeout(() => { toast.classList.add('show'); }, 100);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            toast.addEventListener('transitionend', () => toast.remove());
-        }, 5000);
-    }
-
+    const chatButton = document.getElementById('chat-button');
+    
     function connect() {
-        socket = new WebSocket(websocketUrl);
+        console.log("[connect] Intentando conectar a " + websocketUrl);
+
+        try {
+            socket = new WebSocket(websocketUrl);
+        } catch(e) {
+            console.error("[connect] Error al crear el WebSocket:", e);
+            console.log("Reintentando en 5 segundos...");
+            setTimeout(connect, 5000); // Reintenta si la creación falla
+            return;
+        }
 
         socket.onopen = () => {
-            console.log("[open] Conexión establecida con el servidor WebSocket.");
+            console.log("[open] Conexión establecida. Registrando rol: " + userRole);
             const registrationMessage = {
                 type: 'register',
                 role: userRole
             };
             socket.send(JSON.stringify(registrationMessage));
-            console.log(`[register] Registrando rol: ${userRole}`);
         };
 
-        socket.onmessage = function(event) {
-            console.log(`[message] Datos recibidos del servidor: ${event.data}`);
+        socket.onmessage = (event) => {
+            console.log(`[message] Datos recibidos: ${event.data}`);
             try {
                 const message = JSON.parse(event.data);
 
-                // Comprobar si el mensaje es del tipo 'notificación' y tiene un payload.
                 if (message.type === 'notification' && message.payload) {
-                    const data = message.payload; // ¡Este es el contenido real para el toast!
+                    const data = message.payload;
+                    
+                    // --- MANEJO DE NOTIFICACIÓN DE CHAT ---
+                    if (data.type === 'new_chat_message') {
+                        // Solo mostramos la alerta si NO estamos en la página de chat
+                        if (window.location.pathname.indexOf('chat.php') === -1) {
+                            console.log(">>> Recibida alerta de nuevo mensaje de chat de: ", data.sender);
+                            
+                            // Mostrar un 'toast'
+                            if (toastContainer) {
+                                const toast = document.createElement('div');
+                                toast.className = 'toast';
+                                toast.innerText = `Nuevo mensaje en el chat de: ${data.sender}`;
+                                toastContainer.appendChild(toast);
+                                setTimeout(() => { toast.classList.add('show'); }, 100);
+                                setTimeout(() => {
+                                    toast.classList.remove('show');
+                                    toast.addEventListener('transitionend', () => toast.remove());
+                                }, 5000);
+                            }
 
-                    if (data.type === 'new_upload') {
-                        showToast(`¡Nuevo oficio!\n${data.user} ha subido: ${data.oficio}`);
-                        updateCounter();
-                    } else if (data.type === 'new_manual') {
-                        showToast(`¡Nuevo documento disponible!\nSe ha subido: ${data.manual_name}`);
-                        updateCounter();
+                            // Animar el botón de chat
+                            if (chatButton) {
+                                chatButton.classList.add('new-message-alert');
+                                const h4 = chatButton.querySelector('h4');
+                                if (h4) {
+                                    h4.textContent = 'Nuevo Mensaje';
+                                }
+                            }
+                        }
                     }
-                } else {
-                    console.warn("[warn] Mensaje recibido no tiene el formato de notificación esperado:", message);
+                    // Aquí se podrían añadir otros tipos de notificaciones (else if)
                 }
-            } catch (error) {
-                console.error("[error] No se pudo interpretar el mensaje del servidor:", error);
+            } catch (e) {
+                console.error("Error procesando mensaje del servidor: ", e);
             }
         };
 
-        socket.onclose = function(event) {
-            if (!event.wasClean) {
-                console.error('[close] La conexión se cayó. Intentando reconectar en 3 segundos...');
-                setTimeout(connect, 3000);
-            }
+        socket.onclose = (event) => {
+            // Esta es la parte clave: siempre intentará reconectar.
+            console.log(`[close] Conexión cerrada. Limpia: ${event.wasClean}, Código: ${event.code}, Razón: ${event.reason}`);
+            console.log("Reconectando en 5 segundos...");
+            setTimeout(connect, 5000);
         };
 
-        socket.onerror = error => console.error(`[error] Error de WebSocket: ${error.message}`);
+        socket.onerror = (error) => {
+            // El evento de error es genérico. El 'onclose' que le sigue nos dará más detalles.
+            console.error("[error] Error de WebSocket detectado. Ver el evento 'onclose' para más detalles.");
+        };
     }
 
+    // --- Listeners para la UI ---
     if (bellContainer) {
         bellContainer.addEventListener('click', function() {
             if (counterElement) {
@@ -107,6 +99,19 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
+    
+    if (chatButton) {
+        chatButton.addEventListener('click', function() {
+            chatButton.classList.remove('new-message-alert');
+            const h4 = chatButton.querySelector('h4');
+            if (h4) {
+                // Restaura el texto original del menú de Enlace
+                h4.textContent = 'Acceder al Chat';
+            }
+        });
+    }
 
+    // --- Iniciar la conexión ---
+    console.log("[init] Llamando a connect() por primera vez.");
     connect();
 });
