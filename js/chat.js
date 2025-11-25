@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let pollingMessages = null;
     let groupCreationMembers = new Map();
     let addMembersSelection = new Map();
-    // (NUEVO) Almacenamiento local para mensajes ocultos
     let hiddenMessages = new Set(JSON.parse(localStorage.getItem('hidden_chat_messages')) || []);
 
     // --- ELEMENTOS DEL DOM -- -
@@ -26,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const addMembersModal = document.getElementById('add-members-modal');
     const viewMembersModal = document.getElementById('view-members-modal');
 
-    // (NUEVO) Función para guardar IDs de mensajes ocultos
     function saveHiddenMessages() {
         localStorage.setItem('hidden_chat_messages', JSON.stringify(Array.from(hiddenMessages)));
     }
@@ -76,16 +74,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = document.createElement("div");
             item.className = "conversation-item";
             item.dataset.conversationId = conv.id;
+
             if (conv.id === activeId) {
                 item.classList.add("active");
+            }
+            // [MODIFICADO] Añadir clase y puntito si hay mensajes no leídos
+            if (conv.unread_count > 0) {
+                item.classList.add('has-unread');
             }
 
             item.innerHTML = `
                 <img src="${conv.avatar}" alt="Avatar">
                 <div class="conversation-details">
                     <div class="conversation-name">${conv.name}</div>
-                    <div class="last-message">${conv.last_message || ''}</div>
+                    <div class="conversation-last-message">${conv.last_message || ''}</div>
                 </div>
+                <div class="unread-indicator"></div>
             `;
 
             item.onclick = () => openConversation(conv.id);
@@ -96,15 +100,19 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =======================================================
        2. GESTIÓN DE LA CONVERSACIÓN ACTIVA
     ======================================================= */
-    function openConversation(id) {
-        if (currentConversationId === id && chatActiveConversation.style.display === 'flex') return;
-        
+    async function openConversation(id) {
         const conv = conversationsCache.get(id);
         if (!conv) {
             console.error("Conversación no encontrada en caché");
             return;
         }
 
+        // [MODIFICADO] Actualización optimista de la UI para los no leídos
+        if (conv.unread_count > 0) {
+            conv.unread_count = 0; // Lo reseteamos en la caché local inmediatamente
+            renderConversationsList();   // Re-dibujamos la lista para que el punto desaparezca al instante
+        }
+        
         currentConversationId = id;
         chatWelcomeScreen.style.display = "none";
         chatActiveConversation.style.display = "flex";
@@ -112,54 +120,52 @@ document.addEventListener('DOMContentLoaded', () => {
         chatWithAvatar.src = conv.avatar;
 
         renderChatHeaderActions(conv);
-        renderConversationsList();
+        // La siguiente línea ya no es necesaria aquí porque la llamamos arriba si hace falta
+        // renderConversationsList(); 
 
         if (pollingMessages) clearInterval(pollingMessages);
+        // Al llamar a fetchMessages, la API pondrá el contador a 0 en la DB.
         fetchMessages(id).then(() => {
             pollingMessages = setInterval(() => fetchMessages(id, true), 3000);
         });
     }
 
     function renderChatHeaderActions(conv) {
-    chatHeaderActions.innerHTML = '';
+        chatHeaderActions.innerHTML = '';
 
-    if (conv.is_group) {
-        // Botón para ver miembros
-        const viewBtn = document.createElement('button');
-        viewBtn.className = 'header-action-btn';
-        viewBtn.title = 'Ver Miembros';
-        viewBtn.innerHTML = '👥';
-        viewBtn.onclick = () => openViewMembersModal(conv);
-        chatHeaderActions.appendChild(viewBtn);
+        if (conv.is_group) {
+            const viewBtn = document.createElement('button');
+            viewBtn.className = 'header-action-btn';
+            viewBtn.title = 'Ver Miembros';
+            viewBtn.innerHTML = '👥';
+            viewBtn.onclick = () => openViewMembersModal(conv);
+            chatHeaderActions.appendChild(viewBtn);
 
-        // Botón para añadir miembros (solo roles autorizados)
-        if ([4, 5].includes(USER_ROLE)) {
-            const addBtn = document.createElement('button');
-            addBtn.className = 'header-action-btn';
-            addBtn.title = 'Añadir Miembros';
-            addBtn.innerHTML = '&#43;👤';
-            addBtn.onclick = () => openAddMembersModal(conv);
-            chatHeaderActions.appendChild(addBtn);
+            if ([4, 5].includes(USER_ROLE)) {
+                const addBtn = document.createElement('button');
+                addBtn.className = 'header-action-btn';
+                addBtn.title = 'Añadir Miembros';
+                addBtn.innerHTML = '&#43;👤';
+                addBtn.onclick = () => openAddMembersModal(conv);
+                chatHeaderActions.appendChild(addBtn);
+            }
+
+            const leaveBtn = document.createElement('button');
+            leaveBtn.className = 'header-action-btn';
+            leaveBtn.title = 'Abandonar Grupo';
+            leaveBtn.innerHTML = '🚪';
+            leaveBtn.onclick = () => leaveGroup(conv.id);
+            chatHeaderActions.appendChild(leaveBtn);
+
+        } else {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'header-action-btn';
+            deleteBtn.title = 'Borrar Chat';
+            deleteBtn.innerHTML = '🗑️';
+            deleteBtn.onclick = () => deleteChat(conv.id);
+            chatHeaderActions.appendChild(deleteBtn);
         }
-
-        // Botón para abandonar el grupo
-        const leaveBtn = document.createElement('button');
-        leaveBtn.className = 'header-action-btn';
-        leaveBtn.title = 'Abandonar Grupo';
-        leaveBtn.innerHTML = '🚪'; // Ícono de puerta
-        leaveBtn.onclick = () => leaveGroup(conv.id);
-        chatHeaderActions.appendChild(leaveBtn);
-
-    } else {
-        // Botón para borrar chat individual
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'header-action-btn';
-        deleteBtn.title = 'Borrar Chat';
-        deleteBtn.innerHTML = '🗑️'; // Ícono de papelera
-        deleteBtn.onclick = () => deleteChat(conv.id);
-        chatHeaderActions.appendChild(deleteBtn);
     }
-}
 
 
     /* =======================================================
@@ -175,17 +181,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!onlyNew) messagesContainer.innerHTML = "";
 
             const existingIds = new Set([...messagesContainer.querySelectorAll("[data-id]")].map(m => m.dataset.id));
+            
             data.data.forEach(msg => {
-                // (MODIFICADO) No renderizar si está oculto localmente
                 if (hiddenMessages.has(String(msg.id))) return;
                 if (existingIds.has(String(msg.id))) return;
 
                 const div = document.createElement("div");
                 div.className = `message ${msg.is_sender ? "sent" : "received"}`;
                 div.dataset.id = msg.id;
-                div.innerHTML = `<div class="bubble-text">${msg.message_content}</div><div class="message-timestamp">${msg.timestamp_formatted || ''}</div>`;
+
+                // [MODIFICADO] Nueva estructura del mensaje para poner la hora debajo
+                div.innerHTML = `
+                    <div class="message-inner-wrapper">
+                        <div class="message-content">
+                            <p class="message-text">${msg.message_content}</p>
+                        </div>
+                        <div class="message-timestamp">${msg.timestamp_formatted || ''}</div>
+                    </div>
+                `;
                 
-                // (NUEVO) Añadir listener para menú contextual en mensajes enviados
                 if (msg.is_sender) {
                     div.addEventListener('click', (e) => showDeleteContextMenu(e, msg.id));
                 }
@@ -215,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             if (data.success) {
                 await fetchMessages(currentConversationId, true);
-                await fetchConversations();
+                await fetchConversations(); // Actualiza la lista de chats para reflejar el último mensaje
             } else {
                 alert('Error al enviar mensaje: ' + data.message);
             }
@@ -225,17 +239,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* =======================================================
-       4. (NUEVO) MENÚ CONTEXTUAL PARA ELIMINAR MENSAJES
+       4. MENÚ CONTEXTUAL PARA ELIMINAR MENSAJES
     ======================================================= */
     function showDeleteContextMenu(event, messageId) {
         event.preventDefault();
-        closeContextMenu(); // Cierra cualquier otro menú abierto
+        closeContextMenu();
 
         const contextMenu = document.createElement('div');
         contextMenu.className = 'message-context-menu';
         contextMenu.id = 'message-context-menu';
         
-        // Posicionar el menú donde se hizo clic
         contextMenu.style.left = `${event.pageX}px`;
         contextMenu.style.top = `${event.pageY}px`;
 
@@ -246,16 +259,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.body.appendChild(contextMenu);
 
-        // Lógica para "Eliminar para mí"
         document.getElementById('delete-for-me').onclick = () => {
             hiddenMessages.add(String(messageId));
             saveHiddenMessages();
             const msgElement = document.querySelector(`.message[data-id='${messageId}']`);
-            if (msgElement) msgElement.style.display = 'none'; // Ocultarlo de la vista
+            if (msgElement) msgElement.style.display = 'none';
             closeContextMenu();
         };
 
-        // Lógica para "Eliminar para todos"
         document.getElementById('delete-for-everyone').onclick = async () => {
             if (!confirm("¿Estás seguro de que quieres eliminar este mensaje para todos?")) {
                 closeContextMenu();
@@ -270,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
                 const data = await res.json();
                 if (data.success) {
-                    // Si se borra en la DB, eliminarlo de la vista de todos modos
                     const msgElement = document.querySelector(`.message[data-id='${messageId}']`);
                     if (msgElement) msgElement.remove();
                 } else {
@@ -283,13 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Cierra el menú contextual
     function closeContextMenu() {
         const existingMenu = document.getElementById('message-context-menu');
         if (existingMenu) existingMenu.remove();
     }
     
-    // Cierra el menú si se hace clic fuera
     document.addEventListener('click', (e) => {
         if (!e.target.closest('#message-context-menu') && !e.target.closest('.message.sent')) {
             closeContextMenu();
@@ -299,9 +307,8 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =======================================================
        5. MODAL: CREAR GRUPO
     ======================================================= */
-    const createGroupBtn = document.getElementById('create-group-btn');
-    if (createGroupBtn) {
-        createGroupBtn.onclick = () => {
+    if (document.getElementById('create-group-btn')) {
+        document.getElementById('create-group-btn').onclick = () => {
             groupCreationMembers.clear();
             document.getElementById('group-name-input').value = '';
             document.getElementById('group-modal-search-users').value = '';
@@ -508,55 +515,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-async function leaveGroup(conversationId) {
-    if (!confirm("¿Estás seguro de que quieres abandonar este grupo?")) return;
+    async function leaveGroup(conversationId) {
+        if (!confirm("¿Estás seguro de que quieres abandonar este grupo?")) return;
 
-    const form = new FormData();
-    form.append('action', 'leave_group');
-    form.append('conversation_id', conversationId);
+        const form = new FormData();
+        form.append('action', 'leave_group');
+        form.append('conversation_id', conversationId);
 
-    try {
-        const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
-        const data = await res.json();
+        try {
+            const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
+            const data = await res.json();
 
-        if (data.success) {
-            alert("Has abandonado el grupo.");
-            currentConversationId = null;
-            chatActiveConversation.style.display = 'none';
-            chatWelcomeScreen.style.display = 'flex';
-            fetchConversations();
-        } else {
-            alert(`Error al abandonar el grupo: ${data.message}`);
+            if (data.success) {
+                alert("Has abandonado el grupo.");
+                currentConversationId = null;
+                chatActiveConversation.style.display = 'none';
+                chatWelcomeScreen.style.display = 'flex';
+                fetchConversations();
+            } else {
+                alert(`Error al abandonar el grupo: ${data.message}`);
+            }
+        } catch (e) {
+            alert('Error de red al intentar abandonar el grupo.');
         }
-    } catch (e) {
-        alert('Error de red al intentar abandonar el grupo.');
     }
-}
 
-async function deleteChat(conversationId) {
-    if (!confirm("¿Estás seguro de que quieres borrar este chat? Esta acción no se puede deshacer.")) return;
+    async function deleteChat(conversationId) {
+        if (!confirm("¿Estás seguro de que quieres borrar este chat? Esta acción no se puede deshacer.")) return;
 
-    const form = new FormData();
-    form.append('action', 'delete_chat');
-    form.append('conversation_id', conversationId);
+        const form = new FormData();
+        form.append('action', 'delete_chat');
+        form.append('conversation_id', conversationId);
 
-    try {
-        const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
-        const data = await res.json();
+        try {
+            const res = await fetch('api/chat_api.php', { method: 'POST', body: form });
+            const data = await res.json();
 
-        if (data.success) {
-            alert("Chat borrado correctamente.");
-            currentConversationId = null;
-            chatActiveConversation.style.display = 'none';
-            chatWelcomeScreen.style.display = 'flex';
-            fetchConversations();
-        } else {
-            alert(`Error al borrar el chat: ${data.message}`);
+            if (data.success) {
+                alert("Chat borrado correctamente.");
+                currentConversationId = null;
+                chatActiveConversation.style.display = 'none';
+                chatWelcomeScreen.style.display = 'flex';
+                fetchConversations();
+            } else {
+                alert(`Error al borrar el chat: ${data.message}`);
+            }
+        } catch (e) {
+            alert('Error de red al intentar borrar el chat.');
         }
-    } catch (e) {
-        alert('Error de red al intentar borrar el chat.');
     }
-}
 
     /* =======================================================
        9. EVENT LISTENERS GENERALES

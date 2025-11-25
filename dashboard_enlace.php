@@ -15,7 +15,7 @@ $user_id = $_SESSION['user_id'];
 $user_role = $_SESSION['user_role'];
 $nombreUsuario = $_SESSION['user_nombre'];
 $user_expediente = $_SESSION['user_expediente'];
-$user_area = $_SESSION['user_area'];
+$user_taller = $_SESSION['user_taller'];
 
 date_default_timezone_set('America/Mexico_City');
 $current_year = date('Y');
@@ -143,6 +143,13 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
         <section class="actions">
             <h3>Menú Principal</h3>
             <div class="menu-grid">
+                 <a href="plantilla_taller.php" class="menu-card steel-blue">
+                    <div class="menu-icon">📜</div>
+                    <div class="menu-text">
+                        <h4>Plantilla de Taller</h4>
+                        <p>Consulta el personal de tu taller</p>
+                    </div>
+                </a>
                  <a href="cargar_oficio.php" class="menu-card blue">
                     <div class="menu-icon">✍️</div>
                     <div class="menu-text">
@@ -208,8 +215,8 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
                             <?php else: ?>
                                 <form action="procesar_entrega.php" method="post" enctype="multipart/form-data">
                                     <div class="file-format-info">
-                                        <p><strong>Formato Sugerido:</strong> <code>numerocurso_expediente_area_año.extension</code></p>
-                                        <p><strong>Ejemplo para ti:</strong> <code>XX_<?php echo htmlspecialchars($user_expediente); ?>_<?php echo htmlspecialchars($user_area); ?>_<?php echo $current_year; ?>.pdf</code></p>
+                                        <p><strong>Formato Sugerido:</strong> <code>numerocurso_expediente_taller_año.extension</code></p>
+                                        <p><strong>Ejemplo para ti:</strong> <code>XX_<?php echo htmlspecialchars($user_expediente); ?>_<?php echo htmlspecialchars($user_taller); ?>_<?php echo $current_year; ?>.pdf</code></p>
                                         <p class="small-text">* Reemplaza 'XX' con el número de curso si aplica.</p>
                                     </div>
                                     <input type="hidden" name="requerimiento_id" value="<?php echo $requerimiento_id; ?>">

@@ -29,21 +29,11 @@ try {
 
     // ---------- Helpers ----------
 
-    // *** FUNCIÓN MODIFICADA PARA IDENTIFICARSE COMO "SYSTEM" ***
     function notify_websocket($payload) {
         try {
             $client = new \WebSocket\Client("ws://127.0.0.1:8081");
-
-            // 1. Presentarse como el sistema (ID 0)
-            $system_registration = [
-                'type'   => 'register',
-                'userId' => 0 // ID reservado para el sistema
-            ];
-            $client->send(json_encode($system_registration));
-
-            // 2. Enviar la notificación real a los destinatarios
+            $client->send(json_encode(['type' => 'register', 'userId' => 0]));
             $client->send(json_encode($payload));
-
             $client->close();
         } catch (\Throwable $e) {
             error_log("Error de notificación WebSocket: " . $e->getMessage());
@@ -51,38 +41,32 @@ try {
     }
 
     function get_or_create_general_chat_id($conn, $admin_id = 1) {
-        $sql_find = "SELECT id FROM chat_conversations WHERE type = 'group' AND name = 'General' LIMIT 1";
-        $stmt = $conn->query($sql_find);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row) {
-            return $row['id'];
-        }
+        $stmt = $conn->query("SELECT id FROM chat_conversations WHERE type = 'group' AND name = 'General' LIMIT 1");
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) return $row['id'];
 
         $conn->beginTransaction();
         try {
-            $sql_create = "INSERT INTO chat_conversations (name, type, created_by) VALUES ('General', 'group', ?)";
-            $stmt_create = $conn->prepare($sql_create);
+            $stmt_create = $conn->prepare("INSERT INTO chat_conversations (name, type, created_by) VALUES ('General', 'group', ?)");
             $stmt_create->execute([$admin_id]);
             $conversation_id = $conn->lastInsertId();
 
-            $stmt_users = $conn->query("SELECT id FROM usuarios");
-            $all_user_ids = $stmt_users->fetchAll(PDO::FETCH_COLUMN);
+            $all_user_ids = $conn->query("SELECT id FROM usuarios")->fetchAll(PDO::FETCH_COLUMN);
 
             if(!empty($all_user_ids)) {
-                $placeholders = implode(', ', array_fill(0, count($all_user_ids), '(?, ?)'));
+                // [MODIFICADO] Añadir un placeholder para el unread_count
+                $placeholders = implode(', ', array_fill(0, count($all_user_ids), '(?, ?, 0)'));
                 $params = [];
                 foreach ($all_user_ids as $user_id) {
-                    $params[] = $conversation_id;
-                    $params[] = $user_id;
+                    $params[] = $conversation_id; $params[] = $user_id;
                 }
-                $stmt_part = $conn->prepare("INSERT IGNORE INTO chat_participants (conversation_id, user_id) VALUES $placeholders");
+                // [MODIFICADO] Especificar las 3 columnas
+                $stmt_part = $conn->prepare("INSERT IGNORE INTO chat_participants (conversation_id, user_id, unread_count) VALUES $placeholders");
                 $stmt_part->execute($params);
             }
             $conn->commit();
             return $conversation_id;
         } catch (Throwable $e) {
-            $conn->rollBack();
-            throw $e;
+            $conn->rollBack(); throw $e;
         }
     }
 
@@ -94,9 +78,11 @@ try {
             $stmt_ensure->execute([$general_chat_id, $user_id]);
         }
         
+        // [MODIFICADO] Añadir user_p.unread_count a la consulta
         $sql = "
             SELECT
                 c.id, c.type, c.name AS group_name, c.created_by,
+                user_p.unread_count,
                 (SELECT GROUP_CONCAT(p_sub.user_id) FROM chat_participants p_sub WHERE p_sub.conversation_id = c.id) AS participant_ids,
                 other_user.nombre_completo AS participant_name,
                 other_user.avatar_url AS participant_avatar,
@@ -146,6 +132,7 @@ try {
                 'is_group' => $is_group,
                 'last_message' => $con['last_message'] ?: '',
                 'participant_ids' => $participant_ids,
+                'unread_count' => (int)$con['unread_count'], // <-- [NUEVO] Añadir a la respuesta
                 'created_by' => (int)($con['created_by'] ?? 0)
             ];
         }, $db_conversations);
@@ -154,6 +141,10 @@ try {
     }
 
     function get_messages($conn, $user_id, $conversation_id) {
+        // [NUEVO] Resetear contador de no leídos al leer el chat
+        $stmt_reset = $conn->prepare("UPDATE chat_participants SET unread_count = 0 WHERE conversation_id = ? AND user_id = ?");
+        $stmt_reset->execute([$conversation_id, $user_id]);
+
         $stmt_check = $conn->prepare("SELECT COUNT(*) FROM chat_participants WHERE conversation_id = ? AND user_id = ?");
         $stmt_check->execute([$conversation_id, $user_id]);
         if ($stmt_check->fetchColumn() == 0) throw new Exception('Acceso denegado');
@@ -175,14 +166,12 @@ try {
 
         $conn->beginTransaction();
         try {
-            // 1. Validar que el usuario puede enviar mensajes
             $stmt_check = $conn->prepare("SELECT COUNT(*) FROM chat_participants WHERE conversation_id = ? AND user_id = ?");
             $stmt_check->execute([$conversation_id, $user_id]);
             if ($stmt_check->fetchColumn() == 0) {
                 throw new Exception('No puedes enviar mensajes a esta conversación');
             }
 
-            // 2. Insertar el mensaje
             $sql = "INSERT INTO chat_messages (conversation_id, sender_id, message_content) VALUES (?, ?, ?)";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$conversation_id, $user_id, $message]);
@@ -192,7 +181,10 @@ try {
             $stmt2->execute([$lastId]);
             $sent_at = $stmt2->fetchColumn();
 
-            // 3. LÓGICA DE NOTIFICACIÓN POR ID DE USUARIO
+            // [NUEVO] Incrementar contador para los demás participantes
+            $stmt_update_unread = $conn->prepare("UPDATE chat_participants SET unread_count = unread_count + 1 WHERE conversation_id = ? AND user_id != ?");
+            $stmt_update_unread->execute([$conversation_id, $user_id]);
+
             $stmt_participants = $conn->prepare("SELECT user_id FROM chat_participants WHERE conversation_id = ?");
             $stmt_participants->execute([$conversation_id]);
             $all_participant_ids = $stmt_participants->fetchAll(PDO::FETCH_COLUMN);
@@ -204,7 +196,7 @@ try {
             if (!empty($recipient_ids)) {
                 $payload = [
                     'type' => 'notification',
-                    'targetUserIds' => array_values($recipient_ids), // Enviar a IDs específicos
+                    'targetUserIds' => array_values($recipient_ids),
                     'payload' => [
                         'type' => 'new_chat_message',
                         'sender' => $user_name,
@@ -263,7 +255,8 @@ try {
         $stmt_conv = $conn->prepare("INSERT INTO chat_conversations (created_by, type) VALUES (?, 'one_to_one')");
         $stmt_conv->execute([$user1_id]);
         $conversation_id = $conn->lastInsertId();
-        $stmt_part = $conn->prepare("INSERT INTO chat_participants (conversation_id, user_id) VALUES (?, ?), (?, ?)");
+        // [MODIFICADO] Añadir unread_count al crear participantes
+        $stmt_part = $conn->prepare("INSERT INTO chat_participants (conversation_id, user_id, unread_count) VALUES (?, ?, 0), (?, ?, 0)");
         $stmt_part->execute([$conversation_id, $user1_id, $conversation_id, $user2_id]);
         $conn->commit();
 
@@ -285,14 +278,15 @@ try {
         $all_members = array_unique(array_merge($member_ids, [$creator_id]));
         if (empty($all_members)) throw new Exception('El grupo debe tener miembros.');
 
-        $placeholders = implode(', ', array_fill(0, count($all_members), '(?, ?)'));
+        // [MODIFICADO] Añadir unread_count al insertar
+        $placeholders = implode(', ', array_fill(0, count($all_members), '(?, ?, 0)'));
         $params = [];
         foreach ($all_members as $user_id) {
             $params[] = $conversation_id;
             $params[] = $user_id;
         }
         
-        $stmt_part = $conn->prepare("INSERT IGNORE INTO chat_participants (conversation_id, user_id) VALUES $placeholders");
+        $stmt_part = $conn->prepare("INSERT IGNORE INTO chat_participants (conversation_id, user_id, unread_count) VALUES $placeholders");
         $stmt_part->execute($params);
         $conn->commit();
 
@@ -311,8 +305,9 @@ try {
         $stmt_check->execute([$conversation_id, $actor_id]);
         if ($stmt_check->fetchColumn() == 0) throw new Exception('No puedes modificar un grupo del que no eres parte.');
 
-        $placeholders = implode(', ', array_fill(0, count($member_ids), '(?, ?)'));
-        $sql_insert = "INSERT IGNORE INTO chat_participants (conversation_id, user_id) VALUES $placeholders";
+        // [MODIFICADO] Añadir unread_count al insertar
+        $placeholders = implode(', ', array_fill(0, count($member_ids), '(?, ?, 0)'));
+        $sql_insert = "INSERT IGNORE INTO chat_participants (conversation_id, user_id, unread_count) VALUES $placeholders";
         
         $params = [];
         foreach ($member_ids as $user_id) {
@@ -367,7 +362,6 @@ try {
     }
 
     function leave_conversation($conn, $user_id, $conversation_id) {
-        // Opcional: Impedir abandonar el chat General
         $stmt_check = $conn->prepare("SELECT name, type FROM chat_conversations WHERE id = ?");
         $stmt_check->execute([$conversation_id]);
         $conv = $stmt_check->fetch(PDO::FETCH_ASSOC);

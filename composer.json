@@ -6,6 +6,7 @@
     },
     "require": {
         "cboden/ratchet": "^0.4.4",
-        "textalk/websocket": "^1.6"
+        "textalk/websocket": "^1.6",
+        "phpoffice/phpspreadsheet": "^5.3"
     }
 }

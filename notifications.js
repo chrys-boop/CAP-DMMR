@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
         return; // Detiene la ejecución si no hay ID de usuario
     }
 
-    const websocketUrl = "ws://localhost:8081";
+    const websocketUrl = "wss://" + window.location.hostname + "/ws/";
     let socket;
 
     // --- Elementos del DOM ---

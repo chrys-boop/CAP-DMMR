@@ -15,6 +15,10 @@ class ComposerStaticInitce0af0065bc3515fc4b1c674ab4e616d
     );
 
     public static $prefixLengthsPsr4 = array (
+        'Z' =>
+        array (
+            'ZipStream\\' => 10,
+        ),
         'W' =>
         array (
             'WebSocket\\' => 10,
@@ -39,14 +43,18 @@ class ComposerStaticInitce0af0065bc3515fc4b1c674ab4e616d
         ),
         'P' =>
         array (
+            'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
+            'Psr\\Http\\Client\\' => 16,
             'Phrity\\Util\\' => 12,
             'Phrity\\Net\\' => 11,
+            'PhpOffice\\PhpSpreadsheet\\' => 25,
         ),
         'M' =>
         array (
             'MyApp\\' => 6,
+            'Matrix\\' => 7,
         ),
         'G' =>
         array (
@@ -56,9 +64,18 @@ class ComposerStaticInitce0af0065bc3515fc4b1c674ab4e616d
         array (
             'Evenement\\' => 10,
         ),
+        'C' =>
+        array (
+            'Composer\\Pcre\\' => 14,
+            'Complex\\' => 8,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'ZipStream\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
+        ),
         'WebSocket\\' =>
         array (
             0 => __DIR__ . '/..' . '/textalk/websocket/lib',
@@ -111,6 +128,10 @@ class ComposerStaticInitce0af0065bc3515fc4b1c674ab4e616d
         array (
             0 => __DIR__ . '/..' . '/cboden/ratchet/src/Ratchet',
         ),
+        'Psr\\SimpleCache\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
         'Psr\\Log\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/log/src',
@@ -120,6 +141,10 @@ class ComposerStaticInitce0af0065bc3515fc4b1c674ab4e616d
             0 => __DIR__ . '/..' . '/psr/http-factory/src',
             1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
+        'Psr\\Http\\Client\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-client/src',
+        ),
         'Phrity\\Util\\' =>
         array (
             0 => __DIR__ . '/..' . '/phrity/util-errorhandler/src',
@@ -128,9 +153,17 @@ class ComposerStaticInitce0af0065bc3515fc4b1c674ab4e616d
         array (
             0 => __DIR__ . '/..' . '/phrity/net-uri/src',
         ),
+        'PhpOffice\\PhpSpreadsheet\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
+        ),
         'MyApp\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
+        ),
+        'Matrix\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
         ),
         'GuzzleHttp\\Psr7\\' =>
         array (
@@ -139,6 +172,14 @@ class ComposerStaticInitce0af0065bc3515fc4b1c674ab4e616d
         'Evenement\\' =>
         array (
             0 => __DIR__ . '/..' . '/evenement/evenement/src',
+        ),
+        'Composer\\Pcre\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/composer/pcre/src',
+        ),
+        'Complex\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
         ),
     );
 

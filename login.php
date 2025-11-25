@@ -42,6 +42,7 @@ try {
         $_SESSION['user_role'] = $user['role'];
         $_SESSION['user_taller'] = $user['taller']; 
         $_SESSION['user_area_interna'] = $user['area_interna'];
+        $_SESSION['user_calidad_laboral'] = $user['calidad_laboral']; // <-- AÑADIDO
 
         // Definir la URL de redirección basada en el rol
         $redirect_url = '';

@@ -14,20 +14,20 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
 // 2. Definir valores para los filtros y obtenerlos de GET
 $search_nombre = $_GET['nombre'] ?? '';
 $search_expediente = $_GET['expediente'] ?? '';
-$search_area = $_GET['area'] ?? '';
+$search_taller = $_GET['taller'] ?? '';
 $search_role = $_GET['role'] ?? '';
 $search_fecha_desde = $_GET['fecha_desde'] ?? '';
 $search_fecha_hasta = $_GET['fecha_hasta'] ?? '';
 
 // 3. Obtener valores únicos para los desplegables de filtros
-$areas = $conn->query("SELECT DISTINCT area FROM usuarios WHERE area IS NOT NULL AND area != '' ORDER BY area ASC")->fetchAll(PDO::FETCH_COLUMN);
+$talleres = $conn->query("SELECT DISTINCT taller FROM usuarios WHERE taller IS NOT NULL AND taller != '' ORDER BY taller ASC")->fetchAll(PDO::FETCH_COLUMN);
 $roles_map = [1 => 'Trabajador', 2 => 'Instructor', 3 => 'Enlace', 4 => 'CAP-DMMR', 5 => 'Admin'];
 
 // 4. Construir la consulta SQL dinámicamente
 try {
     $sql_base = "SELECT 
                     op.id, op.nombre_archivo_original, op.ruta_archivo, op.comentario, op.fecha_carga, 
-                    u.nombre_completo, u.expediente, u.area, u.role
+                    u.nombre_completo, u.expediente, u.taller, u.role
                  FROM oficios_personalizados AS op
                  JOIN usuarios AS u ON op.user_id = u.id";
     
@@ -42,9 +42,9 @@ try {
         $where_clauses[] = "u.expediente LIKE :expediente";
         $params[':expediente'] = '%' . $search_expediente . '%';
     }
-    if (!empty($search_area)) {
-        $where_clauses[] = "u.area = :area";
-        $params[':area'] = $search_area;
+    if (!empty($search_taller)) {
+        $where_clauses[] = "u.taller = :taller";
+        $params[':taller'] = $search_taller;
     }
     if (!empty($search_role)) {
         $where_clauses[] = "u.role = :role";
@@ -99,10 +99,10 @@ try {
                 <div class="filter-grid">
                     <input type="text" name="nombre" placeholder="Nombre..." value="<?php echo htmlspecialchars($search_nombre); ?>">
                     <input type="text" name="expediente" placeholder="Expediente..." value="<?php echo htmlspecialchars($search_expediente); ?>">
-                    <select name="area">
-                        <option value="">Toda Área</option>
-                        <?php foreach ($areas as $area): ?>
-                            <option value="<?php echo htmlspecialchars($area); ?>" <?php echo ($search_area == $area) ? 'selected' : ''; ?>><?php echo htmlspecialchars($area); ?></option>
+                    <select name="taller">
+                        <option value="">Todo Taller</option>
+                        <?php foreach ($talleres as $taller): ?>
+                            <option value="<?php echo htmlspecialchars($taller); ?>" <?php echo ($search_taller == $taller) ? 'selected' : ''; ?>><?php echo htmlspecialchars($taller); ?></option>
                         <?php endforeach; ?>
                     </select>
                     <select name="role">
@@ -138,7 +138,7 @@ try {
                             <h4 style="margin-bottom: 1rem;">Oficio: <?php echo htmlspecialchars($oficio['nombre_archivo_original']); ?></h4>
                             <p><strong>Remitente:</strong> <?php echo htmlspecialchars($oficio['nombre_completo']); ?></p>
                             <p><strong>Expediente:</strong> <?php echo htmlspecialchars($oficio['expediente']); ?></p>
-                            <p><strong>Área:</strong> <?php echo htmlspecialchars($oficio['area']); ?></p>
+                            <p><strong>Taller:</strong> <?php echo htmlspecialchars($oficio['taller']); ?></p>
                             <p><strong>Rol:</strong> <?php echo htmlspecialchars($roles_map[$oficio['role']] ?? 'Desconocido'); ?></p>
                             <?php if (!empty($oficio['comentario'])) : ?>
                                 <p><strong>Comentario:</strong> <?php echo htmlspecialchars($oficio['comentario']); ?></p>

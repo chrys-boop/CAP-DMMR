@@ -8,12 +8,12 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column; /* Cambiado para apilar header y chat-container */
+    flex-direction: column;
     height: 100vh;
 }
 
 .page-header {
-    background-color: #0056b3; /* Un azul oscuro, puedes cambiarlo */
+    background-color: #0056b3;
     color: white;
     padding: 15px 25px;
     display: flex;
@@ -42,18 +42,14 @@ body {
 }
 
 .chat-container {
-    /* Ajustado para que ocupe el espacio restante */
     flex-grow: 1;
     display: flex;
-    overflow: hidden; /* Evita que el contenedor se desborde */
+    overflow: hidden;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     margin: 20px;
 }
-
-
-/* ... (el resto de tus estilos de chat.css) ... */
 
 .sidebar {
     width: 320px;
@@ -81,10 +77,10 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.8em; /* Aumentar tamaño de los iconos */
+    font-size: 1.8em;
     color: #007bff;
     padding: 5px;
-    margin-left: 10px; /* Espacio entre botones */
+    margin-left: 10px;
     transition: color 0.2s;
 }
 
@@ -104,6 +100,7 @@ body {
     cursor: pointer;
     border-bottom: 1px solid #f0f0f0;
     transition: background-color 0.2s;
+    position: relative;
 }
 
 .conversation-item.active, .conversation-item:hover {
@@ -115,12 +112,12 @@ body {
     height: 50px;
     border-radius: 50%;
     margin-right: 15px;
-    object-fit: cover; /* Para que la imagen no se deforme */
+    object-fit: cover;
 }
 
 .conversation-details {
     flex-grow: 1;
-    overflow: hidden; /* Para truncar texto */
+    overflow: hidden;
 }
 
 .conversation-name {
@@ -141,27 +138,32 @@ body {
     text-overflow: ellipsis;
 }
 
-.conversation-timestamp {
-    font-size: 0.8em;
-    color: #999;
-    margin-left: 10px;
-    white-space: nowrap;
+/* --- Estilos para el puntito de notificación --- */
+.unread-indicator {
+    width: 10px;
+    height: 10px;
+    background-color: #007bff;
+    border-radius: 50%;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
 }
 
-
-/* --- Estilos para la notificación de 'Mensaje Nuevo' --- */
-.conversation-item.unread .conversation-last-message {
-    font-weight: bold;
-    color: #007bff; /* Color azul para destacar */
+.conversation-item.has-unread .unread-indicator {
+    display: block;
 }
 
-.conversation-item.unread .conversation-name {
-    font-weight: 800; /* Letra más gruesa para el nombre */
+.conversation-item.has-unread .conversation-name {
+    font-weight: 800;
 }
-
+.conversation-item.has-unread .conversation-last-message {
+    color: #333;
+    font-weight: 600;
+}
 
 /* -- Área de chat -- */
-
 .chat-area {
     flex-grow: 1;
     display: flex;
@@ -186,9 +188,8 @@ body {
 .chat-active-conversation {
     display: flex;
     flex-direction: column;
-    height: 100%; /* Asegura que ocupe todo el espacio vertical */
+    height: 100%;
 }
-
 
 .chat-header {
     padding: 15px 20px;
@@ -239,58 +240,56 @@ body {
     background-color: #f4f7f9;
 }
 
+/* [MODIFICADO] Simplificación y corrección de estilos de mensajes */
 .message {
     display: flex;
+    flex-direction: column;
     margin-bottom: 15px;
     max-width: 70%;
 }
 
-.message img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
 .message-content {
-    background-color: #e9e9eb;
-    padding: 12px;
+    padding: 10px 15px;
     border-radius: 18px;
-}
-
-.message-sender {
-    font-weight: bold;
-    font-size: 0.9em;
-    color: #555;
-    margin-bottom: 5px;
+    word-wrap: break-word;
+    background-color: #e9e9eb;
 }
 
 .message-text {
-    font-size: 1em;
     margin: 0;
-    word-wrap: break-word;
+    font-size: 1em;
 }
 
+.message-timestamp {
+    font-size: 0.75em;
+    color: #888;
+    margin-top: 5px;
+}
+
+/* Alineación para mensajes recibidos (izquierda) */
+.message.received {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+.message.received .message-timestamp {
+    text-align: left;
+}
+
+/* Alineación para mensajes enviados (derecha) */
 .message.sent {
-    margin-left: auto; /* Alinea a la derecha */
-    flex-direction: row-reverse; /* Invierte el orden de imagen y contenido */
-}
-
-.message.sent img {
-    margin-right: 0;
-    margin-left: 10px;
+    align-self: flex-end;
+    align-items: flex-end;
 }
 
 .message.sent .message-content {
-    background-color: #007bff; /* Color azul para mensajes enviados */
+    background-color: #007bff;
     color: white;
 }
 
-.message.sent .message-sender {
-    display: none; /* No mostrar nuestro propio nombre */
+.message.sent .message-timestamp {
+    text-align: right;
 }
-
-
+/* --- Fin de la modificación --- */
 
 .chat-footer {
     padding: 15px 20px;
@@ -326,9 +325,8 @@ body {
 
 
 /* --- Estilos para Modales --- */
-
 .modal {
-    display: none; /* Oculto por defecto */
+    display: none;
     position: fixed; 
     z-index: 1000;
     left: 0; top: 0;
@@ -406,7 +404,7 @@ body {
 }
 
 .modal-submit-btn {
-    background-color: #28a745; /* Verde */
+    background-color: #28a745;
     color: white;
     border: none;
     padding: 12px 20px;
@@ -422,7 +420,6 @@ body {
     background-color: #218838;
 }
 
-/* Estilos específicos para miembros seleccionados */
 .group-members-section {
     margin-bottom: 20px;
 }
@@ -432,7 +429,7 @@ body {
     flex-wrap: wrap;
     gap: 8px;
     padding: 10px;
-    min-height: 40px; /* Para que no colapse cuando está vacío */
+    min-height: 40px;
 }
 
 .selected-member-item {
@@ -445,9 +442,7 @@ body {
 
 .remove-member-btn {
     margin-left: 8px;
-    color: #dc3545; /* Rojo */
+    color: #dc3545;
     font-weight: bold;
     cursor: pointer;
 }
-
-

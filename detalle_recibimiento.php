@@ -1,3 +1,4 @@
+
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -30,9 +31,9 @@ if (!$requerimiento) {
     exit();
 }
 
-// --- 2. OBTENER LISTA DE ENTREGADOS (CON AREA Y CARGO) ---
+// --- 2. OBTENER LISTA DE ENTREGADOS (CON TALLER Y ÁREA INTERNA) ---
 $sql_entregados = "
-    SELECT u.nombre_completo, u.expediente, u.area, u.cargo, e.fecha_entrega, e.ruta_archivo
+    SELECT u.nombre_completo, u.expediente, u.taller, u.area_interna, e.fecha_entrega, e.ruta_archivo
     FROM entregas e
     JOIN usuarios u ON e.user_id = u.id
     WHERE e.requerimiento_id = :req_id
@@ -43,9 +44,9 @@ $stmt_entregados->bindParam(':req_id', $requerimiento_id, PDO::PARAM_INT);
 $stmt_entregados->execute();
 $usuarios_entregados = $stmt_entregados->fetchAll(PDO::FETCH_ASSOC);
 
-// --- 3. OBTENER LISTA DE FALTANTES (CON AREA Y CARGO) ---
+// --- 3. OBTENER LISTA DE FALTANTES (CON TALLER Y ÁREA INTERNA) ---
 $sql_faltantes = "
-    SELECT u.nombre_completo, u.expediente, u.area, u.cargo
+    SELECT u.nombre_completo, u.expediente, u.taller, u.area_interna
     FROM usuarios u
     WHERE u.role = 3 AND u.id NOT IN (
         SELECT e.user_id 
@@ -86,8 +87,8 @@ $usuarios_faltantes = $stmt_faltantes->fetchAll(PDO::FETCH_ASSOC);
                         <tr>
                             <th>Nombre Completo</th>
                             <th>Expediente</th>
-                            <th>Área</th>
-                            <th>Cargo</th>
+                            <th>Taller</th>
+                            <th>Área Interna</th>
                             <th>Fecha de Entrega</th>
                             <th>Archivo</th>
                         </tr>
@@ -100,8 +101,8 @@ $usuarios_faltantes = $stmt_faltantes->fetchAll(PDO::FETCH_ASSOC);
                                 <tr>
                                     <td><?php echo htmlspecialchars($user['nombre_completo']); ?></td>
                                     <td><?php echo htmlspecialchars($user['expediente']); ?></td>
-                                    <td><?php echo htmlspecialchars($user['area']); ?></td>
-                                    <td><?php echo htmlspecialchars($user['cargo']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['taller']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['area_interna']); ?></td>
                                     <td><?php echo date("d/m/Y H:i", strtotime($user['fecha_entrega'])); ?></td>
                                     <td>
                                         <a href="<?php echo $base_path . '/' . htmlspecialchars($user['ruta_archivo']); ?>" target="_blank" class="action-btn-small blue">
@@ -124,8 +125,8 @@ $usuarios_faltantes = $stmt_faltantes->fetchAll(PDO::FETCH_ASSOC);
                         <tr>
                             <th>Nombre Completo</th>
                             <th>Expediente</th>
-                            <th>Área</th>
-                            <th>Cargo</th>
+                            <th>Taller</th>
+                            <th>Área Interna</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -136,8 +137,8 @@ $usuarios_faltantes = $stmt_faltantes->fetchAll(PDO::FETCH_ASSOC);
                                 <tr>
                                     <td><?php echo htmlspecialchars($user['nombre_completo']); ?></td>
                                     <td><?php echo htmlspecialchars($user['expediente']); ?></td>
-                                    <td><?php echo htmlspecialchars($user['area']); ?></td>
-                                    <td><?php echo htmlspecialchars($user['cargo']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['taller']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['area_interna']); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>

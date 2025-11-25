@@ -12,6 +12,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 4) {
 
 $nombreUsuario = $_SESSION['user_nombre'];
 $expedienteUsuario = $_SESSION['user_expediente'];
+// --- MOSTRAR LA NUEVA INFORMACIÓN ---
+$tallerUsuario = $_SESSION['user_taller'] ?? 'No especificado';
+$areaInternaUsuario = $_SESSION['user_area_interna'] ?? 'No especificado';
+$calidadLaboralUsuario = $_SESSION['user_calidad_laboral'] ?? 'No especificado';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -103,6 +107,9 @@ $expedienteUsuario = $_SESSION['user_expediente'];
             <div class="info-card">
                 <p><strong>Nombre:</strong> <?php echo htmlspecialchars($nombreUsuario); ?></p>
                 <p><strong>Expediente:</strong> <?php echo htmlspecialchars($expedienteUsuario); ?></p>
+                <p><strong>Taller:</strong> <?php echo htmlspecialchars($tallerUsuario); ?></p>
+                <p><strong>Área Interna:</strong> <?php echo htmlspecialchars($areaInternaUsuario); ?></p>
+                <p><strong>Calidad Laboral:</strong> <?php echo htmlspecialchars($calidadLaboralUsuario); ?></p>
             </div>
         </section>
 
@@ -110,6 +117,7 @@ $expedienteUsuario = $_SESSION['user_expediente'];
             <h3>Menú Principal</h3>
             <div class="button-grid">
                 <a href="gestionar_personal.php" class="action-btn blue">👤 Gestionar Personal</a>
+                <a href="plantilla_general.php" class="action-btn steel-blue">📜 Plantilla General</a>
                 <a href="gestionar_documentos.php" class="action-btn green">📁 Gestor de Documentos</a>
                 <a href="historial_recibimiento.php" class="action-btn purple">📊 Histórico y Estadísticas</a>
                 <a href="gestionar_manuales.php" class="action-btn orange">📚 Gestionar Manuales</a>

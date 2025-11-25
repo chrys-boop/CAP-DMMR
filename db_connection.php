@@ -1,28 +1,28 @@
 <?php
 // db_connection.php
 
-// --- CONFIGURACIÓN DE LA BASE DE DATOS PARA XAMPP ---
-// --- MODIFICADO PARA USAR NGROK ---
-//$servername = "6.tcp.us-cal-1.ngrok.ioo"; // Hostname (dominio) proporcionado por ngrok
-//$port = "11124";                // Puerto ALEATORIO asignado por ngrok
-$servername = "localhost";     // Hostname para XAMPP
-$username = "root";             // Usuario por defecto en XAMPP
-$password = "";                 // Contraseña por defecto en XAMPP (vacía)
-$dbname = "metro-dmmr";         // Nombre de tu base de datos
+// --- CONFIGURACIÓN DE LA BASE DE DATOS PARA NGROK ---
+// IMPORTANTE: Estos datos probablemente son incorrectos.
+// Debes reiniciar el túnel de ngrok para la base de datos (ngrok tcp 3306)
+// y reemplazar $servername y $port con la nueva información.
+//$servername = "2.tcp.us-cal-1.ngrok.io"; // ACTUALIZADO
+$servername = "localhost";
+//$port = "13236";   
+$port = "3306";                    // ACTUALIZADO
+$username = "usuario_app";
+$password = "Luna022495";
+$dbname = "metro-dmmr";
+
+
 // --- CREAR LA CONEXIÓN ---
 try {
-    // Se añade el puerto a la cadena de conexión PDO
-    //$conn = new PDO("mysql:host=$servername;port=$port;dbname=$dbname;charset=utf8", $username, $password);
-    $conn = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
+    $conn = new PDO("mysql:host=$servername;port=$port;dbname=$dbname;charset=utf8", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e) {
-    // Para la terminal, es mejor mostrar un error directo.
-    if (php_sapi_name() === 'cli') {
-        echo "Error de Conexión: " . $e->getMessage() . "\n";
-    } else {
-        http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Error de Conexión: " . $e->getMessage()]);
-    }
+    // Devolver un error en formato JSON, como espera el frontend (login.js)
+    http_response_code(500); // Internal Server Error
+    header('Content-Type: application/json');
+    echo json_encode(["success" => false, "message" => "Error de Conexión a la Base de Datos: " . $e->getMessage()]);
     exit();
 }
 ?>
