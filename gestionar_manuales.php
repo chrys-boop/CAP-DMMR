@@ -34,10 +34,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
         $stmt_delete = $conn->prepare("DELETE FROM manuales WHERE id = :id");
         $stmt_delete->execute([':id' => $_GET['id']]);
 
-        $_SESSION['flash_message'] = ['type' => 'success', 'text' => 'Manual eliminado exitosamente.'];
+        $_SESSION['flash_message'] = ['type' => 'success', 'text' => 'MANUAL ELIMINADO EXITOSAMENTE.'];
 
     } catch (PDOException $e) {
-        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error al eliminar el manual: ' . $e->getMessage()];
+        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR AL ELIMINAR EL MANUAL: ' . $e->getMessage()];
     }
     header("Location: gestionar_manuales.php");
     exit();
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['manual_file'])) {
             try {
                 $stmt = $conn->prepare("INSERT INTO manuales (nombre_archivo, ruta_archivo) VALUES (:nombre, :ruta)");
                 $stmt->execute([':nombre' => $original_name, ':ruta' => $file_path]);
-                $_SESSION['flash_message'] = ['type' => 'success', 'text' => '¡Manual subido exitosamente!'];
+                $_SESSION['flash_message'] = ['type' => 'success', 'text' => '¡MANUAL SUBIDO EXITOSAMENTE!'];
 
                 // Notificación por WebSocket (método unificado)
                 try {
@@ -64,18 +64,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['manual_file'])) {
                     ]);
                     $ws_client->send($payload);
                 } catch (Exception $e) {
-                    error_log("Fallo al enviar notificación por WebSocket: " . $e->getMessage());
+                    error_log("FALLO AL ENVIAR NOTIFICACIÓN POR WEBSOCKET: " . $e->getMessage());
                 }
 
             } catch (PDOException $e) {
-                $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error al guardar en la BD: ' . $e->getMessage()];
+                $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR AL GUARDAR EN LA BD: ' . $e->getMessage()];
                 unlink($file_path);
             }
         } else {
-            $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error al mover el archivo subido.'];
+            $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR AL MOVER EL ARCHIVO SUBIDO.'];
         }
     } else {
-        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error en la subida del archivo.'];
+        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR EN LA SUBIDA DEL ARCHIVO.'];
     }
     header("Location: gestionar_manuales.php");
     exit();
@@ -90,22 +90,22 @@ $manuales = $conn->query("SELECT id, nombre_archivo, ruta_archivo, fecha_subida 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionar Manuales</title>
+    <title>GESTIONAR MANUALES</title>
     <link rel="stylesheet" href="estilos/estilosgesdocman.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
     <header class="dashboard-header">
-        <h1>Gestionar Manuales y Diagramas</h1>
+        <h1>GESTIONAR MANUALES Y DIAGRAMAS</h1>
         <?php
         // --- BOTÓN DE VOLVER DINÁMICO (CORREGIDO) ---
         $dashboard_link = ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php';
         ?>
-        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">Volver al Panel</a>
+        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">VOLVER AL PANEL</a>
     </header>
     <main class="dashboard-container">
         <section class="form-section">
-            <h3>Subir Nuevo Documento</h3>
+            <h3>SUBIR NUEVO DOCUMENTO</h3>
             <?php
             if (isset($_SESSION['flash_message'])) {
                 $msg = $_SESSION['flash_message'];
@@ -115,35 +115,35 @@ $manuales = $conn->query("SELECT id, nombre_archivo, ruta_archivo, fecha_subida 
             ?>
             <form action="gestionar_manuales.php" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="manual_file">Seleccionar Archivo:</label>
+                    <label for="manual_file">SELECCIONAR ARCHIVO:</label>
                     <input type="file" id="manual_file" name="manual_file" required>
                 </div>
-                <button type="submit" class="action-btn green">Subir Archivo</button>
+                <button type="submit" class="action-btn green">SUBIR ARCHIVO</button>
             </form>
         </section>
         <hr class="section-divider">
         <section class="table-section">
-            <h3>Documentos Almacenados</h3>
+            <h3>DOCUMENTOS ALMACENADOS</h3>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Nombre del Archivo</th>
-                            <th>Fecha de Subida</th>
-                            <th>Acciones</th>
+                            <th>NOMBRE DEL ARCHIVO</th>
+                            <th>FECHA DE SUBIDA</th>
+                            <th>ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($manuales)): ?>
-                            <tr><td colspan="3" style="text-align: center;">No se han subido manuales.</td></tr>
+                            <tr><td colspan="3" style="text-align: center;">NO SE HAN SUBIDO MANUALES.</td></tr>
                         <?php else: ?>
                             <?php foreach ($manuales as $manual): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($manual['nombre_archivo']); ?></td>
                                     <td><?php echo date("d/m/Y H:i", strtotime($manual['fecha_subida'])); ?></td>
                                     <td class="actions-cell">
-                                        <a href="<?php echo htmlspecialchars($manual['ruta_archivo']); ?>" class="action-btn-small green" download>Descargar</a>
-                                        <a href="?action=delete&id=<?php echo $manual['id']; ?>" class="action-btn-small red" onclick="return confirm('¿Seguro que quieres eliminar este archivo?');">Eliminar</a>
+                                        <a href="<?php echo htmlspecialchars($manual['ruta_archivo']); ?>" class="action-btn-small green" download>DESCARGAR</a>
+                                        <a href="?action=delete&id=<?php echo $manual['id']; ?>" class="action-btn-small red" onclick="return confirm('¿SEGURO QUE QUIERES ELIMINAR ESTE ARCHIVO?');">ELIMINAR</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -154,7 +154,7 @@ $manuales = $conn->query("SELECT id, nombre_archivo, ruta_archivo, fecha_subida 
         </section>
     </main>
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 </body>
 </html>

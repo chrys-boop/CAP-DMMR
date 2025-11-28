@@ -5,12 +5,24 @@ error_reporting(E_ALL);
 session_start();
 require_once 'db_connection.php';
 
-if (!isset($_SESSION['user_id'])) {
+// 1. --- LÓGICA DE SEGURIDAD ---
+// Debe haber un usuario logueado, y su rol debe ser 3 (Enlace)
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 3) {
     header("Location: index.html");
     exit();
 }
 
 $nombreUsuario = $_SESSION['user_nombre'];
+
+// 2. --- MANEJO DE MENSAJES FLASH ---
+$message = null;
+$message_type = '';
+if (isset($_SESSION['flash_message'])) {
+    $flash = $_SESSION['flash_message'];
+    $message = $flash['text'];
+    $message_type = $flash['type'];
+    unset($_SESSION['flash_message']);
+}
 
 ?>
 <!DOCTYPE html>
@@ -18,64 +30,51 @@ $nombreUsuario = $_SESSION['user_nombre'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargar Oficio Personalizado</title>
+    <title>CARGA DE OFICIO PERSONALIZADO</title>
     <link rel="stylesheet" href="estilos/estiloscar_oficio.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Cargar Oficio Personalizado</h1>
-        <a href="dashboard_enlace.php" class="logout-btn">Volver al Menú</a>
+        <h1>CARGA DE OFICIO PERSONALIZADO</h1>
+        <a href="dashboard_enlace.php" class="logout-btn">VOLVER AL PANEL</a>
     </header>
 
     <main class="dashboard-container">
-        <?php
-        if (isset($_SESSION['flash_message'])) {
-            $message = $_SESSION['flash_message'];
-            printf('<div class="flash-message %s">%s</div>', htmlspecialchars($message['type']), htmlspecialchars($message['text']));
-            unset($_SESSION['flash_message']);
-        }
-        ?>
-
-        <div class="requerimiento-card" style="max-width: 700px; margin: 2rem auto;">
-             <form action="procesar_oficio.php" method="post" enctype="multipart/form-data">
-                <h4 style="text-align: center; margin-bottom: 1rem;">Sube tu Oficio</h4>
-                <p style="text-align: center; margin-bottom: 2rem;">Selecciona el documento de oficio que deseas cargar. Puedes añadir un comentario si lo consideras necesario.</p>
-                
-                <div class="form-group">
-                    <label for="oficio" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Archivo del Oficio</label>
-                    <input type="file" name="oficio" id="oficio" required>
+        <section class="welcome-section">
+            <h2>HOLA, <span class="user-name"><?php echo htmlspecialchars($nombreUsuario); ?></span></h2>
+            <p class="subtext">AQUÍ PUEDES SUBIR TUS DOCUMENTOS PERSONALIZADOS (CARTAS DESCRIPTIVAS, ETC.) PARA QUE SEAN REVISADOS.</p>
+        </section>
+        
+        <section class="upload-section">
+            <h3>SUBIR NUEVO DOCUMENTO</h3>
+            
+            <?php if ($message): ?>
+                <div class="flash-message <?php echo htmlspecialchars($message_type); ?>">
+                    <?php echo htmlspecialchars($message); ?>
                 </div>
+            <?php endif; ?>
 
+            <form action="procesar_oficio.php" method="post" enctype="multipart/form-data" class="upload-form">
                 <div class="form-group">
-                     <label for="comentario" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Comentario (Opcional)</label>
-                    <textarea name="comentario" id="comentario" placeholder="Ej: Oficio de solicitud de recursos para el área de..."></textarea>
+                    <label for="documento">SELECCIONA EL ARCHIVO A SUBIR:</label>
+                    <input type="file" name="documento" id="documento" required>
                 </div>
-                
-                <button type="submit" class="action-btn-small blue" style="width: 100%; margin-top: 1rem;">Subir Oficio</button>
+                <div class="form-group">
+                    <label for="comentario">COMENTARIO (OPCIONAL):</label>
+                    <textarea name="comentario" id="comentario" rows="4" placeholder="AÑADE UN COMENTARIO AQUÍ (OPCIONAL)..."></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="action-btn green">ENVIAR DOCUMENTO</button>
+                </div>
             </form>
-        </div>
+        </section>
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
-
-    <script src="notifications.js"></script>
-
-    <!-- Script para enviar la notificación. Se llama inmediatamente. -->
-    <script>
-    // Se elimina el 'DOMContentLoaded'. Gracias a la nueva versión de notifications.js,
-    // podemos llamar la función directamente. La función esperará por sí misma a que la conexión esté lista.
-    <?php
-    if (isset($_SESSION['notification_data'])) {
-        $notification_json = json_encode($_SESSION['notification_data']);
-        echo "window.sendNotification($notification_json);";
-        unset($_SESSION['notification_data']);
-    }
-    ?>
-    </script>
 
 </body>
 </html>

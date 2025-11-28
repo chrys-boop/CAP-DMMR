@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
 
 // --- Obtener datos para los formularios ---
 $users = $conn->query("SELECT id, nombre_completo, expediente FROM usuarios ORDER BY nombre_completo ASC")->fetchAll(PDO::FETCH_ASSOC);
-$roles_map = [1 => 'Trabajador', 2 => 'Instructor', 3 => 'Enlace', 4 => 'CAP-DMMR', 5 => 'Admin'];
+$roles_map = [1 => 'TRABAJADOR', 2 => 'INSTRUCTOR', 3 => 'ENLACE', 4 => 'CAP-DMMR', 5 => 'ADMIN'];
 
 // --- Lógica de Notificaciones (Mensajes Flash) ---
 $message = null;
@@ -36,9 +36,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
         $sql_delete_req = "DELETE FROM requerimientos WHERE id = :id";
         $stmt_delete_req = $conn->prepare($sql_delete_req);
         $stmt_delete_req->execute([':id' => $_GET['id']]);
-        $_SESSION['flash_message'] = "Requerimiento eliminado exitosamente.";
+        $_SESSION['flash_message'] = "REQUERIMIENTO ELIMINADO EXITOSAMENTE.";
     } catch (PDOException $e) {
-        $_SESSION['flash_message_error'] = "Error al eliminar: " . $e->getMessage();
+        $_SESSION['flash_message_error'] = "ERROR AL ELIMINAR: " . $e->getMessage();
     }
     header("Location: gestionar_documentos.php");
     exit();
@@ -83,11 +83,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['titulo'])) {
         }
 
         $conn->commit();
-        $_SESSION['flash_message'] = "¡Requerimiento creado y asignado exitosamente!";
+        $_SESSION['flash_message'] = "¡REQUERIMIENTO CREADO Y ASIGNADO EXITOSAMENTE!";
 
     } catch (PDOException $e) {
         $conn->rollBack();
-        $_SESSION['flash_message_error'] = "Error al crear el requerimiento: " . $e->getMessage();
+        $_SESSION['flash_message_error'] = "ERROR AL CREAR EL REQUERIMIENTO: " . $e->getMessage();
     }
     header("Location: gestionar_documentos.php");
     exit();
@@ -102,7 +102,7 @@ $requerimientos = $conn->query("SELECT * FROM requerimientos ORDER BY fecha_crea
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionar Documentos</title>
+    <title>GESTIONAR DOCUMENTOS</title>
     <link rel="stylesheet" href="estilos/estilosgesdoc.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -117,41 +117,41 @@ $requerimientos = $conn->query("SELECT * FROM requerimientos ORDER BY fecha_crea
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Gestionar Documentos</h1>
+        <h1>GESTIONAR DOCUMENTOS</h1>
         <?php
         // --- BOTÓN DE VOLVER DINÁMICO (CORREGIDO) ---
         $dashboard_link = ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php';
         ?>
-        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">Volver al Panel</a>
+        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">VOLVER AL PANEL</a>
     </header>
 
     <main class="dashboard-container">
         <section class="form-section">
-            <h3>Crear Nuevo Requerimiento</h3>
+            <h3>CREAR NUEVO REQUERIMIENTO</h3>
             <?php if ($message): ?>
                 <div class="<?php echo $message_type === 'success' ? 'success-message' : 'error-message'; ?>"><?php echo htmlspecialchars($message); ?></div>
             <?php endif; ?>
             <form action="gestionar_documentos.php" method="POST">
                 <div class="form-group">
-                    <label for="titulo">Título del Requerimiento:</label>
-                    <input type="text" id="titulo" name="titulo" placeholder="Ej: Reporte Mensual de Actividades" required>
+                    <label for="titulo">TÍTULO DEL REQUERIMIENTO:</label>
+                    <input type="text" id="titulo" name="titulo" placeholder="EJ: REPORTE MENSUAL DE ACTIVIDADES" required>
                 </div>
                 <div class="form-group">
-                    <label for="fecha_limite">Fecha Límite de Entrega:</label>
+                    <label for="fecha_limite">FECHA LÍMITE DE ENTREGA:</label>
                     <input type="date" id="fecha_limite" name="fecha_limite" required>
                 </div>
                 <div class="form-group">
-                    <label for="descripcion">Descripción (Opcional):</label>
-                    <textarea id="descripcion" name="descripcion" rows="3" placeholder="Instrucciones adicionales sobre el documento a entregar..."></textarea>
+                    <label for="descripcion">DESCRIPCIÓN (OPCIONAL):</label>
+                    <textarea id="descripcion" name="descripcion" rows="3" placeholder="INSTRUCCIONES ADICIONALES SOBRE EL DOCUMENTO A ENTREGAR..."></textarea>
                 </div>
 
                 <!-- NUEVO: Sección de Asignación -->
                 <div class="form-group">
-                    <label style="font-weight: bold; color: #333;">Asignar a:</label>
+                    <label style="font-weight: bold; color: #333;">ASIGNAR A:</label>
                     
                     <div class="assignment-block">
                         <input type="radio" name="tipo_asignacion" value="rol" id="asig_rol" checked>
-                        <label for="asig_rol">Un Rol Específico:</label>
+                        <label for="asig_rol">UN ROL ESPECÍFICO:</label>
                         <select name="rol_id">
                             <?php foreach ($roles_map as $role_id => $role_name): ?>
                                 <option value="<?php echo $role_id; ?>"><?php echo htmlspecialchars($role_name); ?></option>
@@ -161,7 +161,7 @@ $requerimientos = $conn->query("SELECT * FROM requerimientos ORDER BY fecha_crea
 
                     <div class="assignment-block">
                         <input type="radio" name="tipo_asignacion" value="individual" id="asig_individual">
-                        <label for="asig_individual">Usuario(s) Específico(s):</label>
+                        <label for="asig_individual">USUARIO(S) ESPECÍFICO(S):</label>
                         <select name="usuarios_ids[]" multiple class="user-select">
                             <?php foreach ($users as $user): ?>
                                 <option value="<?php echo $user['id']; ?>">
@@ -169,32 +169,32 @@ $requerimientos = $conn->query("SELECT * FROM requerimientos ORDER BY fecha_crea
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <small>Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios usuarios.</small>
+                        <small>MANTÉN PRESIONADA LA TECLA CTRL (O CMD EN MAC) PARA SELECCIONAR A VARIOS USUARIOS.</small>
                     </div>
 
                     <div class="assignment-block">
                         <input type="radio" name="tipo_asignacion" value="todos" id="asig_todos">
-                        <label for="asig_todos">Todos los usuarios</label>
+                        <label for="asig_todos">TODOS LOS USUARIOS</label>
                     </div>
                 </div>
                 
-                <button type="submit" class="action-btn green">Crear y Asignar Requerimiento</button>
+                <button type="submit" class="action-btn green">CREAR Y ASIGNAR REQUERIMIENTO</button>
             </form>
         </section>
 
         <hr class="section-divider">
 
         <section class="table-section">
-            <h3>Listado de Requerimientos</h3>
+            <h3>LISTADO DE REQUERIMIENTOS</h3>
             <!-- El listado se mantiene por ahora, se mejorará después -->
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Título</th>
-                            <th>Fecha Límite</th>
-                            <th>Asignado a</th>
-                            <th>Acciones</th>
+                            <th>TÍTULO</th>
+                            <th>FECHA LÍMITE</th>
+                            <th>ASIGNADO A</th>
+                            <th>ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -205,18 +205,18 @@ $requerimientos = $conn->query("SELECT * FROM requerimientos ORDER BY fecha_crea
                                 <td>
                                     <?php 
                                     if ($req['asignado_a_rol'] === '0') {
-                                        echo '<strong>Todos los Usuarios</strong>';
+                                        echo '<strong>TODOS LOS USUARIOS</strong>';
                                     } elseif (isset($roles_map[$req['asignado_a_rol']])) {
-                                        echo 'Rol: <strong>' . htmlspecialchars($roles_map[$req['asignado_a_rol']]) . '</strong>';
+                                        echo 'ROL: <strong>' . htmlspecialchars($roles_map[$req['asignado_a_rol']]) . '</strong>';
                                     } else {
-                                        echo 'Usuarios Específicos';
+                                        echo 'USUARIOS ESPECÍFICOS';
                                     }
                                     ?>
                                 </td>
                                 <td class="actions-cell">
-                                    <a href="ver_entregas.php?id=<?php echo $req['id']; ?>" class="action-btn-small blue">Ver Entregas</a>
-                                    <a href="editar_requerimiento.php?id=<?php echo $req['id']; ?>" class="action-btn-small orange">Editar</a> <!-- Deshabilitado temporalmente -->
-                                    <a href="?action=delete&id=<?php echo $req['id']; ?>" class="action-btn-small red" onclick="return confirm('¿Estás seguro de eliminar este requerimiento y todas sus entregas asociadas?');">Eliminar</a>
+                                    <a href="ver_entregas.php?id=<?php echo $req['id']; ?>" class="action-btn-small blue">VER ENTREGAS</a>
+                                    <a href="editar_requerimiento.php?id=<?php echo $req['id']; ?>" class="action-btn-small orange">EDITAR</a> <!-- Deshabilitado temporalmente -->
+                                    <a href="?action=delete&id=<?php echo $req['id']; ?>" class="action-btn-small red" onclick="return confirm('¿SEGURO QUE QUIERES ELIMINAR ESTE REQUERIMIENTO Y TODAS SUS ENTREGAS ASOCIADAS?');">ELIMINAR</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -227,7 +227,7 @@ $requerimientos = $conn->query("SELECT * FROM requerimientos ORDER BY fecha_crea
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 </body>
 </html>

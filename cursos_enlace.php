@@ -18,7 +18,7 @@ $search_term = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 $all_cursos = [];
 $attendees = [];
-$selected_course_name = 'Resultados de la Búsqueda'; // Título por defecto
+$selected_course_name = 'RESULTADOS DE LA BÚSQUEDA'; // Título por defecto
 $error_message = '';
 
 try {
@@ -45,7 +45,7 @@ try {
             $stmt_course_name = $conn->prepare("SELECT nombre_curso FROM cursos WHERE id = :id");
             $stmt_course_name->execute([':id' => $curso_filter_id]);
             $course_name = $stmt_course_name->fetchColumn();
-            if ($course_name) $selected_course_name = "Asistentes para: " . htmlspecialchars($course_name);
+            if ($course_name) $selected_course_name = "ASISTENTES PARA: " . htmlspecialchars($course_name);
         }
 
         if (!empty($search_term)) {
@@ -60,7 +60,7 @@ try {
         $attendees = $stmt_attendees->fetchAll(PDO::FETCH_ASSOC);
     }
 } catch (PDOException $e) {
-    $error_message = "Error en la base de datos: " . $e->getMessage();
+    $error_message = "ERROR EN LA BASE DE DATOS: " . $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
@@ -68,7 +68,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plantilla e Histórico de Cursos</title>
+    <title>PLANTILLA E HISTÓRICO DE CURSOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="estilos/estilosdashenlace.css">
     <style>
@@ -86,21 +86,21 @@ try {
 </head>
 <body class="dashboard-page">
     <header class="dashboard-header">
-        <h1>Plantilla e Histórico de Cursos</h1>
-        <a href="dashboard_enlace.php" class="logout-btn">Volver al Panel</a>
+        <h1>PLANTILLA E HISTÓRICO DE CURSOS</h1>
+        <a href="dashboard_enlace.php" class="logout-btn">VOLVER AL PANEL</a>
     </header>
     <main class="dashboard-container">
         <section class="filter-section">
-            <h3>Filtros de Búsqueda</h3>
+            <h3>FILTROS DE BÚSQUEDA</h3>
             <form method="GET" action="" class="filter-form">
                 <div class="form-group">
-                    <label for="search">Por Nombre o Expediente:</label>
-                    <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search_term); ?>" placeholder="Escribe para buscar...">
+                    <label for="search">POR NOMBRE O EXPEDIENTE:</label>
+                    <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search_term); ?>" placeholder="ESCRIBE PARA BUSCAR...">
                 </div>
                 <div class="form-group">
-                    <label for="curso_id">Por Curso:</label>
+                    <label for="curso_id">POR CURSO:</label>
                     <select id="curso_id" name="curso_id">
-                        <option value="0">-- Todos los Cursos --</option>
+                        <option value="0">-- TODOS LOS CURSOS --</option>
                         <?php foreach ($all_cursos as $curso): ?>
                             <option value="<?php echo $curso['id']; ?>" <?php echo $curso_filter_id == $curso['id'] ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($curso['nombre_curso']); ?>
@@ -110,7 +110,7 @@ try {
                 </div>
                 <div class="form-group">
                      <label>&nbsp;</label> <!-- Espacio para alinear el botón -->
-                    <button type="submit">Filtrar</button>
+                    <button type="submit">FILTRAR</button>
                 </div>
             </form>
         </section>
@@ -123,15 +123,15 @@ try {
             <section class="results-section filter-section">
                 <h3><?php echo $selected_course_name; ?></h3>
                 <?php if (empty($attendees) && !$error_message): ?>
-                    <p class="initial-message">No se encontraron registros que coincidan con los filtros aplicados.</p>
+                    <p class="initial-message">NO SE ENCONTRARON REGISTROS QUE COINCIDAN CON LOS FILTROS APLICADOS.</p>
                 <?php else: ?>
                     <table class="results-table">
                         <thead>
                             <tr>
-                                <th>Trabajador</th>
-                                <th>Expediente</th>
-                                <th>Curso</th>
-                                <th>Fecha de Realización</th>
+                                <th>TRABAJADOR</th>
+                                <th>EXPEDIENTE</th>
+                                <th>CURSO</th>
+                                <th>FECHA DE REALIZACIÓN</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -149,13 +149,13 @@ try {
             </section>
         <?php else: ?>
              <div class="initial-message filter-section">
-                <p>Por favor, utiliza los filtros para buscar en el historial de cursos.</p>
+                <p>POR FAVOR, UTILIZA LOS FILTROS PARA BUSCAR EN EL HISTORIAL DE CURSOS.</p>
             </div>
         <?php endif; ?>
 
     </main>
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 </body>
 </html>

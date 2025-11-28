@@ -7,7 +7,7 @@ require_once 'db_connection.php';
 
 // 1. --- VALIDACIÓN DE SEGURIDAD ---
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Acceso no autorizado. Por favor, inicia sesión.'];
+    $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ACCESO NO AUTORIZADO. POR FAVOR, INICIA SESIÓN.'];
     header("Location: index.html");
     exit();
 }
@@ -44,7 +44,7 @@ if (isset($_FILES['oficio']) && $_FILES['oficio']['error'] === UPLOAD_ERR_OK) {
             $stmt->bindParam(':comentario', $comentario, PDO::PARAM_STR);
 
             if ($stmt->execute()) {
-                $_SESSION['flash_message'] = ['type' => 'success', 'text' => 'Oficio subido y registrado correctamente.'];
+                $_SESSION['flash_message'] = ['type' => 'success', 'text' => 'OFICIO SUBIDO Y REGISTRADO CORRECTAMENTE.'];
 
                 // *** PREPARAR NOTIFICACIÓN PARA WEBSOCKET ***
                 $_SESSION['notification_data'] = [
@@ -54,17 +54,17 @@ if (isset($_FILES['oficio']) && $_FILES['oficio']['error'] === UPLOAD_ERR_OK) {
                 ];
 
             } else {
-                $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error: No se pudo registrar el oficio en la base de datos.'];
+                $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR: NO SE PUDO REGISTRAR EL OFICIO EN LA BASE DE DATOS.'];
             }
         } catch (PDOException $e) {
-            $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error de base de datos: ' . $e->getMessage()];
+            $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR DE BASE DE DATOS: ' . $e->getMessage()];
         }
 
     } else {
-        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error: No se pudo guardar el archivo subido en el servidor.'];
+        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR: NO SE PUDO GUARDAR EL ARCHIVO SUBIDO EN EL SERVIDOR.'];
     }
 } else {
-    $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error: No se seleccionó ningún archivo o hubo un problema con la subida.'];
+    $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR: NO SE SELECCIONÓ NINGÚN ARCHIVO O HUBO UN PROBLEMA CON LA SUBIDA.'];
 }
 
 // 4. --- REDIRECCIÓN ---

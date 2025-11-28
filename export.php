@@ -14,7 +14,7 @@ require_once 'db_connection.php';
 // 1. Verificación de Seguridad
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], [4, 5])) {
     http_response_code(403);
-    die('Acceso denegado.');
+    die('ACCESO DENEGADO.');
 }
 
 // 2. Obtener y Validar Filtros (igual que en estadisticas.php)
@@ -57,15 +57,15 @@ try {
     // 4. Crear el Archivo Excel con PhpSpreadsheet
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
-    $sheet->setTitle('Reporte de Capacitación');
+    $sheet->setTitle('REPORTE DE CAPACITACIÓN');
 
     // Encabezados
-    $sheet->setCellValue('A1', 'Nombre Completo');
-    $sheet->setCellValue('B1', 'Expediente');
-    $sheet->setCellValue('C1', 'Taller');
-    $sheet->setCellValue('D1', 'Curso');
-    $sheet->setCellValue('E1', 'Fecha de Inicio');
-    $sheet->setCellValue('F1', 'Duración (Horas)');
+    $sheet->setCellValue('A1', 'NOMBRE COMPLETO');
+    $sheet->setCellValue('B1', 'EXPEDIENTE');
+    $sheet->setCellValue('C1', 'TALLER');
+    $sheet->setCellValue('D1', 'CURSO');
+    $sheet->setCellValue('E1', 'FECHA DE INICIO');
+    $sheet->setCellValue('F1', 'DURACIÓN (HORAS)');
 
     // Aplicar estilo a los encabezados
     $header_style = [
@@ -98,7 +98,7 @@ try {
     // 5. Enviar el Archivo al Navegador
     $writer = new Xlsx($spreadsheet);
 
-    $filename = 'reporte_capacitacion_' . date('Y-m-d') . '.xlsx';
+    $filename = 'REPORTE_CAPACITACION_' . date('Y-m-d') . '.xlsx';
 
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -110,6 +110,6 @@ try {
 } catch (Exception $e) {
     // Manejo de errores
     http_response_code(500);
-    die("Error al generar el reporte: " . $e->getMessage());
+    die("ERROR AL GENERAR EL REPORTE: " . $e->getMessage());
 }
 ?>

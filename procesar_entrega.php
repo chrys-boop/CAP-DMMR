@@ -45,7 +45,7 @@ if (isset($_FILES['oficio']) && $_FILES['oficio']['error'] === UPLOAD_ERR_OK) {
                 ':com' => $comentario
             ]);
 
-            $_SESSION['flash_message'] = ['type' => 'success', 'text' => 'Oficio subido y registrado correctamente.'];
+            $_SESSION['flash_message'] = ['type' => 'success', 'text' => 'OFICIO SUBIDO Y REGISTRADO CORRECTAMENTE.'];
 
             // 4. --- NOTIFICACIÓN DIRECTA POR WEBSOCKET (MÉTODO UNIFICADO) ---
             try {
@@ -66,18 +66,18 @@ if (isset($_FILES['oficio']) && $_FILES['oficio']['error'] === UPLOAD_ERR_OK) {
                 $ws_client->send($message_to_send);
 
             } catch (\Exception $e) {
-                error_log("Error al enviar notificación de oficio por WebSocket: " . $e->getMessage());
+                error_log("ERROR AL ENVIAR NOTIFICACIÓN DE OFICIO POR WEBSOCKET: " . $e->getMessage());
             }
             // --- FIN DE LA NOTIFICACIÓN ---
 
         } catch (PDOException $e) {
-            $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error de base de datos: ' . $e->getMessage()];
+            $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR DE BASE DE DATOS: ' . $e->getMessage()];
         }
     } else {
-        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error: No se pudo guardar el archivo subido.'];
+        $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR: NO SE PUDO GUARDAR EL ARCHIVO SUBIDO.'];
     }
 } else {
-    $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'Error: No se seleccionó ningún archivo o hubo un problema.'];
+    $_SESSION['flash_message'] = ['type' => 'error', 'text' => 'ERROR: NO SE SELECCIONÓ NINGÚN ARCHIVO O HUBO UN PROBLEMA.'];
 }
 
 // 5. --- REDIRECCIÓN ---

@@ -23,7 +23,7 @@ try {
     $stmt = $conn->query($sql);
     $all_cursos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    $error_message = "Error al cargar la lista de cursos: " . $e->getMessage();
+    $error_message = "ERROR AL CARGAR LA LISTA DE CURSOS: " . $e->getMessage();
 }
 
 ?>
@@ -32,7 +32,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cursos Programados</title>
+    <title>CURSOS PROGRAMADOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="estilos/estilosdashenlace.css">
     <style>
@@ -47,8 +47,8 @@ try {
 </head>
 <body class="dashboard-page">
     <header class="dashboard-header">
-        <h1>Cursos Programados (2025-2026)</h1>
-        <a href="dashboard_enlace.php" class="logout-btn">Volver al Panel</a>
+        <h1>CURSOS PROGRAMADOS (2025-2026)</h1>
+        <a href="dashboard_enlace.php" class="logout-btn">VOLVER AL PANEL</a>
     </header>
     <main class="dashboard-container">
         <?php if ($error_message): ?>
@@ -56,18 +56,18 @@ try {
         <?php endif; ?>
 
         <section class="courses-section">
-            <h3>Listado de Próximos Cursos</h3>
+            <h3>LISTADO DE PRÓXIMOS CURSOS</h3>
             <?php if (empty($all_cursos) && !$error_message): ?>
-                <p class="no-results-message">No se encontraron cursos programados para los años 2025 y 2026.</p>
+                <p class="no-results-message">NO SE ENCONTRARON CURSOS PROGRAMADOS PARA LOS AÑOS 2025 Y 2026.</p>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="courses-table">
                         <thead>
                             <tr>
-                                <th>Nombre del Curso</th>
-                                <th>Tipo de Curso</th>
-                                <th>Ubicación</th>
-                                <th>Año Programado</th>
+                                <th>NOMBRE DEL CURSO</th>
+                                <th>TIPO DE CURSO</th>
+                                <th>UBICACIÓN</th>
+                                <th>AÑO PROGRAMADO</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,7 +87,7 @@ try {
 
     </main>
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 </body>
 </html>

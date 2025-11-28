@@ -63,11 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_update_rol->execute([':rol' => $asignado_a_rol, ':id' => $requerimiento_id]);
 
         $conn->commit();
-        $_SESSION['flash_message'] = "¡Requerimiento actualizado exitosamente!";
+        $_SESSION['flash_message'] = "¡REQUERIMIENTO ACTUALIZADO EXITOSAMENTE!";
 
     } catch (PDOException $e) {
         $conn->rollBack();
-        $_SESSION['flash_message_error'] = "Error al actualizar: " . $e->getMessage();
+        $_SESSION['flash_message_error'] = "ERROR AL ACTUALIZAR: " . $e->getMessage();
     }
     
     header("Location: gestionar_documentos.php");
@@ -81,7 +81,7 @@ try {
     $requerimiento = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$requerimiento) {
-        $_SESSION['flash_message_error'] = "No se encontró el requerimiento solicitado.";
+        $_SESSION['flash_message_error'] = "NO SE ENCONTRÓ EL REQUERIMIENTO SOLICITADO.";
         header("Location: gestionar_documentos.php");
         exit();
     }
@@ -94,7 +94,7 @@ try {
     $assigned_user_ids = $stmt_ind->fetchAll(PDO::FETCH_COLUMN, 0);
 
 } catch (PDOException $e) {
-    die("Error al cargar los datos para edición: " . $e->getMessage());
+    die("ERROR AL CARGAR LOS DATOS PARA EDICIÓN: " . $e->getMessage());
 }
 
 ?>
@@ -103,7 +103,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Requerimiento</title>
+    <title>EDITAR REQUERIMIENTO</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
     <style>
         .assignment-block { background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #dee2e6; margin-top: 10px; }
@@ -115,21 +115,21 @@ try {
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Editar Requerimiento</h1>
-        <a href="gestionar_documentos.php" class="logout-btn">Cancelar y Volver</a>
+        <h1>EDITAR REQUERIMIENTO</h1>
+        <a href="gestionar_documentos.php" class="logout-btn">CANCELAR Y VOLVER</a>
     </header>
 
     <main class="dashboard-container">
         <section class="form-section">
-            <h3>Modificando el Requerimiento: "<?php echo htmlspecialchars($requerimiento['titulo']); ?>"</h3>
+            <h3>MODIFICANDO EL REQUERIMIENTO: "<?php echo htmlspecialchars($requerimiento['titulo']); ?>"</h3>
 
             <form action="editar_requerimiento.php?id=<?php echo $requerimiento_id; ?>" method="POST">
-                <div class="form-group"><label for="titulo">Título:</label><input type="text" id="titulo" name="titulo" value="<?php echo htmlspecialchars($requerimiento['titulo']); ?>" required></div>
-                <div class="form-group"><label for="fecha_limite">Fecha Límite:</label><input type="date" id="fecha_limite" name="fecha_limite" value="<?php echo htmlspecialchars($requerimiento['fecha_limite']); ?>" required></div>
-                <div class="form-group"><label for="descripcion">Descripción:</label><textarea id="descripcion" name="descripcion" rows="3"><?php echo htmlspecialchars($requerimiento['descripcion']); ?></textarea></div>
+                <div class="form-group"><label for="titulo">TÍTULO:</label><input type="text" id="titulo" name="titulo" value="<?php echo htmlspecialchars($requerimiento['titulo']); ?>" required></div>
+                <div class="form-group"><label for="fecha_limite">FECHA LÍMITE:</label><input type="date" id="fecha_limite" name="fecha_limite" value="<?php echo htmlspecialchars($requerimiento['fecha_limite']); ?>" required></div>
+                <div class="form-group"><label for="descripcion">DESCRIPCIÓN:</label><textarea id="descripcion" name="descripcion" rows="3"><?php echo htmlspecialchars($requerimiento['descripcion']); ?></textarea></div>
 
                 <div class="form-group">
-                    <label style="font-weight: bold; color: #333;">Asignar a:</label>
+                    <label style="font-weight: bold; color: #333;">ASIGNAR A:</label>
                     <?php 
                         $is_individual = is_null($requerimiento['asignado_a_rol']);
                         $is_rol = !$is_individual && $requerimiento['asignado_a_rol'] != 0;
@@ -138,7 +138,7 @@ try {
                     
                     <div class="assignment-block">
                         <input type="radio" name="tipo_asignacion" value="rol" id="asig_rol" <?php if($is_rol) echo 'checked'; ?>>
-                        <label for="asig_rol">Un Rol Específico:</label>
+                        <label for="asig_rol">UN ROL ESPECÍFICO:</label>
                         <select name="rol_id">
                             <?php foreach ($roles_map as $role_id => $role_name): ?>
                                 <option value="<?php echo $role_id; ?>" <?php if($is_rol && $requerimiento['asignado_a_rol'] == $role_id) echo 'selected'; ?>>
@@ -150,7 +150,7 @@ try {
 
                     <div class="assignment-block">
                         <input type="radio" name="tipo_asignacion" value="individual" id="asig_individual" <?php if($is_individual) echo 'checked'; ?>>
-                        <label for="asig_individual">Usuario(s) Específico(s):</label>
+                        <label for="asig_individual">USUARIO(S) ESPECÍFICO(S):</label>
                         <select name="usuarios_ids[]" multiple class="user-select">
                             <?php foreach ($users as $user): ?>
                                 <option value="<?php echo $user['id']; ?>" <?php if($is_individual && in_array($user['id'], $assigned_user_ids)) echo 'selected'; ?>>
@@ -158,22 +158,22 @@ try {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <small>Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
+                        <small>MANTÉN PRESIONADA LA TECLA CTRL (O CMD EN MAC) PARA SELECCIONAR VARIOS.</small>
                     </div>
 
                     <div class="assignment-block">
                         <input type="radio" name="tipo_asignacion" value="todos" id="asig_todos" <?php if($is_todos) echo 'checked'; ?>>
-                        <label for="asig_todos">Todos los usuarios</label>
+                        <label for="asig_todos">TODOS LOS USUARIOS</label>
                     </div>
                 </div>
                 
-                <button type="submit" class="action-btn green">Guardar Cambios</button>
+                <button type="submit" class="action-btn green">GUARDAR CAMBIOS</button>
             </form>
         </section>
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 </body>
 </html>

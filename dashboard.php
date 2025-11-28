@@ -23,7 +23,7 @@ $calidadLaboralUsuario = $_SESSION['user_calidad_laboral'] ?? 'No especificado';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración</title>
+    <title>PANEL DE ADMINISTRACIÓN</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,52 +87,53 @@ $calidadLaboralUsuario = $_SESSION['user_calidad_laboral'] ?? 'No especificado';
     <input type="hidden" id="user-id" value="<?php echo htmlspecialchars($_SESSION['user_id']); ?>">
 
     <header class="dashboard-header">
-        <h1>Panel de Administración</h1>
+        <h1>PANEL DE ADMINISTRACIÓN</h1>
         <div style="display: flex; align-items: center;">
             <div id="notification-container" class="notification-bell">
                 <span>🔔</span>
                 <span id="notification-count" class="notification-counter">0</span>
             </div>
-            <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+            <a href="cambiar_contrasena.php" class="logout-btn">CAMBIAR CONTRASEÑA</a>
+            <a href="logout.php" class="logout-btn">CERRAR SESIÓN</a>
         </div>
     </header>
 
     <main class="dashboard-container">
         <section class="welcome-section">
-            <h2>Bienvenido, <span class="user-name"><?php echo htmlspecialchars($nombreUsuario); ?></span></h2>
-            <p class="subtext">Has iniciado sesión correctamente en el sistema.</p>
+            <h2>BIENVENIDO, <span class="user-name"><?php echo htmlspecialchars($nombreUsuario); ?></span></h2>
+            <p class="subtext">HAS INICIADO SESIÓN CORRECTAMENTE EN EL SISTEMA.</p>
         </section>
 
         <section class="user-info">
-            <h3>Información del Usuario</h3>
+            <h3>INFORMACIÓN DEL USUARIO</h3>
             <div class="info-card">
-                <p><strong>Nombre:</strong> <?php echo htmlspecialchars($nombreUsuario); ?></p>
-                <p><strong>Expediente:</strong> <?php echo htmlspecialchars($expedienteUsuario); ?></p>
-                <p><strong>Taller:</strong> <?php echo htmlspecialchars($tallerUsuario); ?></p>
-                <p><strong>Área Interna:</strong> <?php echo htmlspecialchars($areaInternaUsuario); ?></p>
-                <p><strong>Calidad Laboral:</strong> <?php echo htmlspecialchars($calidadLaboralUsuario); ?></p>
+                <p><strong>NOMBRE:</strong> <?php echo htmlspecialchars($nombreUsuario); ?></p>
+                <p><strong>EXPEDIENTE:</strong> <?php echo htmlspecialchars($expedienteUsuario); ?></p>
+                <p><strong>TALLER:</strong> <?php echo htmlspecialchars($tallerUsuario); ?></p>
+                <p><strong>ÁREA INTERNA:</strong> <?php echo htmlspecialchars($areaInternaUsuario); ?></p>
+                <p><strong>CALIDAD LABORAL:</strong> <?php echo htmlspecialchars($calidadLaboralUsuario); ?></p>
             </div>
         </section>
 
         <section class="actions">
-            <h3>Menú Principal</h3>
+            <h3>MENÚ PRINCIPAL</h3>
             <div class="button-grid">
-                <a href="gestionar_personal.php" class="action-btn blue">👤 Gestionar Personal</a>
-                <a href="plantilla_general.php" class="action-btn steel-blue">📜 Plantilla General</a>
-                <a href="gestionar_documentos.php" class="action-btn green">📁 Gestor de Documentos</a>
-                <a href="historial_recibimiento.php" class="action-btn purple">📊 Histórico y Estadísticas</a>
-                <a href="gestionar_manuales.php" class="action-btn orange">📚 Gestionar Manuales</a>
-                <a href="revisar_oficios.php" class="action-btn red">📥 Bandeja de Oficios Recibidos</a>
-                <a href="gestionar_cursos.php" class="action-btn teal">🎓 Gestionar Cursos</a>
-                <a href="registrar_asistencia.php" class="action-btn indigo">➕ Registrar Asistencia</a>
-                <a href="estadisticas.php" class="action-btn steel-blue">📈 Estadísticas de Capacitación</a>
-                <a href="chat.php" id="chat-button" class="action-btn purple">💬 Acceder al Chat</a>
+                <a href="gestionar_personal.php" class="action-btn blue">👤 GESTIONAR PERSONAL</a>
+                <a href="plantilla_general.php" class="action-btn steel-blue">📜 PLANTILLA GENERAL</a>
+                <a href="gestionar_documentos.php" class="action-btn green">📁 GESTOR DE DOCUMENTOS</a>
+                <a href="historial_recibimiento.php" class="action-btn purple">📊 HISTÓRICO Y ESTADÍSTICAS</a>
+                <a href="gestionar_manuales.php" class="action-btn orange">📚 GESTIONAR MANUALES</a>
+                <a href="revisar_oficios.php" class="action-btn red">📥 BANDEJA DE OFICIOS RECIBIDOS</a>
+                <a href="gestionar_cursos.php" class="action-btn teal">🎓 GESTIONAR CURSOS</a>
+                <a href="registrar_asistencia.php" class="action-btn indigo">➕ REGISTRAR ASISTENCIA</a>
+                <a href="estadisticas.php" class="action-btn steel-blue">📈 ESTADÍSTICAS DE CAPACITACIÓN</a>
+                <a href="chat.php" id="chat-button" class="action-btn purple">💬 ACCEDER AL CHAT</a>
             </div>
         </section>
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo | Todos los derechos reservados</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO | TODOS LOS DERECHOS RESERVADOS</p>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>

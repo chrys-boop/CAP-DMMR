@@ -18,7 +18,7 @@ try {
     $documentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $documentos = [];
-    $error_message = "Error al conectar con la base de datos.";
+    $error_message = "ERROR AL CONECTAR CON LA BASE DE DATOS.";
 }
 
 // --- LÓGICA PARA EL BOTÓN DE VOLVER ---
@@ -40,21 +40,21 @@ if (isset($_SESSION['user_role'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manuales y Diagramas</title>
+    <title>MANUALES Y DIAGRAMAS</title>
     <link rel="stylesheet" href="estilos/estilosdashenlace.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Manuales y Diagramas</h1>
+        <h1>MANUALES Y DIAGRAMAS</h1>
         <!-- BOTÓN DE VOLVER CORREGIDO -->
-        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">Volver al Panel</a>
+        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">VOLVER AL PANEL</a>
     </header>
 
     <main class="dashboard-container">
         <section class="manuales-section">
-            <h2 class="section-title">📘 Diagramas y Manuales Disponibles</h2>
+            <h2 class="section-title">📘 DIAGRAMAS Y MANUALES DISPONIBLES</h2>
 
             <?php if (isset($error_message)): ?>
                 <div class="alert error"><?php echo $error_message; ?></div>
@@ -62,7 +62,7 @@ if (isset($_SESSION['user_role'])) {
 
             <?php if (empty($documentos)): ?>
                 <div class="empty-state">
-                    <p>No hay manuales o diagramas disponibles en este momento.</p>
+                    <p>NO HAY MANUALES O DIAGRAMAS DISPONIBLES EN ESTE MOMENTO.</p>
                 </div>
             <?php else: ?>
                 <div class="document-grid">
@@ -71,11 +71,11 @@ if (isset($_SESSION['user_role'])) {
                             <div class="doc-icon">📄</div>
                             <div class="doc-info">
                                 <h4 class="doc-title"><?php echo htmlspecialchars($doc['nombre_archivo']); ?></h4>
-                                <p class="doc-date">Subido el <?php echo date("d/m/Y H:i", strtotime($doc['fecha_subida'])); ?> hs</p>
+                                <p class="doc-date">SUBIDO EL <?php echo date("d/m/Y H:i", strtotime($doc['fecha_subida'])); ?> HS</p>
                             </div>
                             <div class="doc-actions">
-                                <a href="<?php echo htmlspecialchars($doc['ruta_archivo']); ?>" class="btn-view" target="_blank">👁️ Ver</a>
-                                <a href="<?php echo htmlspecialchars($doc['ruta_archivo']); ?>" class="btn-download" download>⬇️ Descargar</a>
+                                <a href="<?php echo htmlspecialchars($doc['ruta_archivo']); ?>" class="btn-view" target="_blank">👁️ VER</a>
+                                <a href="<?php echo htmlspecialchars($doc['ruta_archivo']); ?>" class="btn-download" download>⬇️ DESCARGAR</a>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -85,7 +85,7 @@ if (isset($_SESSION['user_role'])) {
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 </body>
 </html>

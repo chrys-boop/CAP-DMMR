@@ -120,7 +120,7 @@ try {
     }
 
 } catch (PDOException $e) {
-    $error_message = "Error al consultar las estadísticas: " . $e->getMessage();
+    $error_message = "ERROR AL CONSULTAR LAS ESTADÍSTICAS: " . $e->getMessage();
 }
 
 ?>
@@ -129,7 +129,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estadísticas de Capacitación</title>
+    <title>ESTADÍSTICAS DE CAPACITACIÓN</title>
     
     <!-- Estilos de jQuery UI para el autocompletado -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
@@ -156,8 +156,8 @@ try {
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Estadísticas de Capacitación</h1>
-        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">Volver al Panel</a>
+        <h1>ESTADÍSTICAS DE CAPACITACIÓN</h1>
+        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">VOLVER AL PANEL</a>
     </header>
 
     <main class="dashboard-container">
@@ -165,32 +165,32 @@ try {
         <?php if (isset($error_message)): ?><div class="error-message"><?php echo htmlspecialchars($error_message); ?></div><?php endif; ?>
         
         <section class="filter-section">
-            <h3>Filtros de Reporte</h3>
+            <h3>FILTROS DE REPORTE</h3>
             <form action="estadisticas.php" method="GET">
                 <div class="filter-grid">
-                    <div class="form-group"><label for="year">Año</label><select name="year" id="year"><option value="all">Todos</option><?php foreach ($available_years as $year): ?><option value="<?php echo $year; ?>" <?php echo ($selected_year == $year) ? 'selected' : ''; ?>><?php echo $year; ?></option><?php endforeach; ?></select></div>
-                    <div class="form-group"><label for="taller">Taller</label><select name="taller" id="taller"><option value="all">Todos</option><?php foreach ($available_talleres as $taller): ?><option value="<?php echo $taller; ?>" <?php echo ($selected_taller == $taller) ? 'selected' : ''; ?>><?php echo htmlspecialchars($taller); ?></option><?php endforeach; ?></select></div>
-                    <div class="form-group"><label for="curso_id">Curso</label><select name="curso_id" id="curso_id"><option value="all">Todos</option><?php foreach ($available_cursos as $curso): ?><option value="<?php echo $curso['id']; ?>" <?php echo ($selected_curso_id == $curso['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($curso['nombre_curso']); ?></option><?php endforeach; ?></select></div>
-                    <div class="form-group"><button type="submit" class="action-btn">Filtrar</button><a href="estadisticas.php" class="action-btn-secondary" style="text-decoration:none;">Limpiar</a></div>
+                    <div class="form-group"><label for="year">AÑO</label><select name="year" id="year"><option value="all">TODOS</option><?php foreach ($available_years as $year): ?><option value="<?php echo $year; ?>" <?php echo ($selected_year == $year) ? 'selected' : ''; ?>><?php echo $year; ?></option><?php endforeach; ?></select></div>
+                    <div class="form-group"><label for="taller">TALLER</label><select name="taller" id="taller"><option value="all">TODOS</option><?php foreach ($available_talleres as $taller): ?><option value="<?php echo $taller; ?>" <?php echo ($selected_taller == $taller) ? 'selected' : ''; ?>><?php echo htmlspecialchars($taller); ?></option><?php endforeach; ?></select></div>
+                    <div class="form-group"><label for="curso_id">CURSO</label><select name="curso_id" id="curso_id"><option value="all">TODOS</option><?php foreach ($available_cursos as $curso): ?><option value="<?php echo $curso['id']; ?>" <?php echo ($selected_curso_id == $curso['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($curso['nombre_curso']); ?></option><?php endforeach; ?></select></div>
+                    <div class="form-group"><button type="submit" class="action-btn">FILTRAR</button><a href="estadisticas.php" class="action-btn-secondary" style="text-decoration:none;">LIMPIAR</a></div>
                 </div>
             </form>
         </section>
 
         <section class="stats-cards">
-            <div class="stat-card"><h3>Total de Cursos (Catálogo)</h3><p><?php echo $stats['total_cursos']; ?></p></div>
-            <div class="stat-card"><h3>Asistencias (Filtradas)</h3><p><?php echo $stats['total_asistencias']; ?></p></div>
-            <div class="stat-card"><h3>Horas de Cap. (Filtradas)</h3><p><?php echo number_format($stats['total_horas_capacitacion'], 1); ?></p></div>
+            <div class="stat-card"><h3>TOTAL DE CURSOS (CATÁLOGO)</h3><p><?php echo $stats['total_cursos']; ?></p></div>
+            <div class="stat-card"><h3>ASISTENCIAS (FILTRADAS)</h3><p><?php echo $stats['total_asistencias']; ?></p></div>
+            <div class="stat-card"><h3>HORAS DE CAP. (FILTRADAS)</h3><p><?php echo number_format($stats['total_horas_capacitacion'], 1); ?></p></div>
         </section>
 
         <hr class="section-divider">
 
         <section class="charts-section">
             <div class="chart-container">
-                <h3>Horas de Capacitación por Taller</h3>
+                <h3>HORAS DE CAPACITACIÓN POR TALLER</h3>
                 <canvas id="horasPorTallerChart"></canvas>
             </div>
             <div class="chart-container">
-                <h3>Top 10 Cursos por Nº de Asistencias</h3>
+                <h3>TOP 10 CURSOS POR Nº DE ASISTENCIAS</h3>
                 <canvas id="asistenciasPorCursoChart"></canvas>
             </div>
         </section>
@@ -199,17 +199,17 @@ try {
 
         <section class="table-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1em;">
-                <h3>Reporte Detallado</h3>
+                <h3>REPORTE DETALLADO</h3>
                 <a href="export.php?<?php echo http_build_query($export_params); ?>" class="action-btn" style="text-decoration: none;" target="_blank">
-                    Exportar a Excel
+                    EXPORTAR A EXCEL
                 </a>
             </div>
             <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
                 <table>
-                    <thead><tr><th>Nombre Completo</th><th>Expediente</th><th>Taller</th><th>Curso</th><th>Tipo de Curso</th><th>Fecha</th><th>Horas</th></tr></thead>
+                    <thead><tr><th>NOMBRE COMPLETO</th><th>EXPEDIENTE</th><th>TALLER</th><th>CURSO</th><th>TIPO DE CURSO</th><th>FECHA</th><th>HORAS</th></tr></thead>
                     <tbody>
                         <?php if (empty($stats['reporte_detallado'])): ?>
-                            <tr><td colspan="7">No hay datos que coincidan con los filtros seleccionados.</td></tr>
+                            <tr><td colspan="7">NO HAY DATOS QUE COINCIDAN CON LOS FILTROS SELECCIONADOS.</td></tr>
                         <?php else: ?>
                             <?php foreach ($stats['reporte_detallado'] as $item): ?>
                                 <tr>
@@ -231,13 +231,13 @@ try {
         <hr class="section-divider">
 
         <section class="form-section">
-            <h3>Consultar Historial por Empleado</h3>
+            <h3>CONSULTAR HISTORIAL POR EMPLEADO</h3>
             <form action="estadisticas.php" method="GET">
                 <div class="form-group">
-                    <label for="user_query">Buscar por Nombre o Expediente</label>
-                    <input type="text" id="user_query" name="user_query" placeholder="Ej: Juan Perez o 12345" value="<?php echo htmlspecialchars($user_search_query); ?>" required>
+                    <label for="user_query">BUSCAR POR NOMBRE O EXPEDIENTE</label>
+                    <input type="text" id="user_query" name="user_query" placeholder="EJ: JUAN PEREZ O 12345" value="<?php echo htmlspecialchars($user_search_query); ?>" required>
                 </div>
-                <button type="submit" class="action-btn">Buscar Empleado</button>
+                <button type="submit" class="action-btn">BUSCAR EMPLEADO</button>
             </form>
         </section>
 
@@ -245,13 +245,13 @@ try {
         <?php if (!empty($user_search_query)): ?>
             <section class="table-section">
                 <?php if ($stats['empleado_info']): ?>
-                    <h3>Historial de: <?php echo htmlspecialchars($stats['empleado_info']['nombre_completo']); ?> (Exp: <?php echo htmlspecialchars($stats['empleado_info']['expediente']); ?>)</h3>
+                    <h3>HISTORIAL DE: <?php echo htmlspecialchars($stats['empleado_info']['nombre_completo']); ?> (EXP: <?php echo htmlspecialchars($stats['empleado_info']['expediente']); ?>)</h3>
                     <div class="table-responsive">
                         <table>
-                            <thead><tr><th>Curso Tomado</th><th>Veces Tomado</th><th>Fechas</th><th>Total de Horas</th></tr></thead>
+                            <thead><tr><th>CURSO TOMADO</th><th>VECES TOMADO</th><th>FECHAS</th><th>TOTAL DE HORAS</th></tr></thead>
                             <tbody>
                                 <?php if (empty($stats['historial_empleado'])): ?>
-                                    <tr><td colspan="4">Este empleado no tiene cursos registrados.</td></tr>
+                                    <tr><td colspan="4">ESTE EMPLEADO NO TIENE CURSOS REGISTRADOS.</td></tr>
                                 <?php else: ?>
                                     <?php 
                                         $total_general_horas = array_sum(array_column($stats['historial_empleado'], 'total_horas'));
@@ -267,10 +267,10 @@ try {
                                     <?php endforeach; ?>
                                     <tr style="font-weight:bold; background-color:#f2f2f2;">
                                         <td colspan="2" style="text-align:right; padding-right: 20px;">
-                                            Cursos Totales Tomados: <strong><?php echo $total_cursos_unicos; ?></strong>
+                                            CURSOS TOTALES TOMADOS: <strong><?php echo $total_cursos_unicos; ?></strong>
                                         </td>
                                         <td colspan="2" style="text-align:right;">
-                                            Total de Horas de Capacitación: <strong><?php echo number_format($total_general_horas, 1); ?></strong>
+                                            TOTAL DE HORAS DE CAPACITACIÓN: <strong><?php echo number_format($total_general_horas, 1); ?></strong>
                                         </td>
                                     </tr>
                                 <?php endif; ?>
@@ -278,14 +278,14 @@ try {
                         </table>
                     </div>
                 <?php else: ?>
-                    <div class="error-message">No se encontró ningún empleado con el criterio de búsqueda '<?php echo htmlspecialchars($user_search_query); ?>'.</div>
+                    <div class="error-message">NO SE ENCONTRÓ NINGÚN EMPLEADO CON EL CRITERIO DE BÚSQUEDA '<?php echo htmlspecialchars($user_search_query); ?>'.</div>
                 <?php endif; ?>
             </section>
         <?php endif; ?>
 
     </main>
 
-    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> Sistema Administrativo</p></footer>
+    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p></footer>
 
     <!-- Scripts de jQuery y jQuery UI para el autocompletado -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
             data: {
                 labels: <?php echo json_encode(array_keys($chart_data_horas_por_taller)); ?>,
                 datasets: [{
-                    label: 'Total Horas',
+                    label: 'TOTAL HORAS',
                     data: <?php echo json_encode(array_values($chart_data_horas_por_taller)); ?>,
                     backgroundColor: 'rgba(54, 162, 235, 0.7)',
                     borderColor: 'rgba(54, 162, 235, 1)',
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
             data: {
                 labels: <?php echo json_encode(array_keys($chart_data_asistencias_por_curso)); ?>,
                 datasets: [{
-                    label: 'Nº Asistencias',
+                    label: 'Nº ASISTENCIAS',
                     data: <?php echo json_encode(array_values($chart_data_asistencias_por_curso)); ?>,
                     backgroundColor: ['#2980b9','#27ae60','#f39c12','#8e44ad','#c0392b','#16a085','#d35400','#7f8c8d','#34495e','#9b59b6'],
                 }]

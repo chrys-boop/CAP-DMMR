@@ -48,7 +48,7 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Enlace</title>
+    <title>PANEL DE ENLACE</title>
     <link rel="stylesheet" href="estilos/estilosdashenlace.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -114,13 +114,14 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
     <input type="hidden" id="user-id" value="<?php echo htmlspecialchars($user_id); ?>">
 
     <header class="dashboard-header">
-        <h1>Panel de Enlace</h1>
+        <h1>PANEL DE ENLACE</h1>
         <div style="display: flex; align-items: center; margin-left: auto;">
             <div id="notification-container" class="notification-bell">
                 <span>🔔</span>
                 <span id="notification-count" class="notification-counter">0</span>
             </div>
-            <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+            <a href="cambiar_contrasena.php" class="logout-btn">CAMBIAR CONTRASEÑA</a>
+            <a href="logout.php" class="logout-btn">CERRAR SESIÓN</a>
         </div>
     </header>
 
@@ -136,64 +137,64 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
         ?>
 
         <section class="welcome-section">
-            <h2>Bienvenido, Enlace <span class="user-name"><?php echo htmlspecialchars($nombreUsuario); ?></span></h2>
-            <p class="subtext">Aquí puedes ver los requerimientos pendientes y gestionar tus documentos.</p>
+            <h2>BIENVENIDO, ENLACE <span class="user-name"><?php echo htmlspecialchars($nombreUsuario); ?></span></h2>
+            <p class="subtext">AQUÍ PUEDES VER LOS REQUERIMIENTOS PENDIENTES Y GESTIONAR TUS DOCUMENTOS.</p>
         </section>
 
         <section class="actions">
-            <h3>Menú Principal</h3>
+            <h3>MENÚ PRINCIPAL</h3>
             <div class="menu-grid">
                  <a href="plantilla_taller.php" class="menu-card steel-blue">
                     <div class="menu-icon">📜</div>
                     <div class="menu-text">
-                        <h4>Plantilla de Taller</h4>
-                        <p>Consulta el personal de tu taller</p>
+                        <h4>PLANTILLA DE TALLER</h4>
+                        <p>CONSULTA EL PERSONAL DE TU TALLER</p>
                     </div>
                 </a>
                  <a href="cargar_oficio.php" class="menu-card blue">
                     <div class="menu-icon">✍️</div>
                     <div class="menu-text">
-                        <h4>Cargar Oficio</h4>
-                        <p>Sube tu oficio personalizado</p>
+                        <h4>CARGAR OFICIO</h4>
+                        <p>SUBE TU OFICIO PERSONALIZADO</p>
                     </div>
                 </a>
                 <a href="ver_manuales_diagramas.php" class="menu-card orange">
                      <div class="menu-icon">📚</div>
                      <div class="menu-text">
-                        <h4>Manuales y Diagramas</h4>
-                        <p>Consulta la documentación</p>
+                        <h4>MANUALES Y DIAGRAMAS</h4>
+                        <p>CONSULTA LA DOCUMENTACIÓN</p>
                     </div>
                 </a>
                 <a href="cursos_enlace.php" class="menu-card purple">
                      <div class="menu-icon">📄</div>
                      <div class="menu-text">
-                        <h4>Plantillas e Histórico</h4>
-                        <p>Visualiza plantillas y archivos</p>
+                        <h4>PLANTILLAS E HISTÓRICO</h4>
+                        <p>VISUALIZA PLANTILLAS Y ARCHIVOS</p>
                     </div>
                 </a>
                 <a href="cursos_disponibles.php" class="menu-card red">
                      <div class="menu-icon">🎓</div>
                      <div class="menu-text">
-                        <h4>Cursos Disponibles</h4>
-                        <p>Accede a los cursos</p>
+                        <h4>CURSOS DISPONIBLES</h4>
+                        <p>ACCEDE A LOS CURSOS</p>
                     </div>
                 </a>
                 <a href="chat.php" id="chat-button" class="menu-card green">
                      <div class="menu-icon">💬</div>
                      <div class="menu-text">
-                        <h4>Acceder al Chat</h4>
-                        <p>Comunícate con otros usuarios</p>
+                        <h4>ACCEDER AL CHAT</h4>
+                        <p>COMUNÍCATE CON OTROS USUARIOS</p>
                     </div>
                 </a>
             </div>
         </section>
 
         <section class="requerimientos-list">
-            <h3>Mis Requerimientos Asignados</h3>
+            <h3>MIS REQUERIMIENTOS ASIGNADOS</h3>
             <?php if (empty($requerimientos) && !isset($db_error_message)):
             ?>
                 <div class="requerimiento-card" style="text-align:center;">
-                    <p>¡Excelente! No tienes requerimientos pendientes en este momento.</p>
+                    <p>¡EXCELENTE! NO TIENES REQUERIMIENTOS PENDIENTES EN ESTE MOMENTO.</p>
                 </div>
             <?php else: ?>
                 <?php foreach ($requerimientos as $req): ?>
@@ -201,28 +202,28 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
                         <div class="info-col">
                             <h4><?php echo htmlspecialchars($req['titulo']); ?></h4>
                             <?php if(!empty($req['descripcion'])): ?><p><?php echo htmlspecialchars($req['descripcion']); ?></p><?php endif; ?>
-                            <p><strong>Fecha Límite:</strong> <?php echo date("d/m/Y H:i", strtotime($req['fecha_limite'])); ?> hs</p>
+                            <p><strong>FECHA LÍMITE:</strong> <?php echo date("d/m/Y H:i", strtotime($req['fecha_limite'])); ?> hs</p>
                         </div>
                         <div class="upload-col">
                             <?php
                             $requerimiento_id = $req['id'];
                             if (in_array($requerimiento_id, $entregas_usuario)):
                             ?>
-                                <div class="status-box success">✔ Ya has entregado este documento.</div>
+                                <div class="status-box success">✔ YA HAS ENTREGADO ESTE DOCUMENTO.</div>
                             <?php elseif (new DateTime() > new DateTime($req['fecha_limite'])):
                             ?>
-                                <div class="status-box danger">✘ Plazo de entrega finalizado.</div>
+                                <div class="status-box danger">✘ PLAZO DE ENTREGA FINALIZADO.</div>
                             <?php else: ?>
                                 <form action="procesar_entrega.php" method="post" enctype="multipart/form-data">
                                     <div class="file-format-info">
-                                        <p><strong>Formato Sugerido:</strong> <code>numerocurso_expediente_taller_año.extension</code></p>
-                                        <p><strong>Ejemplo para ti:</strong> <code>XX_<?php echo htmlspecialchars($user_expediente); ?>_<?php echo htmlspecialchars($user_taller); ?>_<?php echo $current_year; ?>.pdf</code></p>
-                                        <p class="small-text">* Reemplaza 'XX' con el número de curso si aplica.</p>
+                                        <p><strong>FORMATO SUGERIDO:</strong> <code>numerocurso_expediente_taller_año.extension</code></p>
+                                        <p><strong>EJEMPLO PARA TI:</strong> <code>XX_<?php echo htmlspecialchars($user_expediente); ?>_<?php echo htmlspecialchars($user_taller); ?>_<?php echo $current_year; ?>.pdf</code></p>
+                                        <p class="small-text">* REEMPLAZA 'XX' CON EL NÚMERO DE CURSO SI APLICA.</p>
                                     </div>
                                     <input type="hidden" name="requerimiento_id" value="<?php echo $requerimiento_id; ?>">
                                     <input type="file" name="documento" required>
-                                    <textarea name="comentario" placeholder="Añade un comentario (opcional)"></textarea>
-                                    <button type="submit" class="action-btn-small green">Subir Archivo</button>
+                                    <textarea name="comentario" placeholder="AÑADE UN COMENTARIO (OPCIONAL)"></textarea>
+                                    <button type="submit" class="action-btn-small green">SUBIR ARCHIVO</button>
                                 </form>
                             <?php endif; ?>
                         </div>
@@ -233,7 +234,7 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>

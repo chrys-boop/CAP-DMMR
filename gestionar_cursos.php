@@ -27,15 +27,15 @@ if (isset($_GET['delete_id'])) {
 
             // 2. Si el conteo es mayor a 0, no permitir el borrado.
             if ($asistencias_count > 0) {
-                $_SESSION['flash_error'] = 'Error: No se puede eliminar el curso porque ya tiene asistencias registradas (' . $asistencias_count . ' registros encontrados).';
+                $_SESSION['flash_error'] = 'ERROR: NO SE PUEDE ELIMINAR EL CURSO PORQUE YA TIENE ASISTENCIAS REGISTRADAS (' . $asistencias_count . ' REGISTROS ENCONTRADOS).';
             } else {
                 // 3. Si el conteo es 0, proceder con la eliminación.
                 $stmt_delete = $conn->prepare("DELETE FROM cursos WHERE id = :id");
                 $stmt_delete->execute([':id' => $delete_id]);
-                $_SESSION['flash_message'] = '¡Curso eliminado del catálogo con éxito!';
+                $_SESSION['flash_message'] = '¡CURSO ELIMINADO DEL CATÁLOGO CON ÉXITO!';
             }
         } catch (PDOException $e) {
-            $_SESSION['flash_error'] = 'Error en la base de datos: ' . $e->getMessage();
+            $_SESSION['flash_error'] = 'ERROR EN LA BASE DE DATOS: ' . $e->getMessage();
         }
     }
     header("Location: gestionar_cursos.php");
@@ -65,17 +65,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombre_curso'])) {
             $stmt_check->execute([':nombre_curso' => $nombre_curso]);
 
             if ($stmt_check->fetch()) {
-                $error_message = "Error: Ya existe un curso con ese nombre.";
+                $error_message = "ERROR: YA EXISTE UN CURSO CON ESE NOMBRE.";
             } else {
                 $stmt = $conn->prepare("INSERT INTO cursos (nombre_curso, tipo_curso, ubicacion) VALUES (:nombre_curso, :tipo_curso, :ubicacion)");
                 $stmt->execute([':nombre_curso' => $nombre_curso, ':tipo_curso' => $tipo_curso, ':ubicacion' => $ubicacion]);
-                $success_message = "¡Curso creado con éxito!";
+                $success_message = "¡CURSO CREADO CON ÉXITO!";
             }
         } catch (PDOException $e) {
-            $error_message = "Error en la base de datos: " . $e->getMessage();
+            $error_message = "ERROR EN LA BASE DE DATOS: " . $e->getMessage();
         }
     } else {
-        $error_message = "El nombre del curso no puede estar vacío.";
+        $error_message = "EL NOMBRE DEL CURSO NO PUEDE ESTAR VACÍO.";
     }
 }
 
@@ -88,15 +88,15 @@ $cursos = $conn->query("SELECT * FROM cursos ORDER BY nombre_curso ASC")->fetchA
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionar Catálogo de Cursos</title>
+    <title>GESTIONAR CATÁLOGO DE CURSOS</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Gestionar Catálogo de Cursos</h1>
-        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">Volver al Panel</a>
+        <h1>GESTIONAR CATÁLOGO DE CURSOS</h1>
+        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">VOLVER AL PANEL</a>
     </header>
 
     <main class="dashboard-container">
@@ -105,27 +105,27 @@ $cursos = $conn->query("SELECT * FROM cursos ORDER BY nombre_curso ASC")->fetchA
         <?php if ($error_message): ?><div class="error-message"><?php echo $error_message; ?></div><?php endif; ?>
 
         <section class="form-section">
-            <h3>Añadir Nuevo Curso al Catálogo</h3>
+            <h3>AÑADIR NUEVO CURSO AL CATÁLOGO</h3>
             <form action="gestionar_cursos.php" method="POST">
-                <div class="form-group"><label for="nombre_curso">Nombre del Curso</label><input type="text" id="nombre_curso" name="nombre_curso" required placeholder="Ej: Seguridad e Higiene Industrial"></div>
-                <div class="form-group"><label for="tipo_curso">Tipo de Curso</label><input type="text" id="tipo_curso" name="tipo_curso" placeholder="Ej: INTERNO, EXTERNO, ONLINE"></div>
-                <div class="form-group"><label for="ubicacion">Ubicación del Curso</label><input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: Sala de Juntas B, Plataforma Zoom"></div>
-                <button type="submit" class="action-btn green">Guardar Nuevo Curso</button>
+                <div class="form-group"><label for="nombre_curso">NOMBRE DEL CURSO</label><input type="text" id="nombre_curso" name="nombre_curso" required placeholder="EJ: SEGURIDAD E HIGIENE INDUSTRIAL"></div>
+                <div class="form-group"><label for="tipo_curso">TIPO DE CURSO</label><input type="text" id="tipo_curso" name="tipo_curso" placeholder="EJ: INTERNO, EXTERNO, ONLINE"></div>
+                <div class="form-group"><label for="ubicacion">UBICACIÓN DEL CURSO</label><input type="text" id="ubicacion" name="ubicacion" placeholder="EJ: SALA DE JUNTAS B, PLATAFORMA ZOOM"></div>
+                <button type="submit" class="action-btn green">GUARDAR NUEVO CURSO</button>
             </form>
         </section>
 
         <hr class="section-divider">
 
         <section class="table-section">
-            <h3>Catálogo de Cursos Existentes</h3>
+            <h3>CATÁLOGO DE CURSOS EXISTENTES</h3>
             <div class="table-responsive">
                 <table>
                     <thead>
-                        <tr><th>Nombre del Curso</th><th>Tipo</th><th>Ubicación</th><th>Acciones</th></tr>
+                        <tr><th>NOMBRE DEL CURSO</th><th>TIPO</th><th>UBICACIÓN</th><th>ACCIONES</th></tr>
                     </thead>
                     <tbody>
                         <?php if (empty($cursos)): ?>
-                            <tr><td colspan="4" style="text-align: center;">No hay cursos registrados.</td></tr>
+                            <tr><td colspan="4" style="text-align: center;">NO HAY CURSOS REGISTRADOS.</td></tr>
                         <?php else: ?>
                             <?php foreach ($cursos as $curso): ?>
                                 <tr>
@@ -133,8 +133,8 @@ $cursos = $conn->query("SELECT * FROM cursos ORDER BY nombre_curso ASC")->fetchA
                                     <td><?php echo htmlspecialchars($curso['tipo_curso']); ?></td>
                                     <td><?php echo htmlspecialchars($curso['ubicacion']); ?></td>
                                     <td class="actions-cell">
-                                        <a href="editar_curso.php?id=<?php echo $curso['id']; ?>" class="action-btn-small orange">Editar</a>
-                                        <a href="gestionar_cursos.php?delete_id=<?php echo $curso['id']; ?>" class="action-btn-small red" onclick="return confirm('¿Estás seguro de que quieres eliminar este curso? Esta acción no se puede deshacer.');">Eliminar</a>
+                                        <a href="editar_curso.php?id=<?php echo $curso['id']; ?>" class="action-btn-small orange">EDITAR</a>
+                                        <a href="gestionar_cursos.php?delete_id=<?php echo $curso['id']; ?>" class="action-btn-small red" onclick="return confirm('¿ESTÁS SEGURO DE QUE QUIERES ELIMINAR ESTE CURSO? ESTA ACCIÓN NO SE PUEDE DESHACER.');">ELIMINAR</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -146,7 +146,7 @@ $cursos = $conn->query("SELECT * FROM cursos ORDER BY nombre_curso ASC")->fetchA
 
     </main>
 
-    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> Sistema Administrativo</p></footer>
+    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p></footer>
 
 </body>
 </html>

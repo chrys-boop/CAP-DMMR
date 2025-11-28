@@ -66,36 +66,36 @@ $usuarios_faltantes = $stmt_faltantes->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle de Recibimiento</title>
+    <title>DETALLE DE RECIBIMIENTO</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Detalle para: <?php echo htmlspecialchars($requerimiento['titulo']); ?></h1>
-        <a href="historial_recibimiento.php" class="logout-btn">Volver al Historial</a>
+        <h1>DETALLE PARA: <?php echo htmlspecialchars($requerimiento['titulo']); ?></h1>
+        <a href="historial_recibimiento.php" class="logout-btn">VOLVER AL HISTORIAL</a>
     </header>
 
     <main class="dashboard-container">
         
         <section class="table-section">
-            <h3 class="success-heading">Usuarios que Han Entregado</h3>
+            <h3 class="success-heading">USUARIOS QUE HAN ENTREGADO</h3>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Nombre Completo</th>
-                            <th>Expediente</th>
-                            <th>Taller</th>
-                            <th>Área Interna</th>
-                            <th>Fecha de Entrega</th>
-                            <th>Archivo</th>
+                            <th>NOMBRE COMPLETO</th>
+                            <th>EXPEDIENTE</th>
+                            <th>TALLER</th>
+                            <th>ÁREA INTERNA</th>
+                            <th>FECHA DE ENTREGA</th>
+                            <th>ARCHIVO</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($usuarios_entregados)): ?>
-                            <tr><td colspan="6">Nadie ha entregado este documento todavía.</td></tr>
+                            <tr><td colspan="6">NADIE HA ENTREGADO ESTE DOCUMENTO TODAVÍA.</td></tr>
                         <?php else: ?>
                             <?php foreach ($usuarios_entregados as $user): ?>
                                 <tr>
@@ -106,7 +106,7 @@ $usuarios_faltantes = $stmt_faltantes->fetchAll(PDO::FETCH_ASSOC);
                                     <td><?php echo date("d/m/Y H:i", strtotime($user['fecha_entrega'])); ?></td>
                                     <td>
                                         <a href="<?php echo $base_path . '/' . htmlspecialchars($user['ruta_archivo']); ?>" target="_blank" class="action-btn-small blue">
-                                            Ver Archivo
+                                            VER ARCHIVO
                                         </a>
                                     </td>
                                 </tr>
@@ -118,20 +118,20 @@ $usuarios_faltantes = $stmt_faltantes->fetchAll(PDO::FETCH_ASSOC);
         </section>
 
         <section class="table-section">
-            <h3 class="danger-heading">Usuarios Faltantes por Entregar (Enlaces)</h3>
+            <h3 class="danger-heading">USUARIOS FALTANTES POR ENTREGAR (ENLACES)</h3>
              <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Nombre Completo</th>
-                            <th>Expediente</th>
-                            <th>Taller</th>
-                            <th>Área Interna</th>
+                            <th>NOMBRE COMPLETO</th>
+                            <th>EXPEDIENTE</th>
+                            <th>TALLER</th>
+                            <th>ÁREA INTERNA</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($usuarios_faltantes)): ?>
-                            <tr><td colspan="4">¡Todos los enlaces han entregado el documento!</td></tr>
+                            <tr><td colspan="4">¡TODOS LOS ENLACES HAN ENTREGADO EL DOCUMENTO!</td></tr>
                         <?php else: ?>
                             <?php foreach ($usuarios_faltantes as $user): ?>
                                 <tr>
@@ -150,7 +150,7 @@ $usuarios_faltantes = $stmt_faltantes->fetchAll(PDO::FETCH_ASSOC);
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 </body>
 </html>

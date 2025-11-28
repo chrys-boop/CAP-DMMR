@@ -56,7 +56,7 @@ try {
     $all_users = $stmt_all_users->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    $error_message = "Error en la base de datos: " . $e->getMessage();
+    $error_message = "ERROR EN LA BASE DE DATOS: " . $e->getMessage();
 }
 
 ?>
@@ -65,7 +65,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plantilla General de Personal</title>
+    <title>PLANTILLA GENERAL DE PERSONAL</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -80,8 +80,8 @@ try {
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Plantilla General de Personal</h1>
-        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">Volver al Panel</a>
+        <h1>PLANTILLA GENERAL DE PERSONAL</h1>
+        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">VOLVER AL PANEL</a>
     </header>
 
     <main class="dashboard-container">
@@ -91,41 +91,41 @@ try {
         <!-- User Details Card -->
         <?php if ($user_details): ?>
             <section class="details-card">
-                <h3>Detalles de: <strong><?php echo htmlspecialchars($user_details['nombre_completo']); ?></strong></h3>
+                <h3>DETALLES DE: <strong><?php echo htmlspecialchars($user_details['nombre_completo']); ?></strong></h3>
                 <div class="details-grid">
-                    <p><strong>Expediente:</strong> <?php echo htmlspecialchars($user_details['expediente']); ?></p>
-                    <p><strong>Categoría:</strong> <?php echo htmlspecialchars($user_details['categoria'] ?? 'N/A'); ?></p>
-                    <p><strong>Taller:</strong> <?php echo htmlspecialchars($user_details['taller'] ?? 'N/A'); ?></p>
-                    <p><strong>Área Interna:</strong> <?php echo htmlspecialchars($user_details['area_interna'] ?? 'N/A'); ?></p>
-                    <p><strong>Calidad Laboral:</strong> <?php echo htmlspecialchars($user_details['calidad_laboral'] ?? 'N/A'); ?></p>
-                    <p><strong>Email:</strong> <?php echo htmlspecialchars($user_details['email'] ?? 'N/A'); ?></p>
+                    <p><strong>EXPEDIENTE:</strong> <?php echo htmlspecialchars($user_details['expediente']); ?></p>
+                    <p><strong>CATEGORÍA:</strong> <?php echo htmlspecialchars($user_details['categoria'] ?? 'N/A'); ?></p>
+                    <p><strong>TALLER:</strong> <?php echo htmlspecialchars($user_details['taller'] ?? 'N/A'); ?></p>
+                    <p><strong>ÁREA INTERNA:</strong> <?php echo htmlspecialchars($user_details['area_interna'] ?? 'N/A'); ?></p>
+                    <p><strong>CALIDAD LABORAL:</strong> <?php echo htmlspecialchars($user_details['calidad_laboral'] ?? 'N/A'); ?></p>
+                    <p><strong>EMAIL:</strong> <?php echo htmlspecialchars($user_details['email'] ?? 'N/A'); ?></p>
                 </div>
             </section>
         <?php elseif (!empty($selected_expediente)): ?>
-             <div class="error-message">No se encontraron detalles para el expediente '<?php echo htmlspecialchars($selected_expediente); ?>'.</div>
+             <div class="error-message">NO SE ENCONTRARON DETALLES PARA EL EXPEDIENTE '<?php echo htmlspecialchars($selected_expediente); ?>'.</div>
         <?php endif; ?>
 
         <!-- Filter Section -->
         <section class="filter-section">
-            <h3>Filtrar Plantilla</h3>
+            <h3>FILTRAR PLANTILLA</h3>
             <form action="plantilla_general.php" method="GET">
                 <div class="filter-grid">
                     <div class="form-group">
-                        <label for="search_expediente">Buscar por Expediente</label>
+                        <label for="search_expediente">BUSCAR POR EXPEDIENTE</label>
                         <input type="text" name="search_expediente" id="search_expediente" value="<?php echo htmlspecialchars($search_expediente); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="search_taller">Filtrar por Taller</label>
+                        <label for="search_taller">FILTRAR POR TALLER</label>
                         <select name="search_taller" id="search_taller">
-                            <option value="">Todos los Talleres</option>
+                            <option value="">TODOS LOS TALLERES</option>
                             <?php foreach ($available_talleres as $taller): ?>
                                 <option value="<?php echo htmlspecialchars($taller); ?>" <?php echo ($search_taller == $taller) ? 'selected' : ''; ?>><?php echo htmlspecialchars($taller); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="action-btn">Buscar / Filtrar</button>
-                        <a href="plantilla_general.php" class="action-btn-secondary" style="text-decoration:none;">Limpiar</a>
+                        <button type="submit" class="action-btn">BUSCAR / FILTRAR</button>
+                        <a href="plantilla_general.php" class="action-btn-secondary" style="text-decoration:none;">LIMPIAR</a>
                     </div>
                 </div>
             </form>
@@ -133,20 +133,20 @@ try {
 
         <!-- Users Table -->
         <section class="table-section">
-            <h3>Lista de Personal (<?php echo count($all_users); ?> encontrados)</h3>
+            <h3>LISTA DE PERSONAL (<?php echo count($all_users); ?> ENCONTRADOS)</h3>
             <div class="table-responsive" style="max-height: 700px; overflow-y: auto;">
                 <table>
                     <thead>
                         <tr>
-                            <th>Nombre Completo</th>
-                            <th>Expediente</th>
-                            <th>Categoría</th>
-                            <th>Taller</th>
+                            <th>NOMBRE COMPLETO</th>
+                            <th>EXPEDIENTE</th>
+                            <th>CATEGORÍA</th>
+                            <th>TALLER</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($all_users)): ?>
-                            <tr><td colspan="4">No se encontraron usuarios con los criterios de búsqueda.</td></tr>
+                            <tr><td colspan="4">NO SE ENCONTRARON USUARIOS CON LOS CRITERIOS DE BÚSQUEDA.</td></tr>
                         <?php else: ?>
                             <?php foreach ($all_users as $user): ?>
                                 <tr>
@@ -164,7 +164,7 @@ try {
 
     </main>
 
-    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> Sistema Administrativo</p></footer>
+    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p></footer>
 
 </body>
 </html>

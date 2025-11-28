@@ -53,7 +53,7 @@ $entregas = $stmt_entregas->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entregas de Requerimiento</title>
+    <title>ENTREGAS DE REQUERIMIENTO</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,28 +62,28 @@ $entregas = $stmt_entregas->fetchAll(PDO::FETCH_ASSOC);
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Ver Entregas</h1>
-        <a href="gestionar_documentos.php" class="logout-btn">Volver a Requerimientos</a>
+        <h1>VER ENTREGAS</h1>
+        <a href="gestionar_documentos.php" class="logout-btn">VOLVER A REQUERIMIENTOS</a>
     </header>
 
     <main class="dashboard-container">
         <section class="table-section">
-            <h3>Entregas para: "<?php echo htmlspecialchars($requerimiento['titulo']); ?>"</h3>
+            <h3>ENTREGAS PARA: "<?php echo htmlspecialchars($requerimiento['titulo']); ?>"</h3>
             
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Usuario</th>
-                            <th>Nombre del Archivo</th>
-                            <th>Fecha de Entrega</th>
-                            <th>Acciones</th>
+                            <th>USUARIO</th>
+                            <th>NOMBRE DEL ARCHIVO</th>
+                            <th>FECHA DE ENTREGA</th>
+                            <th>ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($entregas)): ?>
                             <tr>
-                                <td colspan="4" style="text-align: center;">Aún no se han recibido entregas para este requerimiento.</td>
+                                <td colspan="4" style="text-align: center;">AÚN NO SE HAN RECIBIDO ENTREGAS PARA ESTE REQUERIMIENTO.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($entregas as $entrega): ?>
@@ -92,7 +92,7 @@ $entregas = $stmt_entregas->fetchAll(PDO::FETCH_ASSOC);
                                     <td><?php echo htmlspecialchars($entrega['nombre_archivo']); ?></td>
                                     <td><?php echo htmlspecialchars(date("d/m/Y H:i:s", strtotime($entrega['fecha_entrega']))); ?></td>
                                     <td class="actions-cell">
-                                        <a href="<?php echo $base_path . '/' . htmlspecialchars($entrega['ruta_archivo']); ?>" class="action-btn-small green" download>Descargar</a>
+                                        <a href="<?php echo $base_path . '/' . htmlspecialchars($entrega['ruta_archivo']); ?>" class="action-btn-small green" download>DESCARGAR</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -104,7 +104,7 @@ $entregas = $stmt_entregas->fetchAll(PDO::FETCH_ASSOC);
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo | Todos los derechos reservados</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO | TODOS LOS DERECHOS RESERVADOS</p>
     </footer>
 
 </body>

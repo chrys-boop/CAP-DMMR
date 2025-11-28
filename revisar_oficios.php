@@ -128,7 +128,7 @@ try {
 
             <?php if (empty($oficios_recibidos)): ?>
                 <div class="requerimiento-card" style="text-align: center;">
-                    <p>No se encontraron oficios con los filtros seleccionados. Pruebe a limpiar los filtros.</p>
+                    <p>No se encontraron oficios con los filtros seleccionados. Prueba a limpiar los filtros.</p>
                 </div>
             <?php else: ?>
                 <div style="margin-bottom: 1rem; text-align: right;"><strong>Total de registros: <?php echo count($oficios_recibidos); ?></strong></div>

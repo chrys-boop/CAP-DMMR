@@ -31,10 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['roles'])) {
         }
 
         $conn->commit();
-        $_SESSION['flash_success'] = "¡Roles actualizados correctamente!";
+        $_SESSION['flash_success'] = "¡ROLES ACTUALIZADOS CORRECTAMENTE!";
     } catch (PDOException $e) {
         $conn->rollBack();
-        $_SESSION['flash_error'] = "Error al actualizar los roles: " . $e->getMessage();
+        $_SESSION['flash_error'] = "ERROR AL ACTUALIZAR LOS ROLES: " . $e->getMessage();
     }
     
     header("Location: gestionar_personal.php");
@@ -55,7 +55,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Personal</title>
+    <title>GESTIÓN DE PERSONAL</title>
     <link rel="stylesheet" href="/CAP-DMMR/estilos/estilosges.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,22 +89,22 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Gestión de Personal</h1>
+        <h1>GESTIÓN DE PERSONAL</h1>
         <?php
         $dashboard_link = ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php';
         ?>
-        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">Volver al Panel</a>
+        <a href="<?php echo $dashboard_link; ?>" class="logout-btn">VOLVER AL PANEL</a>
     </header>
 
     <main class="dashboard-container">
 
         <section class="search-bar-section">
-            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nombre o expediente...">
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="BUSCAR POR NOMBRE O EXPEDIENTE...">
         </section>
 
         <form method="POST" action="gestionar_personal.php" id="rolesForm">
             <section class="user-management-table">
-                <h3>Listado de Usuarios del Sistema</h3>
+                <h3>LISTADO DE USUARIOS DEL SISTEMA</h3>
 
                 <?php if ($success_message): ?>
                     <div class="success-message"><?php echo $success_message; ?></div>
@@ -117,10 +117,10 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                     <table id="userTable">
                         <thead>
                             <tr>
-                                <th>Nombre</th>
-                                <th>Expediente</th>
-                                <th>Rol Actual</th>
-                                <th>Cambiar Rol</th>
+                                <th>NOMBRE</th>
+                                <th>EXPEDIENTE</th>
+                                <th>ROL ACTUAL</th>
+                                <th>CAMBIAR ROL</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -132,11 +132,11 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                                     <td>
                                         <!-- Atributo `data-original-value` para guardar el valor inicial -->
                                         <select name="roles[<?php echo $usuario['id']; ?>]" class="role-select" data-original-value="<?php echo $usuario['role']; ?>">
-                                            <option value="1" <?php echo ($usuario['role'] == 1) ? 'selected' : ''; ?>>1: Trabajador</option>
-                                            <option value="2" <?php echo ($usuario['role'] == 2) ? 'selected' : ''; ?>>2: Instructor</option>
-                                            <option value="3" <?php echo ($usuario['role'] == 3) ? 'selected' : ''; ?>>3: Enlace</option>
+                                            <option value="1" <?php echo ($usuario['role'] == 1) ? 'selected' : ''; ?>>1: TRABAJADOR</option>
+                                            <option value="2" <?php echo ($usuario['role'] == 2) ? 'selected' : ''; ?>>2: INSTRUCTOR</option>
+                                            <option value="3" <?php echo ($usuario['role'] == 3) ? 'selected' : ''; ?>>3: ENLACE</option>
                                             <option value="4" <?php echo ($usuario['role'] == 4) ? 'selected' : ''; ?>>4: CAP-DMMR</option>
-                                            <option value="5" <?php echo ($usuario['role'] == 5) ? 'selected' : ''; ?>>5: Admin</option>
+                                            <option value="5" <?php echo ($usuario['role'] == 5) ? 'selected' : ''; ?>>5: ADMIN</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -144,13 +144,13 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                         </tbody>
                     </table>
                 </div>
-                <button type="submit" class="save-btn">Guardar Cambios</button>
+                <button type="submit" class="save-btn">GUARDAR CAMBIOS</button>
             </section>
         </form>
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo | Todos los derechos reservados</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO | TODOS LOS DERECHOS RESERVADOS</p>
     </footer>
 
     <script>

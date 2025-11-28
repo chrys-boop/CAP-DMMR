@@ -41,7 +41,7 @@ if (isset($_SESSION['user_role'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+    <title>CHAT</title>
     <link rel="stylesheet" href="estilos/chat.css?v=1.3">
     <script>
         const USER_ROLE = <?php echo json_encode($user_role); ?>;
@@ -50,20 +50,19 @@ if (isset($_SESSION['user_role'])) {
 </head>
 <body>
     <header class="page-header">
-        <h1>Plataforma de Chat</h1>
-        <a href="<?php echo $dashboard_link; ?>" class="back-to-dashboard-btn">Volver al Panel</a>
+        <h1>PLATAFORMA DE CHAT</h1>
+        <a href="<?php echo $dashboard_link; ?>" class="back-to-dashboard-btn">VOLVER AL PANEL</a>
     </header>
 
     <div class="chat-container">
-        <!-- ... (el resto del contenido del chat no cambia) ... -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <h3>Mensajes</h3>
+                <h3>MENSAJES</h3>
                 <div class="sidebar-actions">
-                    <button id="new-chat-btn" title="Nuevo Chat Individual">&#43;</button>
+                    <button id="new-chat-btn" title="NUEVO CHAT INDIVIDUAL">&#43;</button>
                     
                     <?php if (in_array($user_role, [4, 5])): ?>
-                        <button id="create-group-btn" title="Crear Grupo">&#128101;</button>
+                        <button id="create-group-btn" title="CREAR GRUPO">&#128101;</button>
                     <?php endif; ?>
                 </div>
             </div>
@@ -74,8 +73,8 @@ if (isset($_SESSION['user_role'])) {
 
         <div class="chat-area">
             <div id="chat-welcome-screen" class="chat-welcome-screen">
-                <h2>Bienvenido al Chat</h2>
-                <p>Selecciona una conversación para empezar a chatear o inicia una nueva.</p>
+                <h2>BIENVENIDO AL CHAT</h2>
+                <p>SELECCIONA UNA CONVERSACIÓN PARA EMPEZAR A CHATEAR O INICIA UNA NUEVA.</p>
             </div>
 
             <div id="chat-active-conversation" class="chat-active-conversation" style="display: none;">
@@ -89,23 +88,22 @@ if (isset($_SESSION['user_role'])) {
                 <div id="messages-container" class="messages-container"></div>
                 <footer class="chat-footer">
                     <form id="message-form" class="message-form">
-                        <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
-                        <button type="submit" title="Enviar">&#10148;</button>
+                        <input type="text" id="message-input" placeholder="ESCRIBE UN MENSAJE..." autocomplete="off">
+                        <button type="submit" title="ENVIAR">&#10148;</button>
                     </form>
                 </footer>
             </div>
         </div>
     </div>
 
-    <!-- ... (Modales) ... -->
-     <!-- ===== MODALES ===== -->
+    <!-- ===== MODALES ===== -->
 
     <!-- Modal para iniciar nuevo chat INDIVIDUAL -->
     <div id="new-chat-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Iniciar Nueva Conversación</h2>
-            <input type="text" id="modal-search-users" class="modal-input" placeholder="Buscar por nombre o expediente...">
+            <h2>INICIAR NUEVA CONVERSACIÓN</h2>
+            <input type="text" id="modal-search-users" class="modal-input" placeholder="BUSCAR POR NOMBRE O EXPEDIENTE...">
             <div id="modal-users-list" class="users-list-results"></div>
         </div>
     </div>
@@ -114,15 +112,15 @@ if (isset($_SESSION['user_role'])) {
     <div id="create-group-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Crear Nuevo Grupo</h2>
-            <input type="text" id="group-name-input" class="modal-input" placeholder="Nombre del grupo..." required>
+            <h2>CREAR NUEVO GRUPO</h2>
+            <input type="text" id="group-name-input" class="modal-input" placeholder="NOMBRE DEL GRUPO..." required>
             <div class="group-members-section">
-                <p><strong>Miembros seleccionados:</strong></p>
+                <p><strong>MIEMBROS SELECCIONADOS:</strong></p>
                 <div id="group-selected-members" class="selected-members-list"></div>
             </div>
-            <input type="text" id="group-modal-search-users" class="modal-input" placeholder="Buscar usuarios para añadir...">
+            <input type="text" id="group-modal-search-users" class="modal-input" placeholder="BUSCAR USUARIOS PARA AÑADIR...">
             <div id="group-modal-users-list" class="users-list-results"></div>
-            <button id="submit-create-group" class="modal-submit-btn">Crear Grupo</button>
+            <button id="submit-create-group" class="modal-submit-btn">CREAR GRUPO</button>
         </div>
     </div>
     
@@ -130,15 +128,15 @@ if (isset($_SESSION['user_role'])) {
     <div id="add-members-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Añadir Miembros al Grupo</h2>
-            <p>Estás añadiendo miembros a: <strong id="add-members-group-name"></strong></p>
+            <h2>AÑADIR MIEMBROS AL GRUPO</h2>
+            <p>ESTÁS AÑADIENDO MIEMBROS A: <strong id="add-members-group-name"></strong></p>
             <div class="group-members-section">
-                <p><strong>Nuevos miembros seleccionados:</strong></p>
+                <p><strong>NUEVOS MIEMBROS SELECCIONADOS:</strong></p>
                 <div id="add-members-selected-list" class="selected-members-list"></div>
             </div>
-            <input type="text" id="add-members-search-input" class="modal-input" placeholder="Buscar usuarios para añadir...">
+            <input type="text" id="add-members-search-input" class="modal-input" placeholder="BUSCAR USUARIOS PARA AÑADIR...">
             <div id="add-members-search-results" class="users-list-results"></div>
-            <button id="submit-add-members" class="modal-submit-btn">Añadir Miembros</button>
+            <button id="submit-add-members" class="modal-submit-btn">AÑADIR MIEMBROS</button>
         </div>
     </div>
 
@@ -146,8 +144,8 @@ if (isset($_SESSION['user_role'])) {
     <div id="view-members-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Miembros del Grupo</h2>
-            <p>Miembros de: <strong id="view-members-group-name"></strong></p>
+            <h2>MIEMBROS DEL GRUPO</h2>
+            <p>MIEMBROS DE: <strong id="view-members-group-name"></strong></p>
             <div id="view-members-list" class="users-list-results"></div>
         </div>
     </div>

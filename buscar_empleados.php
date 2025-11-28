@@ -31,6 +31,6 @@ try {
 } catch (PDOException $e) {
     // En un entorno de producción, registrarías este error en lugar de mostrarlo
     http_response_code(500);
-    echo json_encode(['error' => 'Error en la base de datos']);
+    echo json_encode(['error' => 'ERROR EN LA BASE DE DATOS']);
 }
 ?>

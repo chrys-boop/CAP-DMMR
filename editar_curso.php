@@ -19,7 +19,7 @@ $error_message = '';
 $success_message = '';
 
 if (!$curso_id) {
-    $_SESSION['flash_error'] = "ID de curso no válido.";
+    $_SESSION['flash_error'] = "ID DE CURSO NO VÁLIDO.";
     header("Location: gestionar_cursos.php");
     exit();
 }
@@ -39,14 +39,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':ubicacion' => $ubicacion,
                 ':id' => $curso_id
             ]);
-            $_SESSION['flash_message'] = "¡Curso actualizado con éxito!";
+            $_SESSION['flash_message'] = "¡CURSO ACTUALIZADO CON ÉXITO!";
             header("Location: gestionar_cursos.php");
             exit();
         } catch (PDOException $e) {
-            $error_message = "Error al actualizar el curso: " . $e->getMessage();
+            $error_message = "ERROR AL ACTUALIZAR EL CURSO: " . $e->getMessage();
         }
     } else {
-        $error_message = "El nombre del curso no puede estar vacío.";
+        $error_message = "EL NOMBRE DEL CURSO NO PUEDE ESTAR VACÍO.";
     }
 }
 
@@ -57,12 +57,12 @@ try {
     $curso = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$curso) {
-        $_SESSION['flash_error'] = "No se encontró el curso solicitado.";
+        $_SESSION['flash_error'] = "NO SE ENCONTRÓ EL CURSO SOLICITADO.";
         header("Location: gestionar_cursos.php");
         exit();
     }
 } catch (PDOException $e) {
-    $_SESSION['flash_error'] = "Error al buscar el curso: " . $e->getMessage();
+    $_SESSION['flash_error'] = "ERROR AL BUSCAR EL CURSO: " . $e->getMessage();
     header("Location: gestionar_cursos.php");
     exit();
 }
@@ -73,15 +73,15 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Curso</title>
+    <title>EDITAR CURSO</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Editar Curso del Catálogo</h1>
-        <a href="gestionar_cursos.php" class="logout-btn">Volver al Catálogo</a>
+        <h1>EDITAR CURSO DEL CATÁLOGO</h1>
+        <a href="gestionar_cursos.php" class="logout-btn">VOLVER AL CATÁLOGO</a>
     </header>
 
     <main class="dashboard-container">
@@ -89,28 +89,28 @@ try {
         <?php if ($error_message): ?><div class="error-message"><?php echo $error_message; ?></div><?php endif; ?>
 
         <section class="form-section">
-            <h3>Modificar Información del Curso</h3>
+            <h3>MODIFICAR INFORMACIÓN DEL CURSO</h3>
             <form action="editar_curso.php?id=<?php echo $curso['id']; ?>" method="POST">
                 <div class="form-group">
-                    <label for="nombre_curso">Nombre del Curso</label>
+                    <label for="nombre_curso">NOMBRE DEL CURSO</label>
                     <input type="text" id="nombre_curso" name="nombre_curso" required value="<?php echo htmlspecialchars($curso['nombre_curso']); ?>">
                 </div>
                 <div class="form-group">
-                    <label for="tipo_curso">Tipo de Curso</label>
+                    <label for="tipo_curso">TIPO DE CURSO</label>
                     <input type="text" id="tipo_curso" name="tipo_curso" value="<?php echo htmlspecialchars($curso['tipo_curso']); ?>">
                 </div>
                 <div class="form-group">
-                    <label for="ubicacion">Ubicación del Curso</label>
+                    <label for="ubicacion">UBICACIÓN DEL CURSO</label>
                     <input type="text" id="ubicacion" name="ubicacion" value="<?php echo htmlspecialchars($curso['ubicacion']); ?>">
                 </div>
-                <button type="submit" class="action-btn green">Guardar Cambios</button>
+                <button type="submit" class="action-btn green">GUARDAR CAMBIOS</button>
             </form>
         </section>
 
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 
 </body>

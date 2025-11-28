@@ -19,7 +19,7 @@ $error_message = '';
 $success_message = '';
 
 if (!$asistencia_id) {
-    $_SESSION['flash_error'] = "ID de registro no válido.";
+    $_SESSION['flash_error'] = "ID DE REGISTRO NO VÁLIDO.";
     header("Location: registrar_asistencia.php");
     exit();
 }
@@ -45,14 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':duracion_horas' => $duracion_horas,
                 ':id' => $asistencia_id
             ]);
-            $_SESSION['flash_message'] = "¡Registro de asistencia actualizado con éxito!";
+            $_SESSION['flash_message'] = "¡REGISTRO DE ASISTENCIA ACTUALIZADO CON ÉXITO!";
             header("Location: registrar_asistencia.php");
             exit();
         } catch (PDOException $e) {
-            $error_message = "Error al actualizar el registro: " . $e->getMessage();
+            $error_message = "ERROR AL ACTUALIZAR EL REGISTRO: " . $e->getMessage();
         }
     } else {
-        $error_message = "Por favor, completa todos los campos obligatorios.";
+        $error_message = "POR FAVOR, COMPLETA TODOS LOS CAMPOS OBLIGATORIOS.";
     }
 }
 
@@ -64,7 +64,7 @@ try {
     $asistencia = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$asistencia) {
-        $_SESSION['flash_error'] = "No se encontró el registro solicitado.";
+        $_SESSION['flash_error'] = "NO SE ENCONTRÓ EL REGISTRO SOLICITADO.";
         header("Location: registrar_asistencia.php");
         exit();
     }
@@ -77,7 +77,7 @@ try {
     $cursos = $stmt_cursos->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    $_SESSION['flash_error'] = "Error al cargar los datos para la edición: " . $e->getMessage();
+    $_SESSION['flash_error'] = "ERROR AL CARGAR LOS DATOS PARA LA EDICIÓN: " . $e->getMessage();
     header("Location: registrar_asistencia.php");
     exit();
 }
@@ -88,15 +88,15 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Registro de Asistencia</title>
+    <title>EDITAR REGISTRO DE ASISTENCIA</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Editar Registro de Asistencia</h1>
-        <a href="registrar_asistencia.php" class="logout-btn">Volver al Historial</a>
+        <h1>EDITAR REGISTRO DE ASISTENCIA</h1>
+        <a href="registrar_asistencia.php" class="logout-btn">VOLVER AL HISTORIAL</a>
     </header>
 
     <main class="dashboard-container">
@@ -104,11 +104,11 @@ try {
         <?php if ($error_message): ?><div class="error-message"><?php echo $error_message; ?></div><?php endif; ?>
 
         <section class="form-section">
-            <h3>Modificar Registro</h3>
+            <h3>MODIFICAR REGISTRO</h3>
             <form action="editar_asistencia.php?id=<?php echo $asistencia['id']; ?>" method="POST">
                 
                 <div class="form-group">
-                    <label for="user_id">Usuario</label>
+                    <label for="user_id">USUARIO</label>
                     <select id="user_id" name="user_id" required>
                         <?php foreach ($todos_usuarios as $usuario): ?>
                             <option value="<?php echo $usuario['id']; ?>" <?php echo ($usuario['id'] == $asistencia['user_id']) ? 'selected' : ''; ?>>
@@ -119,7 +119,7 @@ try {
                 </div>
 
                 <div class="form-group">
-                    <label for="curso_id">Curso</label>
+                    <label for="curso_id">CURSO</label>
                     <select id="curso_id" name="curso_id" required>
                          <?php foreach ($cursos as $curso): ?>
                             <option value="<?php echo $curso['id']; ?>" <?php echo ($curso['id'] == $asistencia['curso_id']) ? 'selected' : ''; ?>>
@@ -131,27 +131,27 @@ try {
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="fecha_inicio">Fecha de Inicio</label>
+                        <label for="fecha_inicio">FECHA DE INICIO</label>
                         <input type="date" id="fecha_inicio" name="fecha_inicio" required value="<?php echo htmlspecialchars($asistencia['fecha_inicio']); ?>">
                     </div>
                     <div class="form-group">
-                        <label for="fecha_fin">Fecha de Fin (opcional)</label>
+                        <label for="fecha_fin">FECHA DE FIN (OPCIONAL)</label>
                         <input type="date" id="fecha_fin" name="fecha_fin" value="<?php echo htmlspecialchars($asistencia['fecha_fin']); ?>">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="duracion_horas">Duración Total (Horas)</label>
+                    <label for="duracion_horas">DURACIÓN TOTAL (HORAS)</label>
                     <input type="number" id="duracion_horas" name="duracion_horas" step="0.1" required value="<?php echo htmlspecialchars($asistencia['duracion_horas']); ?>">
                 </div>
 
-                <button type="submit" class="action-btn green">Guardar Cambios</button>
+                <button type="submit" class="action-btn green">GUARDAR CAMBIOS</button>
             </form>
         </section>
 
     </main>
 
-    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> Sistema Administrativo</p></footer>
+    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p></footer>
 
 </body>
 </html>

@@ -22,9 +22,9 @@ if (isset($_GET['delete_id'])) {
         try {
             $stmt = $conn->prepare("DELETE FROM asistencias_cursos WHERE id = :id");
             $stmt->execute([':id' => $delete_id]);
-            $_SESSION['flash_message'] = '¡Registro de asistencia eliminado con éxito!';
+            $_SESSION['flash_message'] = '¡REGISTRO DE ASISTENCIA ELIMINADO CON ÉXITO!';
         } catch (PDOException $e) {
-            $_SESSION['flash_error'] = 'Error al eliminar el registro: ' . $e->getMessage();
+            $_SESSION['flash_error'] = 'ERROR AL ELIMINAR EL REGISTRO: ' . $e->getMessage();
         }
     }
     header("Location: registrar_asistencia.php");
@@ -57,12 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
                 ':fecha_fin' => !empty($fecha_fin) ? $fecha_fin : NULL,
                 ':duracion_horas' => $duracion_horas
             ]);
-            $success_message = "¡Asistencia al curso registrada con éxito!";
+            $success_message = "¡ASISTENCIA AL CURSO REGISTRADA CON ÉXITO!";
         } catch (PDOException $e) {
-            $error_message = "Error al registrar la asistencia: " . $e->getMessage();
+            $error_message = "ERROR AL REGISTRAR LA ASISTENCIA: " . $e->getMessage();
         }
     } else {
-        $error_message = "Por favor, completa todos los campos obligatorios.";
+        $error_message = "POR FAVOR, COMPLETA TODOS LOS CAMPOS OBLIGATORIOS.";
     }
 }
 
@@ -82,8 +82,8 @@ $asistencias = $stmt_asistencias->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Asistencia a Cursos</title>
-    <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
+    <title>REGISTRAR ASISTENCIA A CURSOS</title>
+    <link rel="stylesheet" href="estilos/estilosgesdoc.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         .autocomplete-container { position: relative; }
@@ -94,25 +94,25 @@ $asistencias = $stmt_asistencias->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body class="dashboard-page">
     <header class="dashboard-header">
-        <h1>Registrar Asistencia a Cursos</h1>
-        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">Volver al Panel</a>
+        <h1>REGISTRAR ASISTENCIA A CURSOS</h1>
+        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">VOLVER AL PANEL</a>
     </header>
     <main class="dashboard-container">
         <?php if ($success_message): ?><div class="success-message"><?php echo $success_message; ?></div><?php endif; ?>
         <?php if ($error_message): ?><div class="error-message"><?php echo $error_message; ?></div><?php endif; ?>
         <section class="form-section">
-            <h3>Registrar Nueva Asistencia</h3>
+            <h3>REGISTRAR NUEVA ASISTENCIA</h3>
             <form action="registrar_asistencia.php" method="POST" id="asistencia-form">
                 <div class="form-group autocomplete-container">
-                    <label for="user_search">Buscar Usuario (por nombre o expediente)</label>
-                    <input type="text" id="user_search" placeholder="Escribe para buscar..." autocomplete="off" required>
+                    <label for="user_search">BUSCAR USUARIO (POR NOMBRE O EXPEDIENTE)</label>
+                    <input type="text" id="user_search" placeholder="ESCRIBE PARA BUSCAR..." autocomplete="off" required>
                     <input type="hidden" id="user_id" name="user_id">
                     <div id="user_results" class="autocomplete-results"></div>
                 </div>
                 <div class="form-group">
-                    <label for="curso_id">Seleccionar Curso</label>
+                    <label for="curso_id">SELECCIONAR CURSO</label>
                     <select id="curso_id" name="curso_id" required>
-                        <option value="">-- Elige un curso del catálogo --</option>
+                        <option value="">-- ELIGE UN CURSO DEL CATÁLOGO --</option>
                          <?php foreach ($cursos as $curso): ?>
                             <option value="<?php echo $curso['id']; ?>"><?php echo htmlspecialchars($curso['nombre_curso']); ?></option>
                         <?php endforeach; ?>
@@ -120,38 +120,38 @@ $asistencias = $stmt_asistencias->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="fecha_inicio">Fecha de Inicio</label>
+                        <label for="fecha_inicio">FECHA DE INICIO</label>
                         <input type="date" id="fecha_inicio" name="fecha_inicio" required>
                     </div>
                     <div class="form-group">
-                        <label for="fecha_fin">Fecha de Término (opcional)</label>
+                        <label for="fecha_fin">FECHA DE TÉRMINO (OPCIONAL)</label>
                         <input type="date" id="fecha_fin" name="fecha_fin">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="duracion_horas">Duración Total (Horas)</label>
-                    <input type="number" id="duracion_horas" name="duracion_horas" step="0.1" required placeholder="Ej: 8, 16.5, 24">
+                    <label for="duracion_horas">DURACIÓN TOTAL (HORAS)</label>
+                    <input type="number" id="duracion_horas" name="duracion_horas" step="0.1" required placeholder="EJ: 8, 16.5, 24">
                 </div>
-                <button type="submit" class="action-btn green">Guardar Registro</button>
+                <button type="submit" class="action-btn green">GUARDAR REGISTRO</button>
             </form>
         </section>
         <section class="table-section">
-            <h3>Historial de Asistencias</h3>
+            <h3>HISTORIAL DE ASISTENCIAS</h3>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>Empleado (Expediente)</th>
-                            <th>Curso</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Término</th>
-                            <th>Duración (Hrs)</th>
-                            <th>Acciones</th>
+                            <th>EMPLEADO (EXPEDIENTE)</th>
+                            <th>CURSO</th>
+                            <th>FECHA INICIO</th>
+                            <th>FECHA TÉRMINO</th>
+                            <th>DURACIÓN (HRS)</th>
+                            <th>ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($asistencias)): ?>
-                            <tr><td colspan="6">No hay asistencias registradas.</td></tr>
+                            <tr><td colspan="6">NO HAY ASISTENCIAS REGISTRADAS.</td></tr>
                         <?php else: ?>
                             <?php foreach ($asistencias as $asistencia): ?>
                                 <tr>
@@ -161,8 +161,8 @@ $asistencias = $stmt_asistencias->fetchAll(PDO::FETCH_ASSOC);
                                     <td><?php echo $asistencia['fecha_fin'] ? date("d/m/Y", strtotime($asistencia['fecha_fin'])) : 'N/A'; ?></td>
                                     <td><?php echo htmlspecialchars($asistencia['duracion_horas']); ?></td>
                                     <td class="actions-cell">
-                                        <a href="editar_asistencia.php?id=<?php echo $asistencia['id']; ?>" class="action-btn-small orange">Editar</a>
-                                        <a href="registrar_asistencia.php?delete_id=<?php echo $asistencia['id']; ?>" class="action-btn-small red" onclick="return confirm('¿Estás seguro de que quieres eliminar este registro? Es una acción irreversible.');">Borrar</a>
+                                        <a href="editar_asistencia.php?id=<?php echo $asistencia['id']; ?>" class="action-btn-small orange">EDITAR</a>
+                                        <a href="registrar_asistencia.php?delete_id=<?php echo $asistencia['id']; ?>" class="action-btn-small red" onclick="return confirm('¿ESTÁS SEGURO DE QUE QUIERES ELIMINAR ESTE REGISTRO? ES UNA ACCIÓN IRREVERSIBLE.');">BORRAR</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -172,7 +172,7 @@ $asistencias = $stmt_asistencias->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </section>
     </main>
-    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> Sistema Administrativo</p></footer>
+    <footer class="dashboard-footer"><p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p></footer>
 <script>
     const usuarios = <?php echo json_encode($todos_usuarios); ?>;
     const userSearchInput = document.getElementById('user_search');
@@ -201,7 +201,7 @@ $asistencias = $stmt_asistencias->fetchAll(PDO::FETCH_ASSOC);
     asistenciaForm.addEventListener('submit', e => {
         if (!userIdInput.value) {
             e.preventDefault();
-            alert('Debes buscar y seleccionar un usuario válido de la lista.');
+            alert('DEBES BUSCAR Y SELECCIONAR UN USUARIO VÁLIDO DE LA LISTA.');
             userSearchInput.focus();
         }
     });

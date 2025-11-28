@@ -20,34 +20,37 @@ $nombreUsuario = $_SESSION['user_nombre'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Trabajador</title>
+    <title>PANEL DE TRABAJADOR</title>
     <link rel="stylesheet" href="estilos/estilosdashenlace.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
     <header class="dashboard-header">
-        <h1>Panel de Trabajador</h1>
-        <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+        <h1>PANEL DE TRABAJADOR</h1>
+        <div style="display: flex; align-items: center;">
+            <a href="cambiar_contrasena.php" class="logout-btn">CAMBIAR CONTRASEÑA</a>
+            <a href="logout.php" class="logout-btn">CERRAR SESIÓN</a>
+        </div>
     </header>
     <main class="dashboard-container">
         <section class="welcome-section">
-            <h2>Bienvenido, <span class="user-name"><?php echo htmlspecialchars($nombreUsuario); ?></span></h2>
-            <p class="subtext">Aquí puede ver los manuales y diagramas.</p>
+            <h2>BIENVENIDO, <span class="user-name"><?php echo htmlspecialchars($nombreUsuario); ?></span></h2>
+            <p class="subtext">AQUÍ PUEDES VER LOS MANUALES Y DIAGRAMAS.</p>
         </section>
         
         <section class="actions">
-             <h3>Menú Principal</h3>
+             <h3>MENÚ PRINCIPAL</h3>
             <div class="menu-grid">
                  <a href="ver_manuales_diagramas.php" class="menu-card orange">
                      <div class="menu-icon">📚</div>
-                     <div class="menu-text"><h4>Manuales y Diagramas</h4><p>Consulta la documentación</p></div>
+                     <div class="menu-text"><h4>MANUALES Y DIAGRAMAS</h4><p>CONSULTA LA DOCUMENTACIÓN</p></div>
                 </a>
             </div>
         </section>
 
     </main>
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 </body>
 </html>

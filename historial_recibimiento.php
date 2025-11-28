@@ -65,7 +65,7 @@ if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de Recibimiento</title>
+    <title>HISTORIAL DE RECIBIMIENTO</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- NUEVO: Inclusión de Chart.js -->
@@ -74,18 +74,18 @@ if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
 <body class="dashboard-page">
 
     <header class="dashboard-header">
-        <h1>Historial de Recibimiento y Estadísticas</h1>
-        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">Volver al Panel</a>
+        <h1>HISTORIAL DE RECIBIMIENTO Y ESTADÍSTICAS</h1>
+        <a href="<?php echo ($_SESSION['user_role'] == 5) ? 'dashboard.php' : 'dashboard_cap-dmmr.php'; ?>" class="logout-btn">VOLVER AL PANEL</a>
     </header>
 
     <main class="dashboard-container">
         <section class="form-section">
-            <h3>Consulta de Historial por Usuario</h3>
+            <h3>CONSULTA DE HISTORIAL POR USUARIO</h3>
             <form action="historial_recibimiento.php" method="GET">
                 <div class="form-group">
-                    <label for="user_id">Selecciona un Enlace:</label>
+                    <label for="user_id">SELECCIONA UN ENLACE:</label>
                     <select name="user_id" id="user_id" required onchange="this.form.submit()">
-                        <option value="">-- Elige un usuario --</option>
+                        <option value="">-- ELIGE UN USUARIO --</option>
                         <?php foreach ($lista_enlaces as $enlace): ?>
                             <option value="<?php echo $enlace['id']; ?>" <?php echo ($enlace['id'] == $selected_user_id) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($enlace['nombre_completo'] . ' (' . $enlace['expediente'] . ')'); ?>
@@ -93,30 +93,30 @@ if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <noscript><button type="submit" class="action-btn">Consultar</button></noscript>
+                <noscript><button type="submit" class="action-btn">CONSULTAR</button></noscript>
             </form>
         </section>
 
         <?php if ($selected_user_id && $selected_user_info): ?>
             <section class="stats-summary-section">
-                <h3>Resumen para: <strong><?php echo htmlspecialchars($selected_user_info['nombre_completo']); ?></strong></h3>
+                <h3>RESUMEN PARA: <strong><?php echo htmlspecialchars($selected_user_info['nombre_completo']); ?></strong></h3>
                 <div class="stats-container">
                     <div class="stats-cards-container">
                         <div class="stat-card">
                             <span class="stat-value"><?php echo $stats['total']; ?></span>
-                            <span class="stat-label">Total Asignados</span>
+                            <span class="stat-label">TOTAL ASIGNADOS</span>
                         </div>
                         <div class="stat-card">
                             <span class="stat-value green-text"><?php echo $stats['entregados']; ?></span>
-                            <span class="stat-label">Entregados</span>
+                            <span class="stat-label">ENTREGADOS</span>
                         </div>
                         <div class="stat-card">
                             <span class="stat-value red-text"><?php echo $stats['faltantes']; ?></span>
-                            <span class="stat-label">Faltantes</span>
+                            <span class="stat-label">FALTANTES</span>
                         </div>
                         <div class="stat-card highlight">
                             <span class="stat-value-percent"><?php echo round($stats['porcentaje'], 1); ?>%</span>
-                            <span class="stat-label">Cumplimiento</span>
+                            <span class="stat-label">CUMPLIMIENTO</span>
                         </div>
                     </div>
                     <!-- NUEVO: Contenedor para la gráfica -->
@@ -127,18 +127,18 @@ if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
             </section>
 
             <section class="table-section" style="margin-top: 20px;">
-                <h4>Desglose de Requerimientos</h4>
+                <h4>DESGLOSE DE REQUERIMIENTOS</h4>
                 <div class="table-responsive">
                     <table>
-                        <thead><tr><th>Requerimiento</th><th>Fecha Límite</th><th>Estado</th><th>Fecha de Entrega</th><th>Acción</th></tr></thead>
+                        <thead><tr><th>REQUERIMIENTO</th><th>FECHA LÍMITE</th><th>ESTADO</th><th>FECHA DE ENTREGA</th><th>ACCIÓN</th></tr></thead>
                         <tbody>
                             <?php foreach ($user_history as $item): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($item['titulo']); ?></td>
                                     <td><?php echo date("d/m/Y", strtotime($item['fecha_limite'])); ?></td>
-                                    <td><?php echo $item['fecha_entrega'] ? '<span class="status-entregado">Entregado</span>' : '<span class="status-faltante">Faltante</span>'; ?></td>
+                                    <td><?php echo $item['fecha_entrega'] ? '<span class="status-entregado">ENTREGADO</span>' : '<span class="status-faltante">FALTANTE</span>'; ?></td>
                                     <td><?php echo $item['fecha_entrega'] ? date("d/m/Y H:i", strtotime($item['fecha_entrega'])) : '-'; ?></td>
-                                    <td><?php echo $item['ruta_archivo'] ? '<a href="' . $base_path . '/' . htmlspecialchars($item['ruta_archivo']) . '" class="action-btn-small green" download>Descargar</a>' : '-'; ?></td>
+                                    <td><?php echo $item['ruta_archivo'] ? '<a href="' . $base_path . '/' . htmlspecialchars($item['ruta_archivo']) . '" class="action-btn-small green" download>DESCARGAR</a>' : '-'; ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -150,20 +150,20 @@ if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
         <hr class="section-divider">
 
         <section class="table-section">
-            <h3>Supervisión de Entregas por Evento</h3>
+            <h3>SUPERVISIÓN DE ENTREGAS POR EVENTO</h3>
             <div class="table-responsive">
                  <table>
-                    <thead><tr><th>Título del Requerimiento</th><th>Fecha Límite</th><th>Progreso de Entrega</th><th>Acciones</th></tr></thead>
+                    <thead><tr><th>TÍTULO DEL REQUERIMIENTO</th><th>FECHA LÍMITE</th><th>PROGRESO DE ENTREGA</th><th>ACCIONES</th></tr></thead>
                     <tbody>
                         <?php if (empty($requerimientos)): ?>
-                            <tr><td colspan="4" style="text-align: center;">No hay requerimientos creados.</td></tr>
+                            <tr><td colspan="4" style="text-align: center;">NO HAY REQUERIMIENTOS CREADOS.</td></tr>
                         <?php else: ?>
                             <?php foreach ($requerimientos as $req): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($req['titulo']); ?></td>
                                     <td><?php echo date("d/m/Y", strtotime($req['fecha_limite'])); ?></td>
-                                    <td><strong><?php echo $req['numero_entregas']; ?> / <?php echo $total_usuarios_activos; ?></strong> entregados</td>
-                                    <td class="actions-cell"><a href="detalle_recibimiento.php?req_id=<?php echo $req['id']; ?>" class="action-btn-small blue">Ver Detalles</a></td>
+                                    <td><strong><?php echo $req['numero_entregas']; ?> / <?php echo $total_usuarios_activos; ?></strong> ENTREGADOS</td>
+                                    <td class="actions-cell"><a href="detalle_recibimiento.php?req_id=<?php echo $req['id']; ?>" class="action-btn-small blue">VER DETALLES</a></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -174,7 +174,7 @@ if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
     </main>
 
     <footer class="dashboard-footer">
-        <p>© <?php echo date('Y'); ?> Sistema Administrativo</p>
+        <p>© <?php echo date('Y'); ?> SISTEMA ADMINISTRATIVO</p>
     </footer>
 
     <!-- NUEVO: Script para generar la gráfica -->
@@ -185,9 +185,9 @@ if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
             const complianceChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Entregados', 'Faltantes'],
+                    labels: ['ENTREGADOS', 'FALTANTES'],
                     datasets: [{
-                        label: 'Estado de Entregas',
+                        label: 'ESTADO DE ENTREGAS',
                         data: [<?php echo $stats['entregados']; ?>, <?php echo $stats['faltantes']; ?>],
                         backgroundColor: [
                             '#28a745', // Verde para entregados
