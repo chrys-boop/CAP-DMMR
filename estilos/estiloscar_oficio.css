@@ -2,11 +2,11 @@
 
 /* Variables y colores base */
 :root {
-  --color-bg: #f8f9fb;
+  --color-bg: #FFE0B2; /* Naranja claro */
   --color-card: #ffffff;
   --color-text: #2c3e50;
-  --color-primary: #007bff;
-  --color-primary-hover: #0056b3;
+  --color-primary: #f57c00; /* Naranja principal */
+  --color-primary-hover: #e65100; /* Naranja oscuro */
   --color-success: #2ecc71;
   --color-danger: #e74c3c;
   --color-muted: #6c757d;
@@ -133,7 +133,7 @@ textarea {
 input[type="file"]:focus,
 textarea:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
+  box-shadow: 0 0 4px rgba(245, 124, 0, 0.25);
   outline: none;
 }
 
@@ -144,7 +144,7 @@ textarea {
 
 /* ===== BOTÓN SUBIR ===== */
 .action-btn-small {
-  background: linear-gradient(135deg, #007bff, #00c6ff);
+  background: linear-gradient(135deg, #f57c00, #ff9800);
   color: #fff;
   border: none;
   border-radius: var(--radius);
@@ -158,7 +158,7 @@ textarea {
 }
 
 .action-btn-small:hover {
-  background: linear-gradient(135deg, #0056b3, #0096d1);
+  background: linear-gradient(135deg, #e65100, #f57c00);
   transform: translateY(-2px);
 }
 

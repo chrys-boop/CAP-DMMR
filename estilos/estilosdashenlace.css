@@ -5,12 +5,12 @@
 
 /* ====== VARIABLES / RESET ====== */
 :root {
-  --color-bg: #f7f8fa;        /* Fondo general (gris muy clarito) */
+  --color-bg: #FFE0B2;        /* Fondo general (Naranja claro) */
   --color-card: #ffffff;      /* Fondo tarjetas */
   --color-text: #2c3e50;      /* Texto principal */
   --color-muted: #7f8c8d;     /* Texto secundario */
-  --color-primary: #007bff;   /* Azul principal */
-  --color-primary-dark: #0056b3;
+  --color-primary: #f57c00;   /* Naranja principal */
+  --color-primary-dark: #e65100; /* Naranja oscuro */
   --color-success: #2ecc71;
   --color-danger: #e74c3c;
   --color-warning: #f1c40f;
@@ -24,7 +24,7 @@
 /* Forzar siempre modo claro (aunque el sistema esté en dark mode) */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: #f7f8fa;
+    --color-bg: #FFE0B2;
     --color-card: #ffffff;
     --color-text: #2c3e50;
   }
@@ -48,7 +48,7 @@ html, body {
 
 /* ====== HEADER ====== */
 .dashboard-header {
-  background: linear-gradient(90deg, var(--color-primary), #1ea0ff);
+  background: linear-gradient(90deg, var(--color-primary), #ff9800);
   color: #fff;
   padding: 1.1rem 1.6rem;
   display: flex;

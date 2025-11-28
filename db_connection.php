@@ -9,8 +9,8 @@
 $servername = "localhost";
 //$port = "13236";   
 $port = "3306";                    // ACTUALIZADO
-$username = "usuario_app";
-$password = "Luna022495";
+$username = "root";
+$password = "";
 $dbname = "metro-dmmr";
 
 
@@ -18,6 +18,8 @@ $dbname = "metro-dmmr";
 try {
     $conn = new PDO("mysql:host=$servername;port=$port;dbname=$dbname;charset=utf8", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Forzar la codificación de la conexión a UTF-8 (LA SOLUCIÓN CLAVE)
+    $conn->exec("SET NAMES 'utf8'");
 } catch(PDOException $e) {
     // Devolver un error en formato JSON, como espera el frontend (login.js)
     http_response_code(500); // Internal Server Error

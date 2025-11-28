@@ -8,7 +8,7 @@
 html, body {
     height: 100%;
     font-family: 'Poppins', sans-serif;
-    background-color: #f3f5f9;
+    background-color: #FFE0B2; /* Naranja claro */
     color: #2c3e50;
 }
 
@@ -26,7 +26,7 @@ p {
 
 /* ======== HEADER ======== */
 .dashboard-header {
-    background: white;
+    background: #f57c00; /* Naranja Principal */
     color: #fff;
     padding: 1rem 2rem;
     display: flex;
@@ -39,11 +39,12 @@ p {
 .dashboard-header h1 {
     font-size: 1.6rem;
     font-weight: 600;
+    color: #fff;
 }
 
 .logout-btn {
-    background-color: #f87171;
-    color: white;
+    background-color: #fff;
+    color: #f57c00;
     padding: 0.6rem 1.2rem;
     border-radius: 8px;
     font-weight: 500;
@@ -51,7 +52,8 @@ p {
 }
 
 .logout-btn:hover {
-    background-color: #dc2626;
+    background-color: #e65100; /* Naranja oscuro */
+    color: #fff;
 }
 
 /* ======== CONTENEDOR PRINCIPAL ======== */
@@ -100,9 +102,9 @@ p {
 .filter-grid input:focus,
 .filter-grid select:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: #f57c00; /* Naranja */
     background-color: #fff;
-    box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+    box-shadow: 0 0 0 2px rgba(245, 124, 0, 0.2);
 }
 
 /* ======== BOTONES ======== */
@@ -127,11 +129,11 @@ p {
 }
 
 .action-btn-small.blue {
-    background-color: #3b82f6;
+    background-color: #f57c00; /* Naranja Principal */
 }
 
 .action-btn-small.blue:hover {
-    background-color: #2563eb;
+    background-color: #e65100; /* Naranja Oscuro */
 }
 
 .filter-actions {

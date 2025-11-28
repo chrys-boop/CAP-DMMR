@@ -4,10 +4,10 @@
 
 /* === VARIABLES === */
 :root {
-    --color-primario: #004aad;
-    --color-secundario: #00c897;
+    --color-primario: #f57c00; /* Naranja Principal */
+    --color-secundario: #ff9800; /* Naranja Secundario */
     --color-peligro: #e63946;
-    --color-fondo: #f5f7fa;
+    --color-fondo: #FFE0B2; /* Naranja Claro */
     --color-texto: #2c3e50;
     --color-borde: #dcdde1;
     --color-exito: #28a745;
@@ -67,7 +67,8 @@ body {
 }
 
 .logout-btn:hover {
-    background: #e8e8e8;
+    background: #e65100; /* Naranja Oscuro */
+    color: #fff;
     transform: translateY(-2px);
 }
 
@@ -144,7 +145,7 @@ body {
 }
 
 .action-btn.green:hover {
-    background-color: #00b083;
+    background-color: #e65100; /* Naranja Oscuro */
     transform: translateY(-2px);
 }
 
@@ -215,7 +216,7 @@ th, td {
 }
 
 tbody tr:hover {
-    background-color: #f8f9fa;
+    background-color: #FFF3E0; /* Naranja muy claro */
 }
 
 .actions-cell {
@@ -241,7 +242,7 @@ tbody tr:hover {
 }
 
 .action-btn-small.green:hover {
-    background-color: #00b083;
+    background-color: #e65100; /* Naranja oscuro */
     transform: translateY(-2px);
 }
 

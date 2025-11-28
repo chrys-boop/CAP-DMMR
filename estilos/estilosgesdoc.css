@@ -9,7 +9,7 @@
 
 body.dashboard-page {
     font-family: 'Poppins', sans-serif;
-    background-color: #f5f7fa;
+    background-color: #FFE0B2; /* Naranja claro */
     color: #333;
     min-height: 100vh;
     display: flex;
@@ -20,7 +20,7 @@ body.dashboard-page {
    HEADER
 ============================== */
 .dashboard-header {
-    background: linear-gradient(135deg, #004aad, #007bff);
+    background: #f57c00; /* Naranja Principal */
     color: white;
     padding: 1rem 2rem;
     display: flex;
@@ -36,7 +36,7 @@ body.dashboard-page {
 
 .logout-btn {
     background: white;
-    color: #004aad;
+    color: #f57c00;
     padding: 0.5rem 1rem;
     border-radius: 8px;
     text-decoration: none;
@@ -45,7 +45,8 @@ body.dashboard-page {
 }
 
 .logout-btn:hover {
-    background: #e6e6e6;
+    background: #e65100; /* Naranja oscuro */
+    color: #fff;
 }
 
 /* ==============================
@@ -70,7 +71,7 @@ body.dashboard-page {
 
 .form-section h3, .table-section h3, .stats-summary-section h3 {
     margin-bottom: 1rem;
-    color: #004aad;
+    color: #e65100; /* Naranja oscuro */
     font-weight: 600;
 }
 
@@ -108,8 +109,8 @@ body.dashboard-page {
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+    border-color: #f57c00; /* Naranja */
+    box-shadow: 0 0 5px rgba(245, 124, 0, 0.2);
     outline: none;
 }
 
@@ -131,7 +132,7 @@ body.dashboard-page {
 .action-btn {
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
-    background-color: #007bff; /* Color azul por defecto */
+    background-color: #f57c00; /* Naranja */
     color: white;
 }
 
@@ -155,14 +156,14 @@ body.dashboard-page {
     transform: translateY(-2px);
 }
 
-.action-btn:hover { background-color: #0069d9; }
+.action-btn:hover { background-color: #e65100; }
 .action-btn-secondary:hover { background-color: #d6dbe0; }
 
 /* Colores específicos de botones */
 .green { background-color: #28a745; }
 .green:hover { background-color: #218838; }
-.blue { background-color: #007bff; }
-.blue:hover { background-color: #0069d9; }
+.blue { background-color: #f57c00; } /* Cambiado a naranja */
+.blue:hover { background-color: #e65100; }
 .orange { background-color: #fd7e14; }
 .orange:hover { background-color: #e3640e; }
 .red { background-color: #dc3545; }
@@ -175,8 +176,8 @@ body.dashboard-page {
 .stats-container {
     display: flex;
     gap: 20px;
-    align-items: stretch; /* Cambio a stretch para igualar alturas */
-    flex-wrap: wrap; /* Para responsividad */
+    align-items: stretch; 
+    flex-wrap: wrap; 
 }
 
 .stats-cards-container {
@@ -216,20 +217,20 @@ body.dashboard-page {
 }
 
 .stat-card.highlight {
-    background: linear-gradient(135deg, #e6f2ff, #d1e3ff);
-    border-color: #b8d4ff;
+    background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+    border-color: #FFB74D;
 }
 
 .stat-card.highlight .stat-value-percent {
-    color: #004aad;
+    color: #e65100;
 }
 
 .green-text { color: #28a745 !important; }
 .red-text { color: #dc3545 !important; }
 
 .stats-chart-container {
-    flex: 2; /* El gráfico toma menos espacio */
-    min-width: 200px; /* Ancho mínimo para el gráfico */
+    flex: 2; 
+    min-width: 200px; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -241,10 +242,10 @@ body.dashboard-page {
 ============================== */
 .table-responsive { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-thead { background: #004aad; color: white; }
+thead { background: #f57c00; color: white; } /* Naranja */
 th, td { padding: 0.9rem; text-align: left; }
 tbody tr { border-bottom: 1px solid #eee; transition: background-color 0.3s ease; }
-tbody tr:hover { background-color: #f2f8ff; }
+tbody tr:hover { background-color: #FFF3E0; } /* Naranja muy claro */
 .actions-cell { display: flex; gap: 0.5rem; }
 
 /* ==============================
@@ -267,7 +268,7 @@ tbody tr:hover { background-color: #f2f8ff; }
    DIVISORES Y FOOTER
 ============================== */
 .section-divider { border: none; border-top: 2px solid #e0e0e0; margin: 2rem 0; }
-.dashboard-footer { text-align: center; padding: 1rem; background-color: #f0f2f5; color: #555; font-size: 0.9rem; margin-top: auto; }
+.dashboard-footer { text-align: center; padding: 1rem; background-color: #fff; color: #555; font-size: 0.9rem; margin-top: auto; } /* Cambiado a blanco */
 
 /* ==============================
    RESPONSIVE

@@ -164,14 +164,14 @@ $entregas_usuario = $stmt_entregas->fetchAll(PDO::FETCH_COLUMN, 0);
                         <p>Consulta la documentación</p>
                     </div>
                 </a>
-                <a href="ver_plantillas.php" class="menu-card purple">
+                <a href="cursos_enlace.php" class="menu-card purple">
                      <div class="menu-icon">📄</div>
                      <div class="menu-text">
                         <h4>Plantillas e Histórico</h4>
                         <p>Visualiza plantillas y archivos</p>
                     </div>
                 </a>
-                <a href="ver_cursos.php" class="menu-card red">
+                <a href="cursos_disponibles.php" class="menu-card red">
                      <div class="menu-icon">🎓</div>
                      <div class="menu-text">
                         <h4>Cursos Disponibles</h4>
