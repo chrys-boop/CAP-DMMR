@@ -66,6 +66,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLANTILLA GENERAL DE PERSONAL</title>
+    <link rel="icon" href="src-imagenes/CAP-DMMR.jpg" type="image/jpeg">
     <link rel="stylesheet" href="<?php echo $base_path; ?>/estilos/estilosgesdoc.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -86,23 +87,23 @@ try {
 
     <main class="dashboard-container">
 
-        <?php if ($error_message): ?><div class="error-message"><?php echo htmlspecialchars($error_message); ?></div><?php endif; ?>
+        <?php if ($error_message): ?><div class="error-message"><?php echo htmlentities($error_message, ENT_QUOTES, 'UTF-8'); ?></div><?php endif; ?>
 
         <!-- User Details Card -->
         <?php if ($user_details): ?>
             <section class="details-card">
-                <h3>DETALLES DE: <strong><?php echo htmlspecialchars($user_details['nombre_completo']); ?></strong></h3>
+                <h3>DETALLES DE: <strong><?php echo htmlentities($user_details['nombre_completo'], ENT_QUOTES, 'UTF-8'); ?></strong></h3>
                 <div class="details-grid">
-                    <p><strong>EXPEDIENTE:</strong> <?php echo htmlspecialchars($user_details['expediente']); ?></p>
-                    <p><strong>CATEGORÍA:</strong> <?php echo htmlspecialchars($user_details['categoria'] ?? 'N/A'); ?></p>
-                    <p><strong>TALLER:</strong> <?php echo htmlspecialchars($user_details['taller'] ?? 'N/A'); ?></p>
-                    <p><strong>ÁREA INTERNA:</strong> <?php echo htmlspecialchars($user_details['area_interna'] ?? 'N/A'); ?></p>
-                    <p><strong>CALIDAD LABORAL:</strong> <?php echo htmlspecialchars($user_details['calidad_laboral'] ?? 'N/A'); ?></p>
-                    <p><strong>EMAIL:</strong> <?php echo htmlspecialchars($user_details['email'] ?? 'N/A'); ?></p>
+                    <p><strong>EXPEDIENTE:</strong> <?php echo htmlentities($user_details['expediente'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p><strong>CATEGORÍA:</strong> <?php echo htmlentities($user_details['categoria'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p><strong>TALLER:</strong> <?php echo htmlentities($user_details['taller'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p><strong>ÁREA INTERNA:</strong> <?php echo htmlentities($user_details['area_interna'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p><strong>CALIDAD LABORAL:</strong> <?php echo htmlentities($user_details['calidad_laboral'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p><strong>EMAIL:</strong> <?php echo htmlentities($user_details['email'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></p>
                 </div>
             </section>
         <?php elseif (!empty($selected_expediente)): ?>
-             <div class="error-message">NO SE ENCONTRARON DETALLES PARA EL EXPEDIENTE '<?php echo htmlspecialchars($selected_expediente); ?>'.</div>
+             <div class="error-message">NO SE ENCONTRARON DETALLES PARA EL EXPEDIENTE '<?php echo htmlentities($selected_expediente, ENT_QUOTES, 'UTF-8'); ?>'.</div>
         <?php endif; ?>
 
         <!-- Filter Section -->
@@ -112,14 +113,14 @@ try {
                 <div class="filter-grid">
                     <div class="form-group">
                         <label for="search_expediente">BUSCAR POR EXPEDIENTE</label>
-                        <input type="text" name="search_expediente" id="search_expediente" value="<?php echo htmlspecialchars($search_expediente); ?>">
+                        <input type="text" name="search_expediente" id="search_expediente" value="<?php echo htmlentities($search_expediente, ENT_QUOTES, 'UTF-8'); ?>">
                     </div>
                     <div class="form-group">
                         <label for="search_taller">FILTRAR POR TALLER</label>
                         <select name="search_taller" id="search_taller">
                             <option value="">TODOS LOS TALLERES</option>
                             <?php foreach ($available_talleres as $taller): ?>
-                                <option value="<?php echo htmlspecialchars($taller); ?>" <?php echo ($search_taller == $taller) ? 'selected' : ''; ?>><?php echo htmlspecialchars($taller); ?></option>
+                                <option value="<?php echo htmlentities($taller, ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($search_taller == $taller) ? 'selected' : ''; ?>><?php echo htmlentities($taller, ENT_QUOTES, 'UTF-8'); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -150,10 +151,10 @@ try {
                         <?php else: ?>
                             <?php foreach ($all_users as $user): ?>
                                 <tr>
-                                    <td><a href="plantilla_general.php?expediente=<?php echo htmlspecialchars($user['expediente']); ?>"><?php echo htmlspecialchars($user['nombre_completo']); ?></a></td>
-                                    <td><?php echo htmlspecialchars($user['expediente']); ?></td>
-                                    <td><?php echo htmlspecialchars($user['categoria'] ?? 'N/A'); ?></td>
-                                    <td><?php echo htmlspecialchars($user['taller'] ?? 'N/A'); ?></td>
+                                    <td><a href="plantilla_general.php?expediente=<?php echo htmlentities($user['expediente'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlentities($user['nombre_completo'], ENT_QUOTES, 'UTF-8'); ?></a></td>
+                                    <td><?php echo htmlentities($user['expediente'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlentities($user['categoria'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlentities($user['taller'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
